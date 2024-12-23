@@ -20,12 +20,6 @@ spring:
         hbm2ddl:
           auto: update
         default_batch_fetch_size: 1000
-  ai:
-    openai:
-      api-key: ${SPRING_AI_OPENAI_API_KEY}
-      chat:
-        options:
-          model: gpt-3.5-turbo
 
 springdoc:
   swagger-ui:

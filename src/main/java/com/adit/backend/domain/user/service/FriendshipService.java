@@ -8,8 +8,8 @@ import com.adit.backend.domain.user.entity.Friendship;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.repository.FriendshipRepository;
 import com.adit.backend.domain.user.repository.UserRepository;
+import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.error.exception.BusinessException;
-import com.adit.backend.global.error.exception.GlobalErrorCode;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

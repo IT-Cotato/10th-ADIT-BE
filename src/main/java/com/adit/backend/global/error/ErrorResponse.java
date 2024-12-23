@@ -6,8 +6,6 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
-import com.adit.backend.global.error.exception.GlobalErrorCode;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

@@ -16,7 +16,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.adit.backend.global.common.ApiResponse;
-import com.adit.backend.global.error.exception.GlobalErrorCode;
 
 import lombok.extern.slf4j.Slf4j;
 

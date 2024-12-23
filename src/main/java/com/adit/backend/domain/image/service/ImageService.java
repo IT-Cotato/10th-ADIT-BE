@@ -10,8 +10,8 @@ import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.image.repository.ImageRepository;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
+import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.error.exception.BusinessException;
-import com.adit.backend.global.error.exception.GlobalErrorCode;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

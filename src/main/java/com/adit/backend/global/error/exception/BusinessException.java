@@ -1,5 +1,7 @@
 package com.adit.backend.global.error.exception;
 
+import com.adit.backend.global.error.GlobalErrorCode;
+
 import lombok.Getter;
 
 @Getter
@@ -9,6 +11,7 @@ public class BusinessException extends RuntimeException {
 	public BusinessException(String message, GlobalErrorCode errorCode) {
 		super(message);
 		this.errorCode = errorCode;
+
 	}
 
 	public BusinessException(GlobalErrorCode errorCode) {
