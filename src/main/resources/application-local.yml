@@ -24,3 +24,6 @@ spring:
 springdoc:
   swagger-ui:
     path: /
+
+base:
+  url: ${LOCAL_BASE_URL}
