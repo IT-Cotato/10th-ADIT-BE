@@ -1,1 +1,22 @@
 # 서버환경입니다. application-dev.yml
+spring:
+  config:
+    import: optional:file:/home/${EC2_USERNAME}/.env[.properties]
+  datasource:
+    url: ${SERVER_DB_URL}
+    username: ${SERVER_DB_USERNAME}
+    password: ${SERVER_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: never
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+        hbm2ddl:
+          auto: create
+        default_batch_fetch_size: 1000
