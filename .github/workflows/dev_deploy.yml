@@ -1,3 +1,9 @@
+name: Deploy to Dev Server
+
+on:
+  push:
+    branches: [ develop ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -56,7 +62,7 @@ jobs:
           
           
           scp -i private_key.pem -o StrictHostKeyChecking=no .env $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/.env
-
+          
           
           jar_file=$(find build/libs -name '*.jar' ! -name '*plain.jar' | head -n 1)
           scp -i private_key.pem -o StrictHostKeyChecking=no "$jar_file" $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/umc7thServer.jar
@@ -66,6 +72,6 @@ jobs:
             sleep 10
             nohup java -jar /home/$EC2_USERNAME/umc7thServer.jar > app.log 2>&1 &  
           "
-
+          
           
           rm -f private_key.pem
