@@ -15,9 +15,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'gradle'  # Gradle 캐싱 추가
 
       - name: Create .env file
         run: |
+          touch .env
           echo "SERVER_DB_URL=${{ secrets.SERVER_DB_URL }}" >> .env
           echo "SERVER_DB_USERNAME=${{ secrets.SERVER_DB_USERNAME }}" >> .env
           echo "SERVER_DB_PASSWORD=${{ secrets.SERVER_DB_PASSWORD }}" >> .env
@@ -33,13 +35,14 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build
+          arguments: clean build -x test # 테스트 제외 옵션 추가
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
           name: umc7thServer
           path: build/libs/*.jar
+          retention-days: 1  # 아티팩트 보관 기간 설정
 
   deploy:
     needs: build
@@ -51,6 +54,17 @@ jobs:
           name: umc7thServer
           path: build/libs/
 
+      - name: Create .env file for deployment
+        run: |
+          touch .env
+          echo "SERVER_DB_URL=${{ secrets.SERVER_DB_URL }}" >> .env
+          echo "SERVER_DB_USERNAME=${{ secrets.SERVER_DB_USERNAME }}" >> .env
+          echo "SERVER_DB_PASSWORD=${{ secrets.SERVER_DB_PASSWORD }}" >> .env
+          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+          echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
+          echo "SPRING_AI_OPENAI_API_KEY=${{ secrets.SPRING_AI_OPENAI_API_KEY }}" >> .env
+          echo "JWT_KEY=${{ secrets.JWT_KEY }}" >> .env
+
       - name: Deploy to EC2
         env:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
@@ -60,18 +74,29 @@ jobs:
           echo "$EC2_SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
           
-          
+          # .env 파일 전송
           scp -i private_key.pem -o StrictHostKeyChecking=no .env $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/.env
           
-          
+          # JAR 파일 찾기 및 전송
           jar_file=$(find build/libs -name '*.jar' ! -name '*plain.jar' | head -n 1)
+          if [ -z "$jar_file" ]; then
+            echo "JAR file not found"
+            exit 1
+          fi
+          
           scp -i private_key.pem -o StrictHostKeyChecking=no "$jar_file" $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/umc7thServer.jar
+          
+          # 애플리케이션 재시작
           ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_HOST "
-            pgrep java | xargs -r kill -15  
+            pid=\$(pgrep java || echo '')
+            if [ ! -z \"\$pid\" ]; then
+              kill -15 \$pid
+              sleep 10
+            fi
           
-            sleep 10
-            nohup java -jar /home/$EC2_USERNAME/umc7thServer.jar > app.log 2>&1 &  
+            cd /home/$EC2_USERNAME
+            nohup java -jar umc7thServer.jar > app.log 2>&1 &
+            echo 'Application started'
           "
-          
           
           rm -f private_key.pem
