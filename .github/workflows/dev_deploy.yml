@@ -27,6 +27,7 @@ jobs:
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "SPRING_AI_OPENAI_API_KEY=${{ secrets.SPRING_AI_OPENAI_API_KEY }}" >> .env
           echo "JWT_KEY=${{ secrets.JWT_KEY }}" >> .env
+          echo "SERVER_BASE_URL=${{ secrets.SERVER_BASE_URL }}" >> .env
         shell: bash
 
       - name: Grant execute permission for gradlew
@@ -40,7 +41,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: umc7thServer
+          name: AditServer
           path: build/libs/*.jar
           retention-days: 1  # 아티팩트 보관 기간 설정
 
@@ -51,7 +52,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v3
         with:
-          name: umc7thServer
+          name: AditServer
           path: build/libs/
 
       - name: Create .env file for deployment
@@ -64,6 +65,7 @@ jobs:
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "SPRING_AI_OPENAI_API_KEY=${{ secrets.SPRING_AI_OPENAI_API_KEY }}" >> .env
           echo "JWT_KEY=${{ secrets.JWT_KEY }}" >> .env
+          echo "SERVER_BASE_URL=${{ secrets.SERVER_BASE_URL }}" >> .env
 
       - name: Deploy to EC2
         env:
@@ -84,7 +86,7 @@ jobs:
             exit 1
           fi
           
-          scp -i private_key.pem -o StrictHostKeyChecking=no "$jar_file" $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/umc7thServer.jar
+          scp -i private_key.pem -o StrictHostKeyChecking=no "$jar_file" $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/AditServer.jar
           
           # 애플리케이션 재시작
           ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_HOST "
@@ -95,7 +97,7 @@ jobs:
             fi
           
             cd /home/$EC2_USERNAME
-            nohup java -jar umc7thServer.jar > app.log 2>&1 &
+            nohup java -jar AditServer.jar > app.log 2>&1 &
             echo 'Application started'
           "
           
