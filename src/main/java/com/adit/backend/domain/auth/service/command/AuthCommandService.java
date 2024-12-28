@@ -2,7 +2,6 @@ package com.adit.backend.domain.auth.service.command;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 import static org.springframework.http.MediaType.*;
-import static org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames.*;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -44,8 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuthCommandService {
 	public static final String ACCESS_TOKEN_HEADER = "Authorization";
-	public static final String GRANT_TYPE_AUTH_CODE = "authorization_code";
-	public static final String GRANT_TYPE_REFRESH = "refresh_token";
+	public static final String AUTH_CODE_GRANT = "authorization_code";
+	public static final String REFRESH_TOKEN_GRANT = "refresh_token";
 	public static final String RESPONSE_TYPE = "code";
 
 	private final RestTemplate restTemplate;
@@ -121,7 +120,7 @@ public class AuthCommandService {
 	}
 
 	private void addRefreshTokenToCookie(String refreshToken, HttpServletResponse response) {
-		Cookie cookie = new Cookie("refreshToken", refreshToken);
+		Cookie cookie = new Cookie(REFRESH_TOKEN_GRANT, refreshToken);
 		cookie.setPath("/");
 		ZonedDateTime seoulTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 		ZonedDateTime expirationTime = seoulTime.plusSeconds(refreshTokenExpiresIn);
@@ -152,7 +151,7 @@ public class AuthCommandService {
 	}
 
 	private void deleteRefreshTokenToCookie(String accessToken, HttpServletResponse response) {
-		Cookie deleteCookie = new Cookie(REFRESH_TOKEN, null);
+		Cookie deleteCookie = new Cookie(REFRESH_TOKEN_GRANT, null);
 		deleteCookie.setMaxAge(0);
 		deleteCookie.setPath("/");
 		deleteCookie.setSecure(true);
@@ -165,7 +164,7 @@ public class AuthCommandService {
 	private ResponseEntity<KakaoResponse.TokenInfoDto> executeKakaoLoginRequest(String code) {
 		HttpHeaders headers = createHeaders();
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("grant_type", GRANT_TYPE_AUTH_CODE);
+		params.add("grant_type", AUTH_CODE_GRANT);
 		params.add("client_id", clientId);
 		params.add("client_secret", clientSecret);
 		params.add("redirect_uri", redirectUri);
@@ -176,16 +175,11 @@ public class AuthCommandService {
 	private ResponseEntity<KakaoResponse.AccessTokenDto> executeReissueTokenRequest(String refreshToken) {
 		HttpHeaders headers = createHeaders();
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("grant_type", GRANT_TYPE_REFRESH);
+		params.add("grant_type", REFRESH_TOKEN_GRANT);
 		params.add("client_id", clientId);
 		params.add("client_secret", clientSecret);
 		params.add("refresh_token", refreshToken);
-		ResponseEntity<KakaoResponse.AccessTokenDto> response = request(
-			tokenUri,
-			new HttpEntity<>(params, headers),
-			KakaoResponse.AccessTokenDto.class
-		);
-		return response;
+		return request(tokenUri, new HttpEntity<>(params, headers), KakaoResponse.AccessTokenDto.class);
 	}
 
 	private <T> ResponseEntity<T> request(String url, HttpEntity<?> entity, Class<T> responseType) {
