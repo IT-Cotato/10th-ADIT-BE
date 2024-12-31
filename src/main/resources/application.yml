@@ -46,7 +46,7 @@ token:
   access:
     expiration: 43200
     header: Authorization
-
   refresh:
     expiration: 5184000
     header: Authorization-refresh
+
