@@ -5,7 +5,7 @@ spring:
 
   # 로컬|서버 환경 전환시 active: local|dev
   profiles:
-    active: dev
+    active: local
 
   security:
     oauth2:
@@ -37,6 +37,11 @@ spring:
       chat:
         options:
           model: gpt-3.5-turbo
+          temperature: 0.7
+
+logging:
+  level:
+    org.springframework.ai: DEBUG
 
 kakao:
   logout-url: https://kapi.kakao.com/v1/user/logout
