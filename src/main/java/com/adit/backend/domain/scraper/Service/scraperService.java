@@ -24,15 +24,16 @@ public class scraperService {
 
 	private final RestTemplate restTemplate;
 
+	//API 요청을 위한 토큰
 	@Value("${apify.token}")
 	private String apifyToken;
-
+	//API 응답 대기 시간 간격
 	@Value("${apify.poll-interval}")
 	private long pollInterval;
-
+	//Apify 작업 실행 API를 위한 기본 URL
 	@Value("${apify.base-url}")
 	private String baseUrl;
-
+	//Apify 작업 결과 데이터를 가져오는 API를 위한 기본 Output Url
 	@Value("${apify.output-url}")
 	private String baseOutputUrl;
 
