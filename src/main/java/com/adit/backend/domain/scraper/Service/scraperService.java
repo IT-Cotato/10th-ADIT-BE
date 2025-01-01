@@ -1,5 +1,7 @@
 package com.adit.backend.domain.scraper.Service;
 
+import static com.adit.backend.global.error.GlobalErrorCode.*;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -9,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.adit.backend.domain.scraper.dto.response.scraperResponse;
+import com.adit.backend.domain.scraper.exception.scraperException;
+import com.adit.backend.global.error.GlobalErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
@@ -54,7 +58,7 @@ public class scraperService {
 			return new scraperResponse.scarperInfoDto(caption);
 
 		} catch (Exception e) {
-			throw new RuntimeException("Error while executing scraper: " + e.getMessage(), e);
+			throw new scraperException(SCRAPER_API_FAILED);
 		}
 	}
 
@@ -82,7 +86,7 @@ public class scraperService {
 		JsonNode responseJson = objectMapper.readTree(response.getBody());
 		JsonNode dataNode = responseJson.path("data");
 		if (dataNode.isMissingNode() || !dataNode.has("defaultDatasetId")) {
-			throw new RuntimeException("Invalid response: Missing 'defaultDatasetId' field");
+			throw new scraperException(FIELD_NOT_FOUND);
 		}
 
 		return dataNode.get("defaultDatasetId").asText();
@@ -108,7 +112,7 @@ public class scraperService {
 	private String getCaptionFromOutput(JsonNode outputResponse) {
 		JsonNode firstPost = outputResponse.get(0);
 		if (!firstPost.has("caption")) {
-			throw new RuntimeException("Invalid response: Missing 'caption' field");
+			throw new scraperException(FIELD_NOT_FOUND);
 		}
 
 		return firstPost.get("caption").asText();
