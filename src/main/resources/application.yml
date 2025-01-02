@@ -46,7 +46,12 @@ token:
   access:
     expiration: 43200
     header: Authorization
-
   refresh:
     expiration: 5184000
     header: Authorization-refresh
+
+apify:
+  token: ${SCRAPER_API_TOKEN}
+  poll-interval: 5000
+  base-url: ${SCRAPER_BASE_URL}
+  output-url: ${SCRAPER_OUTPUT_URL}

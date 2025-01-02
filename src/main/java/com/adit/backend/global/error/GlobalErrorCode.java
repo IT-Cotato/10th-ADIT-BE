@@ -107,7 +107,12 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "3003", "API 호출을 실패했습니다."),
 
-	LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "3004" , "로그아웃에 실패했습니다.");
+	LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "3004" , "로그아웃에 실패했습니다."),
+
+	//scraper
+	SCRAPER_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "4001", "API 호출을 실패했습니다"),
+
+	FIELD_NOT_FOUND(NOT_FOUND, "4002", "해당 필드를 찾지 못했습니다");
 
 	// 에러 코드의 '코드 상태'을 반환한다.
 	private final HttpStatus httpStatus;
