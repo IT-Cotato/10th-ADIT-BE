@@ -28,6 +28,9 @@ jobs:
           echo "SPRING_AI_OPENAI_API_KEY=${{ secrets.SPRING_AI_OPENAI_API_KEY }}" >> .env
           echo "JWT_KEY=${{ secrets.JWT_KEY }}" >> .env
           echo "SERVER_BASE_URL=${{ secrets.SERVER_BASE_URL }}" >> .env
+          echo "SCRAPER_API_TOKEN=${{ secrets.SCRAPER_API_TOKEN }}" >> .env
+          echo "SCRAPER_BASE_URL=${{ secrets.SCRAPER_BASE_URL }}" >> .env
+          echo "SCRAPER_OUTPUT_URL=${{ secrets.SCRAPER_OUTPUT_URL }}" >> .env
         shell: bash
 
       - name: Grant execute permission for gradlew
@@ -66,6 +69,9 @@ jobs:
           echo "SPRING_AI_OPENAI_API_KEY=${{ secrets.SPRING_AI_OPENAI_API_KEY }}" >> .env
           echo "JWT_KEY=${{ secrets.JWT_KEY }}" >> .env
           echo "SERVER_BASE_URL=${{ secrets.SERVER_BASE_URL }}" >> .env
+          echo "SCRAPER_API_TOKEN=${{ secrets.SCRAPER_API_TOKEN }}" >> .env
+          echo "SCRAPER_BASE_URL=${{ secrets.SCRAPER_BASE_URL }}" >> .env
+          echo "SCRAPER_OUTPUT_URL=${{ secrets.SCRAPER_OUTPUT_URL }}" >> .env
 
       - name: Deploy to EC2
         env:

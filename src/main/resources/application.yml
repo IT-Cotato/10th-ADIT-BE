@@ -5,7 +5,7 @@ spring:
 
   # 로컬|서버 환경 전환시 active: local|dev
   profiles:
-    active: dev
+    active: local
 
   security:
     oauth2:
