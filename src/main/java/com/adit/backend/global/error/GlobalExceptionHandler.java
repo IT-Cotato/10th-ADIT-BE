@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.adit.backend.domain.scraper.exception.scraperException;
 import com.adit.backend.global.common.ApiResponse;
 
 import lombok.extern.slf4j.Slf4j;
@@ -158,4 +159,5 @@ public class GlobalExceptionHandler {
 		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
 		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HttpStatus.OK);
 	}
+
 }
