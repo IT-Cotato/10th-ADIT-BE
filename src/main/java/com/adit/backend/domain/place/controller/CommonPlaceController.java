@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.CommonPlaceResponseDto;
-import com.adit.backend.domain.place.dto.response.PlaceByCategoryResponseDto;
+import com.adit.backend.domain.place.dto.response.UserPlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.service.CommonPlaceService;
 import com.adit.backend.global.common.ApiResponse;
@@ -74,14 +74,14 @@ public class CommonPlaceController {
 
 	// 카테고리 기반으로 장소 찾기 API
 	@GetMapping("/category")
-	public ResponseEntity<ApiResponse<List<PlaceByCategoryResponseDto>>> getPlaceByCategory(@RequestParam String subCategory, @RequestParam Long userID){
+	public ResponseEntity<ApiResponse<List<UserPlaceResponseDto>>> getPlaceByCategory(@RequestParam String subCategory, @RequestParam Long userID){
 		if (subCategory.isBlank()){
 			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
 		}
 		if (userID <= 0){
 			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
 		}
-		List<PlaceByCategoryResponseDto> placeByCategory = commonPlaceService.getPlaceByCategory(subCategory, userID);
+		List<UserPlaceResponseDto> placeByCategory = commonPlaceService.getPlaceByCategory(subCategory, userID);
 
 		return ResponseEntity.ok(ApiResponse.success(placeByCategory));
 	}
