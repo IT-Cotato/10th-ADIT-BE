@@ -1,5 +1,7 @@
 package com.adit.backend.domain.place.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,13 +11,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.CommonPlaceResponseDto;
+import com.adit.backend.domain.place.dto.response.PlaceByCategoryResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.service.CommonPlaceService;
 import com.adit.backend.global.common.ApiResponse;
+import com.adit.backend.global.error.GlobalErrorCode;
+import com.adit.backend.global.error.exception.BusinessException;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
@@ -66,5 +72,19 @@ public class CommonPlaceController {
 		commonPlaceService.deletePlace(placeId);
 		// 삭제 완료 메시지 응답
 		return ResponseEntity.ok(ApiResponse.success("Place deleted successfully"));
+	}
+
+	// 카테고리 기반으로 장소 찾기 API
+	@GetMapping("/category")
+	public ResponseEntity<ApiResponse<List<PlaceByCategoryResponseDto>>> getPlaceByCategory(@RequestParam String subCategory, @RequestParam Long userID){
+		if (subCategory.isBlank()){
+			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
+		}
+		if (userID <= 0){
+			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
+		}
+		List<PlaceByCategoryResponseDto> placeByCategory = commonPlaceService.getPlaceByCategory(subCategory, userID);
+
+		return ResponseEntity.ok(ApiResponse.success(placeByCategory));
 	}
 }
