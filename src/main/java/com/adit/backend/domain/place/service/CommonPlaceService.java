@@ -1,11 +1,17 @@
 package com.adit.backend.domain.place.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
+import com.adit.backend.domain.place.dto.response.PlaceByCategoryResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
+import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
+import com.adit.backend.domain.place.repository.UserPlaceRepository;
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.error.exception.BusinessException;
 
@@ -20,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CommonPlaceService {
 
 	private final CommonPlaceRepository commonPlaceRepository;
+	private final UserPlaceRepository userPlaceRepository;
 
 	// 새로운 장소 생성
 	public CommonPlace createPlace(CommonPlaceRequestDto requestDto) {
@@ -64,5 +71,15 @@ public class CommonPlaceService {
 			throw new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR);
 		}
 		commonPlaceRepository.deleteById(placeId);
+	}
+
+	//카테고리 기반으로 장소 찾기
+	public List<PlaceByCategoryResponseDto> getPlaceByCategory(String subCategory, Long userId) {
+		List<UserPlace> userPlaces = userPlaceRepository.findByCategory(subCategory, userId)
+			   .orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		return  userPlaces.stream()
+				.map(PlaceByCategoryResponseDto::from)
+				.toList();
+
 	}
 }

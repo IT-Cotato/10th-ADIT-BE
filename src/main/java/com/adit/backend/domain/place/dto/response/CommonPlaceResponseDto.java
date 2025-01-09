@@ -1,6 +1,7 @@
 package com.adit.backend.domain.place.dto.response;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import com.adit.backend.domain.place.entity.CommonPlace;
 
@@ -23,5 +24,12 @@ public record CommonPlaceResponseDto(@NotNull(message = "Place ID must not be nu
 			place.getSubCategory(),
 			place.getUrl()
 		);
+	}
+
+	public static List<CommonPlaceResponseDto> from(List<CommonPlace> places){
+		 return places.stream()
+			.map(CommonPlaceResponseDto::from)
+			.toList();
+
 	}
 }
