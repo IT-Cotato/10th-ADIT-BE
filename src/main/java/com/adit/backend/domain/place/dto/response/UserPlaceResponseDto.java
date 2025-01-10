@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 
 import com.adit.backend.domain.image.entity.Image;
+import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 
 public record UserPlaceResponseDto(@NotNull(message = "place ID must not be null") Long id, String memo
@@ -24,4 +25,5 @@ public record UserPlaceResponseDto(@NotNull(message = "place ID must not be null
 			userPlace.getCommonPlace().getImages().stream().map(Image::getUrl).collect(Collectors.toList())
 		);
 	}
+
 }

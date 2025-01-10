@@ -1,11 +1,15 @@
 package com.adit.backend.domain.place.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
+import com.adit.backend.domain.place.dto.response.CommonPlaceResponseDto;
 import com.adit.backend.domain.place.dto.response.UserPlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
@@ -79,6 +83,21 @@ public class CommonPlaceService {
 		return  userPlaces.stream()
 				.map(UserPlaceResponseDto::from)
 				.toList();
+
+	}
+
+	//인기 기반으로 장소 찾기
+	public List<CommonPlaceResponseDto> getPlaceByPopular() {
+		Pageable pageable = PageRequest.of(0,5);
+		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable)
+			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		List<CommonPlace> commonPlaces = commonPlacesId.stream()
+										.map(id -> commonPlaceRepository.findById(id)
+											.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR))
+										)
+										.toList();
+
+		return CommonPlaceResponseDto.from(commonPlaces);
 
 	}
 }
