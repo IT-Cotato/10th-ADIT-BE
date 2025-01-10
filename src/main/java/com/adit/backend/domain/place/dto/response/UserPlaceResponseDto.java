@@ -26,4 +26,11 @@ public record UserPlaceResponseDto(@NotNull(message = "place ID must not be null
 		);
 	}
 
+	public static List<UserPlaceResponseDto> from(List<UserPlace> places){
+		return places.stream()
+			.map(UserPlaceResponseDto::from)
+			.toList();
+
+	}
+
 }
