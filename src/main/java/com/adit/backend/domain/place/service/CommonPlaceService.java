@@ -80,9 +80,7 @@ public class CommonPlaceService {
 	public List<UserPlaceResponseDto> getPlaceByCategory(String subCategory, Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByCategory(subCategory, userId)
 			   .orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
-		return  userPlaces.stream()
-				.map(UserPlaceResponseDto::from)
-				.toList();
+		return  UserPlaceResponseDto.from(userPlaces);
 
 	}
 
