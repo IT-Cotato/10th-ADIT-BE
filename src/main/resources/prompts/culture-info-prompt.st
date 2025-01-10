@@ -13,10 +13,12 @@ Data Rules:
 If multiple venues are found in the content, list all of them in the response as separate JSON objects within a JSON array.
 
 You must respond in this exact JSON format:
-[
-  {{
-    "name": "Business name",
-    "type": "RESTAURANT|EXHIBITION|PERFORMANCE",
-    "location": "Full address"
-  }}
-]
+{{
+  "contentResponseList": [
+    {{
+      "name": "연희동칼국수 본점",
+      "type": "RESTAURANT",
+      "location": "서울 서대문구 연희맛로 37"
+    }},
+   ...
+}}

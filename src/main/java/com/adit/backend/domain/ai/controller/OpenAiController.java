@@ -1,6 +1,5 @@
 package com.adit.backend.domain.ai.controller;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.http.ResponseEntity;
@@ -10,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.adit.backend.domain.ai.dto.request.ContentExtractionRequest;
-import com.adit.backend.domain.ai.dto.response.ContentResponse;
+import com.adit.backend.domain.ai.dto.response.ContentListResponse;
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
 import com.adit.backend.domain.ai.service.ContentService;
 import com.adit.backend.domain.ai.service.OpenAiService;
@@ -31,15 +30,15 @@ public class OpenAiController {
 	private final ContentService contentService;
 
 	@PostMapping("/summary")
-	public ResponseEntity<ApiResponse<CompletableFuture<List<ContentResponse>>>> pageSummary(
+	public ResponseEntity<ApiResponse<ContentListResponse>> pageSummary(
 		@Valid @RequestBody final ContentExtractionRequest request) {
-		return ResponseEntity.ok(ApiResponse.success(openAiService.analyzeCulturalInfo(request.url())));
+		return ResponseEntity.ok(ApiResponse.success(openAiService.analyzeCulturalInfo(request.url()).join()));
 	}
 
 	@PostMapping("/crawl")
 	public ResponseEntity<ApiResponse<CompletableFuture<CrawlCompletionResponse>>> crawlPage(
 		@Valid @RequestBody final ContentExtractionRequest request) {
-		return ResponseEntity.ok(ApiResponse.success(contentService.extractContents (request.url())));
+		return ResponseEntity.ok(ApiResponse.success(contentService.extractContents(request.url())));
 	}
 
 }

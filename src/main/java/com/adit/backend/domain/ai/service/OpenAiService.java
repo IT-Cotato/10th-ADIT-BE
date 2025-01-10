@@ -2,7 +2,6 @@ package com.adit.backend.domain.ai.service;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -12,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import com.adit.backend.domain.ai.dto.response.ContentResponse;
+import com.adit.backend.domain.ai.dto.response.ContentListResponse;
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
 import com.adit.backend.domain.ai.exception.AiException;
 
@@ -32,7 +31,7 @@ public class OpenAiService {
 	@Value("classpath:/prompts/culture-info-system.st")
 	private Resource system;
 
-	public CompletableFuture<List<ContentResponse>> analyzeCulturalInfo(final String url) {
+	public CompletableFuture<ContentListResponse> analyzeCulturalInfo(final String url) {
 		return contentService.extractContents(url)
 			.thenCompose(extractedContent -> {
 				log.info("Extracted content successfully: {}", extractedContent);
@@ -44,10 +43,8 @@ public class OpenAiService {
 			});
 	}
 
-	private CompletableFuture<List<ContentResponse>> processWithAI(CrawlCompletionResponse extractedContent) {
-		BeanOutputConverter<List<ContentResponse>> converter = new BeanOutputConverter<>(
-			(Class<List<ContentResponse>>)(Class<?>)List.class
-		);
+	private CompletableFuture<ContentListResponse> processWithAI(CrawlCompletionResponse extractedContent) {
+		BeanOutputConverter<ContentListResponse> converter = new BeanOutputConverter<>(ContentListResponse.class);
 		PromptTemplate promptTemplate = generatePromptTemplate(extractedContent);
 		promptTemplate.add("extractedContent", extractedContent.crawlingData());
 
