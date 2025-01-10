@@ -85,4 +85,11 @@ public class CommonPlaceController {
 
 		return ResponseEntity.ok(ApiResponse.success(placeByCategory));
 	}
+
+	//인기 기반으로 장소 찾기 API
+	@GetMapping("/popular")
+	public ResponseEntity<ApiResponse<List<CommonPlaceResponseDto>>> getPlaceByPopular(){
+		List<CommonPlaceResponseDto> placeByPopular = commonPlaceService.getPlaceByPopular();
+		return ResponseEntity.ok(ApiResponse.success(placeByPopular));
+	}
 }

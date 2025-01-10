@@ -63,7 +63,8 @@ public class SecurityConfig {
 					"/swagger-resources/**",
 					"/webjars/**",
 					"/api/scraper/**",
-					"api/places/category/**"
+					"api/places/category/**",
+					"api/places/popular"
 				).permitAll()
 				.anyRequest().authenticated()
 			)
