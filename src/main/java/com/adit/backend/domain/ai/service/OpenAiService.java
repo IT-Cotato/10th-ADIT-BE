@@ -31,7 +31,7 @@ public class OpenAiService {
 	@Value("classpath:/prompts/culture-info-system.st")
 	private Resource system;
 
-	public CompletableFuture<ContentListResponse> analyzeCulturalInfo(final String url) {
+	public ContentListResponse analyzeCulturalInfo(final String url) {
 		return contentService.extractContents(url)
 			.thenCompose(extractedContent -> {
 				log.info("Extracted content successfully: {}", extractedContent);
@@ -40,14 +40,13 @@ public class OpenAiService {
 			.exceptionally(throwable -> {
 				log.error("Error during cultural info analysis", throwable);
 				throw new AiException(FAIL_CONVERT_RESPONSE);
-			});
+			}).join();
 	}
 
 	private CompletableFuture<ContentListResponse> processWithAI(CrawlCompletionResponse extractedContent) {
 		BeanOutputConverter<ContentListResponse> converter = new BeanOutputConverter<>(ContentListResponse.class);
 		PromptTemplate promptTemplate = generatePromptTemplate(extractedContent);
 		promptTemplate.add("extractedContent", extractedContent.crawlingData());
-
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				String response = chatClient.prompt()
@@ -55,9 +54,11 @@ public class OpenAiService {
 					.user(promptTemplate.render() + converter.getFormat())
 					.call()
 					.content();
-
 				log.info("AI response received: {}", response);
-				return converter.convert(response);
+				return ContentListResponse.builder()
+					.contentResponseList(converter.convert(response).contentResponseList())
+					.imageSrcList(extractedContent.imageSrcList())
+					.build();
 			} catch (RuntimeException exception) {
 				log.error("Error during AI response conversion: {}", exception.getMessage());
 				throw new AiException(FAIL_CONVERT_RESPONSE);
