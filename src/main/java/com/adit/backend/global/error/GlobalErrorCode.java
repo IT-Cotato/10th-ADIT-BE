@@ -114,7 +114,8 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	// Crawling
 	INVALID_URL(BAD_REQUEST, "501" , "유효하지 않은 URL입니다."),
-	PLATFORM_NOT_SUPPORTED(NOT_FOUND,"502" , "지원하지 않는 플랫폼입니다.");
+	PLATFORM_NOT_SUPPORTED(NOT_FOUND,"502" , "지원하지 않는 플랫폼입니다."),
+	CRAWLING_FAILED(BAD_REQUEST,"503" ,"크롤링을 실패했습니다." );
 
 	// 에러 코드의 '코드 상태'을 반환한다.
 	private final HttpStatus httpStatus;

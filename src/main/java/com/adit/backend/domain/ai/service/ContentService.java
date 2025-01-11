@@ -23,10 +23,7 @@ public class ContentService {
 
 	public CompletableFuture<CrawlCompletionResponse> extractContents(String url) {
 		validateUrl(url);
-
-		return crawlingService.crawlAsync(url)
-			.thenApply(CrawlCompletionResponse::of)
-			.exceptionally(this::handleError);
+		return crawlingService.crawlAsync(url);
 	}
 
 	private void validateUrl(String url) {

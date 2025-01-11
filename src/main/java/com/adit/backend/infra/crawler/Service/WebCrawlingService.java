@@ -7,6 +7,7 @@ import org.jsoup.nodes.Document;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.infra.crawler.common.WebCrawlingStrategy;
 import com.adit.backend.infra.crawler.exception.CrawlingException;
@@ -22,11 +23,11 @@ public class WebCrawlingService {
 	private final List<WebCrawlingStrategy> crawlingStrategies;
 
 	@Async("crawlingTaskExecutor")
-	public CompletableFuture<String> crawlAsync(String url) {
+	public CompletableFuture<CrawlCompletionResponse> crawlAsync(String url) {
 		try {
 			WebCrawlingStrategy strategy = findStrategy(url);
 			Document document = strategy.getDocument(url);
-			String contents = strategy.extractContents(document);
+			CrawlCompletionResponse contents = strategy.extractContents(document);
 			log.info("크롤링 완료: URL={}", url);
 			return CompletableFuture.completedFuture(contents);
 		} catch (Exception e) {
