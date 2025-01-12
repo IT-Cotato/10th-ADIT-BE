@@ -16,10 +16,11 @@ import com.adit.backend.domain.user.entity.Friendship;
 import com.adit.backend.domain.user.service.FriendshipService;
 import com.adit.backend.global.common.ApiResponse;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-
+@Hidden
 @RestController
 @RequestMapping("/api/friends")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
