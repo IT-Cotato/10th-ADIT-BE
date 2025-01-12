@@ -17,10 +17,12 @@ import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.service.CommonPlaceService;
 import com.adit.backend.global.common.ApiResponse;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+@Hidden
 @RestController
 @RequestMapping("/api/places")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)

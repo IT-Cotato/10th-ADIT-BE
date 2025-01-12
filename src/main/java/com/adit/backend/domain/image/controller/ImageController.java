@@ -16,10 +16,11 @@ import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.image.service.ImageService;
 import com.adit.backend.global.common.ApiResponse;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-
+@Hidden
 @RestController
 @RequestMapping("/api/images")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
