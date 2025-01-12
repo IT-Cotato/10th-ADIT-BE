@@ -18,4 +18,7 @@ public interface UserPlaceRepository extends JpaRepository<UserPlace, Long> {
 	@Query("SELECT up FROM UserPlace up WHERE up.user.id = :userId AND up.commonPlace.subCategory = :subCategory")
 	Optional<List<UserPlace>> findByCategory(@Param("subCategory") String subCategory,@Param("userId") Long userId);
 
+	@Query("SELECT up FROM UserPlace up where up.user.id = :userId")
+	Optional<List<UserPlace>> findByUserId(@Param("userId") Long userId);
+
 }

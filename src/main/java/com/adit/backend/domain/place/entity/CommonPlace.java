@@ -44,6 +44,7 @@ public class CommonPlace extends BaseEntity {
 	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Image> images = new ArrayList<>();
 
+
 	@Builder
 	public CommonPlace(Long id, String placeName, BigDecimal latitude, BigDecimal longitude, String addressName,
 		String roadAddressName, String subCategory, String url) {

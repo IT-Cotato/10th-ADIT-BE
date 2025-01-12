@@ -1,6 +1,7 @@
 package com.adit.backend.domain.place.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
@@ -97,5 +98,11 @@ public class CommonPlaceService {
 
 		return CommonPlaceResponseDto.from(commonPlaces);
 
+	}
+
+	public List<UserPlaceResponseDto> getSavedPlace(Long userId) {
+		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId)
+			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		return UserPlaceResponseDto.from(userPlaces);
 	}
 }
