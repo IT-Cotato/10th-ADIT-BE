@@ -47,13 +47,13 @@ public class CommonPlaceController {
 	}
 
 	// 특정 장소 조회 API
-	@GetMapping("/{placeId}")
-	public ResponseEntity<ApiResponse<CommonPlaceResponseDto>> getPlace(@PathVariable Long placeId) {
-		// ID로 장소를 조회
-		CommonPlace place = commonPlaceService.getPlaceById(placeId);
-		// 조회된 장소를 응답으로 반환
-		return ResponseEntity.ok(ApiResponse.success(CommonPlaceResponseDto.from(place)));
-	}
+	// @GetMapping("/{placeId}")
+	// public ResponseEntity<ApiResponse<CommonPlaceResponseDto>> getPlace(@PathVariable Long placeId) {
+	// 	// ID로 장소를 조회
+	// 	CommonPlace place = commonPlaceService.getPlaceById(placeId);
+	// 	// 조회된 장소를 응답으로 반환
+	// 	return ResponseEntity.ok(ApiResponse.success(CommonPlaceResponseDto.from(place)));
+	// }
 
 	// 장소 수정 API
 	@PutMapping("/{placeId}")
@@ -93,5 +93,12 @@ public class CommonPlaceController {
 	public ResponseEntity<ApiResponse<List<CommonPlaceResponseDto>>> getPlaceByPopular(){
 		List<CommonPlaceResponseDto> placeByPopular = commonPlaceService.getPlaceByPopular();
 		return ResponseEntity.ok(ApiResponse.success(placeByPopular));
+	}
+
+	//저장된 장소 찾기 API
+	@GetMapping("/{userId}")
+	public ResponseEntity<ApiResponse<List<UserPlaceResponseDto>>> getSavedPlace(@PathVariable Long userId){
+		List<UserPlaceResponseDto> savedPlace = commonPlaceService.getSavedPlace(userId);
+		return ResponseEntity.ok(ApiResponse.success(savedPlace));
 	}
 }

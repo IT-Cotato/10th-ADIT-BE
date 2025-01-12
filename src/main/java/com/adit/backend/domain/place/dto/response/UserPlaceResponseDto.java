@@ -9,7 +9,9 @@ import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 
-public record UserPlaceResponseDto(@NotNull(message = "place ID must not be null") Long id, String memo
+import jakarta.annotation.Nullable;
+
+public record UserPlaceResponseDto(@NotNull(message = "place ID must not be null") Long id, @Nullable String memo
 										, boolean visited, String placeName, String subCategory, String RoadAddressName
 										, List<String> imageUrl) {
 
