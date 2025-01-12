@@ -13,5 +13,6 @@ import com.adit.backend.domain.place.entity.CommonPlace;
 public interface CommonPlaceRepository extends JpaRepository<CommonPlace, Long> {
 	@Query("SELECT ps.commonPlace.id FROM PlaceStatistics ps ORDER BY ps.bookmarkCount DESC")
 	Optional<List<Long>> findByPopular(Pageable pageable);
-
+	@Query("SELECT cp FROM CommonPlace cp where cp.placeName LIKE %:placeName%")
+	Optional<CommonPlace> findByBusinessName(@Param("placeName") String businessName);
 }

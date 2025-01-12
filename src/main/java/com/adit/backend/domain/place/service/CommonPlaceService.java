@@ -105,4 +105,11 @@ public class CommonPlaceService {
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
 		return UserPlaceResponseDto.from(userPlaces);
 	}
+
+	public CommonPlaceResponseDto getDetailedPlace(String businessName) {
+		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(businessName)
+			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		return CommonPlaceResponseDto.from(commonPlace);
+
+	}
 }

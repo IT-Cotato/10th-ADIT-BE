@@ -101,4 +101,11 @@ public class CommonPlaceController {
 		List<UserPlaceResponseDto> savedPlace = commonPlaceService.getSavedPlace(userId);
 		return ResponseEntity.ok(ApiResponse.success(savedPlace));
 	}
+
+	//특정 장소 상세 정보 찾기 API
+	@GetMapping("/detail")
+	public ResponseEntity<ApiResponse<CommonPlaceResponseDto>> getDetailedPlace(@RequestParam String businessName){
+		CommonPlaceResponseDto detailedPlace = commonPlaceService.getDetailedPlace(businessName);
+		return ResponseEntity.ok(ApiResponse.success(detailedPlace));
+	}
 }
