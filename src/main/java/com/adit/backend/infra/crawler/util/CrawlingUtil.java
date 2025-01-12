@@ -34,7 +34,7 @@ public class CrawlingUtil {
 
 	public static void removeUnnecessaryElements(Element mainContent) {
 		try {
-			mainContent.select("script, style, iframe, button, input, textarea").remove();
+			mainContent.select("script, style, button, input, textarea").remove();
 			log.info("불필요한 태그 제거 완료 - URL: {}", mainContent.baseUri());
 		} catch (Exception e) {
 			log.error("불필요 태그 제거 실패 - 에러: {}", e.getMessage(), e);

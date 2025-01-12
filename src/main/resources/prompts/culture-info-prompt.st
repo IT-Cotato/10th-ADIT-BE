@@ -1,24 +1,28 @@
 Content to analyze: {extractedContent}
+
 Extract and structure venue information from the provided content following these rules:
+
 Required Fields:
-*name: Extract complete venue/event name
-*type: Classify as RESTAURANT(Restaurants, cafes, dining establishments), EXHIBITION(Museums, galleries, exhibitions), or PERFORMANCE(Theaters, concert halls, performance venues)
-*location: Provide full address
-Data Rules:
-*Extract only from the provided content
-*Use null for missing information
-*Provide only verified, current data
-*All responses in Korean
+- name: Venue or event name
+- type: RESTAURANT(Restaurants, cafes), EXHIBITION(Museums, galleries, Popups), PERFORMANCE(Theaters, concerts)
+- location: Full address (null if missing)
 
-If multiple venues are found in the content, list all of them in the response as separate JSON objects within a JSON array.
+Rules:
+- Extract only from provided content.
+- Use null for missing fields.
+- Provide verified, current data only.
+- Respond in Korean.
 
-You must respond in this exact JSON format:
+
+Output Format:
+JSON Array:
 {{
   "contentResponseList": [
     {{
-      "name": "연희동칼국수 본점",
-      "type": "RESTAURANT",
-      "location": "서울 서대문구 연희맛로 37"
+    "name": "string",
+    "type": "RESTAURANT | EXHIBITION | PERFORMANCE",
+    "location": "string or null"
+    "period" : "date range or null"
     }},
    ...
 }}
