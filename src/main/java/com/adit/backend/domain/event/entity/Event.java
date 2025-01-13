@@ -71,4 +71,16 @@ public class Event extends BaseEntity {
         this.images.add(image);
         image.setEvent(this);
     }
+
+    // 팩토리 메서드
+    public static Event createEvent(String name, String category, LocalDateTime startDate, LocalDateTime endDate, String memo, Boolean visited) {
+        Event event = new Event();
+        event.setName(name);
+        event.setCategory(category);
+        event.setStartDate(startDate);
+        event.setEndDate(endDate);
+        event.setMemo(memo);
+        event.setVisited(visited);
+        return event;
+    }
 }
