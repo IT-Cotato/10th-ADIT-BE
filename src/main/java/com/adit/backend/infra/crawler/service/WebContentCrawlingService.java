@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class WebCrawlingService {
+public class WebContentCrawlingService {
 	private final List<WebCrawlingStrategy> crawlingStrategies;
 
 	/**

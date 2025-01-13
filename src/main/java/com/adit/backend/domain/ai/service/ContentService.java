@@ -8,7 +8,7 @@ import org.springframework.util.StringUtils;
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.infra.crawler.exception.CrawlingException;
-import com.adit.backend.infra.crawler.service.WebCrawlingService;
+import com.adit.backend.infra.crawler.service.WebContentCrawlingService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContentService {
-	private final WebCrawlingService crawlingService;
+	private final WebContentCrawlingService crawlingService;
 
 	public CompletableFuture<CrawlCompletionResponse> extractContents(String url) {
 		validateUrl(url);

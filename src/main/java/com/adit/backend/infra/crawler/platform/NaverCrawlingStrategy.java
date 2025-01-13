@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
 import com.adit.backend.global.error.GlobalErrorCode;
+import com.adit.backend.infra.crawler.WebContentCrawler;
 import com.adit.backend.infra.crawler.common.AbstractWebCrawlingStrategy;
 import com.adit.backend.infra.crawler.exception.CrawlingException;
-import com.adit.backend.infra.crawler.util.CrawlingUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,15 +42,15 @@ public class NaverCrawlingStrategy extends AbstractWebCrawlingStrategy {
 	@Cacheable(value = "contentCache", key = "#document.location()")
 	public CrawlCompletionResponse extractContents(Document document) {
 		try {
-			Document innerDoc = CrawlingUtil.getIframeDocument(document, IFRAME_TAG, BASE_URL);
+			Document innerDoc = WebContentCrawler.getIframeDocument(document, IFRAME_TAG, BASE_URL);
 			StringBuilder contentBuilder = new StringBuilder();
 			extractTitle(innerDoc, contentBuilder);
 			extractBody(innerDoc, contentBuilder);
-			String content = CrawlingUtil.preprocessText(contentBuilder.toString());
-			String placeInfo = CrawlingUtil.extractPlaceInfo(innerDoc);
+			String content = WebContentCrawler.preprocessText(contentBuilder.toString());
+			String placeInfo = WebContentCrawler.extractPlaceInfo(innerDoc);
 			String combined = content + PLACE_SEPARATOR + placeInfo;
 			Elements contentElements = selectContentElements(innerDoc);
-			return CrawlingUtil.getCrawlCompletionResponse(contentElements, combined);
+			return WebContentCrawler.getCrawlCompletionResponse(contentElements, combined);
 
 		} catch (IOException e) {
 			log.error("[iframe 추출 중 오류] : {}", e.getMessage());
@@ -76,7 +76,7 @@ public class NaverCrawlingStrategy extends AbstractWebCrawlingStrategy {
 		if (!contentElements.isEmpty()) {
 			Element mainContent = contentElements.first();
 			log.info("[본문 요소 선택 성공] : {}", mainContent.cssSelector());
-			CrawlingUtil.removeUnnecessaryElements(mainContent);
+			WebContentCrawler.removeUnnecessaryElements(mainContent);
 			Elements textElements = mainContent.select(TEXT_TAG);
 			for (Element element : textElements) {
 				String text = element.text().trim();

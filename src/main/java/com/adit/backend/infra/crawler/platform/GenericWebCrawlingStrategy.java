@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
 import com.adit.backend.global.error.GlobalErrorCode;
+import com.adit.backend.infra.crawler.WebContentCrawler;
 import com.adit.backend.infra.crawler.common.AbstractWebCrawlingStrategy;
 import com.adit.backend.infra.crawler.exception.CrawlingException;
-import com.adit.backend.infra.crawler.util.CrawlingUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,13 +43,13 @@ public class GenericWebCrawlingStrategy extends AbstractWebCrawlingStrategy {
 	public CrawlCompletionResponse extractContents(Document document) {
 		StringBuilder contentBuilder = new StringBuilder();
 		try {
-			CrawlingUtil.extractTitle(document, TITLE_TAG, contentBuilder);
+			WebContentCrawler.extractTitle(document, TITLE_TAG, contentBuilder);
 			Element bodyElement = document.selectFirst(BODY_TAG);
-			CrawlingUtil.extractBodyText(bodyElement, TEXT_TAG, MINIMUM_RECOGNIZED_CHARACTER, contentBuilder);
-			String content = CrawlingUtil.preprocessText(contentBuilder.toString());
-			String placeInfo = CrawlingUtil.extractPlaceInfo(document);
+			WebContentCrawler.extractBodyText(bodyElement, TEXT_TAG, MINIMUM_RECOGNIZED_CHARACTER, contentBuilder);
+			String content = WebContentCrawler.preprocessText(contentBuilder.toString());
+			String placeInfo = WebContentCrawler.extractPlaceInfo(document);
 			String combined = content + PLACE_SEPARATOR + placeInfo;
-			return CrawlingUtil.getCrawlCompletionResponse(document.select(CONTENT_TAG), combined);
+			return WebContentCrawler.getCrawlCompletionResponse(document.select(CONTENT_TAG), combined);
 		} catch (Exception e) {
 			log.error("[본문 추출 중 오류 발생] : {}", e.getMessage());
 			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);

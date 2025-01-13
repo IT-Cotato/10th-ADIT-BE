@@ -1,4 +1,4 @@
-package com.adit.backend.infra.crawler.util;
+package com.adit.backend.infra.crawler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import com.adit.backend.infra.crawler.exception.CrawlingException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CrawlingUtil {
+public class WebContentCrawler {
 
 	private static final int CHUNK_SIZE = 500;
 	private static final int BATCH_SIZE = 4;
@@ -75,12 +75,11 @@ public class CrawlingUtil {
 		String[] sentences = text.split("(?<=[.!?]\\s)");
 		StringBuilder currentChunk = new StringBuilder();
 		for (String sentence : sentences) {
-			if (currentChunk.length() + sentence.length() > CHUNK_SIZE) {
-				if (!currentChunk.isEmpty()) {
+			if (currentChunk.length() + sentence.length() > CHUNK_SIZE && !currentChunk.isEmpty()) {
 					chunks.add(currentChunk.toString().trim());
 					currentChunk.setLength(0);
 				}
-			}
+
 			currentChunk.append(sentence).append(" ");
 		}
 		if (!currentChunk.isEmpty()) {

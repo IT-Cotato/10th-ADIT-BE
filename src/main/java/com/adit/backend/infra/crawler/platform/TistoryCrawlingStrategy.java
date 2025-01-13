@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
 import com.adit.backend.global.error.GlobalErrorCode;
+import com.adit.backend.infra.crawler.WebContentCrawler;
 import com.adit.backend.infra.crawler.common.AbstractWebCrawlingStrategy;
 import com.adit.backend.infra.crawler.exception.CrawlingException;
-import com.adit.backend.infra.crawler.util.CrawlingUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,15 +57,15 @@ public class TistoryCrawlingStrategy extends AbstractWebCrawlingStrategy {
 	public CrawlCompletionResponse extractContents(Document document) {
 		StringBuilder contentBuilder = new StringBuilder();
 		try {
-			CrawlingUtil.extractTitle(document, TITLE_TAG, contentBuilder);
+			WebContentCrawler.extractTitle(document, TITLE_TAG, contentBuilder);
 			Elements contentElements = selectContentElements(document);
 			if (!contentElements.isEmpty()) {
 				Element mainContent = contentElements.first();
 				log.info("[본문 요소 추출] : {}", mainContent.cssSelector());
-				CrawlingUtil.extractBodyText(mainContent, TEXT_TAG, MINIMUM_RECOGNIZED_CHARACTER, contentBuilder);
+				WebContentCrawler.extractBodyText(mainContent, TEXT_TAG, MINIMUM_RECOGNIZED_CHARACTER, contentBuilder);
 			}
-			String content = CrawlingUtil.preprocessText(contentBuilder.toString());
-			return CrawlingUtil.getCrawlCompletionResponse(contentElements, content);
+			String content = WebContentCrawler.preprocessText(contentBuilder.toString());
+			return WebContentCrawler.getCrawlCompletionResponse(contentElements, content);
 		} catch (Exception e) {
 			log.error("[본문 추출 중 오류 발생] : {}", e.getMessage());
 			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
