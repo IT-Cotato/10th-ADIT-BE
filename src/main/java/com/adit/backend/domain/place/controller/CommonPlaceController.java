@@ -46,15 +46,6 @@ public class CommonPlaceController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(CommonPlaceResponseDto.from(place)));
 	}
 
-	// 특정 장소 조회 API
-	// @GetMapping("/{placeId}")
-	// public ResponseEntity<ApiResponse<CommonPlaceResponseDto>> getPlace(@PathVariable Long placeId) {
-	// 	// ID로 장소를 조회
-	// 	CommonPlace place = commonPlaceService.getPlaceById(placeId);
-	// 	// 조회된 장소를 응답으로 반환
-	// 	return ResponseEntity.ok(ApiResponse.success(CommonPlaceResponseDto.from(place)));
-	// }
-
 	// 장소 수정 API
 	@PutMapping("/{placeId}")
 	public ResponseEntity<ApiResponse<CommonPlaceResponseDto>> updatePlace(@PathVariable Long placeId,
@@ -121,5 +112,12 @@ public class CommonPlaceController {
 	public ResponseEntity<ApiResponse<List<UserPlaceResponseDto>>> getPlaceByAddress(@RequestParam List<String> address, @PathVariable Long userId){
 		List<UserPlaceResponseDto> placeByAddress = commonPlaceService.getPlaceByAddress(address, userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByAddress));
+	}
+
+	//장소 방문 여부 표시 API
+	@PutMapping("/visit/{userPlaceId}")
+	public ResponseEntity<ApiResponse<String>> checkVisitedPlace(@PathVariable Long userPlaceId){
+		commonPlaceService.checkVisitedPlace(userPlaceId);
+		return ResponseEntity.ok(ApiResponse.success("visit sign successfully"));
 	}
 }

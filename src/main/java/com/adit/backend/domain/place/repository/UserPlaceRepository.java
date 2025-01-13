@@ -6,9 +6,11 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
@@ -23,4 +25,9 @@ public interface UserPlaceRepository extends JpaRepository<UserPlace, Long> {
 
 	@Query("SELECT up FROM UserPlace up where up.commonPlace.addressName LIKE %:partialAddress% AND up.user.id = :userId")
 	Optional<List<UserPlace>> findByAddress(@Param("partialAddress") String partialAddress, @Param("userId") Long userId);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE UserPlace up SET up.visited = true WHERE up.id = :userPlaceId")
+	int checkByUserPlaceId(@Param("userPlaceId") Long userPlaceId);
 }
