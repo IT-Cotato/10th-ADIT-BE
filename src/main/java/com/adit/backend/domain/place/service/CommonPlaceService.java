@@ -1,6 +1,11 @@
 package com.adit.backend.domain.place.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -139,5 +144,22 @@ public class CommonPlaceService {
 		double a = Math.sin(dLat/2)* Math.sin(dLat/2)+ Math.cos(Math.toRadians(lat1))* Math.cos(Math.toRadians(lat2))* Math.sin(dLon/2)* Math.sin(dLon/2);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 		return R * c;
+	}
+
+	//주소 기반 장소 찾기
+	public List<UserPlaceResponseDto> getPlaceByAddress(List<String> address, Long userId) {
+		Set<UserPlace> userPlaceSet = new HashSet<>();
+		address.forEach(partialAddress -> {
+			List<UserPlace> foundPlaces = userPlaceRepository.findByAddress(partialAddress, userId)
+				.orElse(Collections.emptyList());
+			userPlaceSet.addAll(foundPlaces);
+		});
+		List<UserPlace> userPlaces = new ArrayList<>(userPlaceSet);
+		if (userPlaces.isEmpty()){
+			throw new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR);
+		}
+		return UserPlaceResponseDto.from(userPlaces);
+
+
 	}
 }
