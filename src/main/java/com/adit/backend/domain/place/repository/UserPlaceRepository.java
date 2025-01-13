@@ -26,7 +26,7 @@ public interface UserPlaceRepository extends JpaRepository<UserPlace, Long> {
 	@Query("SELECT up FROM UserPlace up where up.commonPlace.addressName LIKE %:partialAddress% AND up.user.id = :userId")
 	Optional<List<UserPlace>> findByAddress(@Param("partialAddress") String partialAddress, @Param("userId") Long userId);
 
-	@Modifying
+	@Modifying(clearAutomatically = true)
 	@Transactional
 	@Query("UPDATE UserPlace up SET up.visited = true WHERE up.id = :userPlaceId")
 	int checkByUserPlaceId(@Param("userPlaceId") Long userPlaceId);

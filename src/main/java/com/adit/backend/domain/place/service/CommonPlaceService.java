@@ -50,8 +50,8 @@ public class CommonPlaceService {
 		// DB에 저장하고 반환
 		return commonPlaceRepository.save(place);
 	}
-
 	// 장소 ID로 조회
+	@Transactional(readOnly = true)
 	public CommonPlace getPlaceById(Long placeId) {
 		return commonPlaceRepository.findById(placeId)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
@@ -81,6 +81,7 @@ public class CommonPlaceService {
 	}
 
 	//카테고리 기반으로 장소 찾기
+	@Transactional(readOnly = true)
 	public List<UserPlaceResponseDto> getPlaceByCategory(String subCategory, Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByCategory(subCategory, userId)
 			   .orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
@@ -89,6 +90,7 @@ public class CommonPlaceService {
 	}
 
 	//인기 기반으로 장소 찾기
+	@Transactional(readOnly = true)
 	public List<CommonPlaceResponseDto> getPlaceByPopular() {
 		Pageable pageable = PageRequest.of(0,5);
 		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable)
@@ -104,6 +106,7 @@ public class CommonPlaceService {
 	}
 
 	//저장된 장소 찾기
+	@Transactional(readOnly = true)
 	public List<UserPlaceResponseDto> getSavedPlace(Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
@@ -111,6 +114,7 @@ public class CommonPlaceService {
 	}
 
 	//특정 장소 상세정보 찾기
+	@Transactional(readOnly = true)
 	public CommonPlaceResponseDto getDetailedPlace(String businessName) {
 		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(businessName)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
@@ -119,6 +123,7 @@ public class CommonPlaceService {
 	}
 
 	//현재 위치 기반 장소 찾기
+	@Transactional(readOnly = true)
 	public List<UserPlaceResponseDto> getPlaceByLocation(double userLatitude, double userLongitude, Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
@@ -147,6 +152,7 @@ public class CommonPlaceService {
 	}
 
 	//주소 기반 장소 찾기
+	@Transactional(readOnly = true)
 	public List<UserPlaceResponseDto> getPlaceByAddress(List<String> address, Long userId) {
 		Set<UserPlace> userPlaceSet = new HashSet<>();
 		address.forEach(partialAddress -> {
