@@ -1,8 +1,6 @@
 package com.adit.backend.domain.place.service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -100,16 +98,46 @@ public class CommonPlaceService {
 
 	}
 
+	//저장된 장소 찾기
 	public List<UserPlaceResponseDto> getSavedPlace(Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
 		return UserPlaceResponseDto.from(userPlaces);
 	}
 
+	//특정 장소 상세정보 찾기
 	public CommonPlaceResponseDto getDetailedPlace(String businessName) {
 		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(businessName)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
 		return CommonPlaceResponseDto.from(commonPlace);
 
+	}
+
+	//현재 위치 기반 장소 찾기
+	public List<UserPlaceResponseDto> getPlaceByLocation(double userLatitude, double userLongitude, Long userId) {
+		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId)
+			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		if (userPlaces.size() == 1){
+			return UserPlaceResponseDto.from(userPlaces);
+		}
+		// 저장한 장소가 2개 이상일때 정렬
+		List<UserPlace> placeByLocation = userPlaces.stream().sorted((place1, place2) -> {
+			double distance1 = getDistance(place1.getCommonPlace().getLatitude().doubleValue(),place1.getCommonPlace().getLongitude().doubleValue(), userLatitude, userLongitude);
+			double distance2 = getDistance(place2.getCommonPlace().getLatitude().doubleValue(),place2.getCommonPlace().getLongitude().doubleValue(), userLatitude, userLongitude);
+			return Double.compare(distance1,distance2);
+		})
+			.toList();
+		return UserPlaceResponseDto.from(placeByLocation);
+	}
+
+	//거리 계산 메소드
+	public double getDistance(double lat1, double lon1, double lat2, double lon2) {
+		final int R = 6371;
+		double dLat = Math.toRadians(lat2 - lat1);
+		double dLon = Math.toRadians(lon2 - lon1);
+
+		double a = Math.sin(dLat/2)* Math.sin(dLat/2)+ Math.cos(Math.toRadians(lat1))* Math.cos(Math.toRadians(lat2))* Math.sin(dLon/2)* Math.sin(dLon/2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		return R * c;
 	}
 }
