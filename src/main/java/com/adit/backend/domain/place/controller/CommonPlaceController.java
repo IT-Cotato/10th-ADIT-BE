@@ -106,4 +106,11 @@ public class CommonPlaceController {
 		CommonPlaceResponseDto detailedPlace = commonPlaceService.getDetailedPlace(businessName);
 		return ResponseEntity.ok(ApiResponse.success(detailedPlace));
 	}
+
+	//현재 위치 기반 장소 찾기 API
+	@GetMapping("/location/{userId}")
+	public ResponseEntity<ApiResponse<List<UserPlaceResponseDto>>> getPlaceByLocation(@RequestParam double latitude, @RequestParam double longitude, @PathVariable Long userId){
+		List<UserPlaceResponseDto> placeByLocation = commonPlaceService.getPlaceByLocation(latitude,longitude, userId);
+		return ResponseEntity.ok(ApiResponse.success(placeByLocation));
+	}
 }
