@@ -7,6 +7,9 @@ import org.jsoup.nodes.Document;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 크롤링 전략 추상 클래스
+ */
 @Slf4j
 public abstract class AbstractWebCrawlingStrategy implements WebCrawlingStrategy {
 	protected static final String USER_AGENT = "Mozilla/5.0";
@@ -18,13 +21,5 @@ public abstract class AbstractWebCrawlingStrategy implements WebCrawlingStrategy
 			.userAgent(USER_AGENT)
 			.timeout(TIMEOUT_SECONDS * 1000)
 			.get();
-	}
-
-	protected String cleanText(String text) {
-		return text != null ? text.trim().replaceAll("\\s+", " ") : null;
-	}
-
-	protected boolean isValidContent(String name, String location) {
-		return name != null && !name.isEmpty() && location != null && !location.isEmpty();
 	}
 }

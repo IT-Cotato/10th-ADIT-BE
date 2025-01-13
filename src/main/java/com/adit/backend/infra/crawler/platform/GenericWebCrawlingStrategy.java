@@ -2,64 +2,57 @@ package com.adit.backend.infra.crawler.platform;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
+import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.infra.crawler.common.AbstractWebCrawlingStrategy;
+import com.adit.backend.infra.crawler.exception.CrawlingException;
 import com.adit.backend.infra.crawler.util.CrawlingUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
+
+/**
+ * 지원하지 않는 플랫폼 크롤링 전략
+ */
 @Component
 @Slf4j
 public class GenericWebCrawlingStrategy extends AbstractWebCrawlingStrategy {
-	private final StringBuilder contentBuilder = new StringBuilder();
+
+	public static final String TISTORY_URL = "tistory.com";
+	public static final String NAVER_BLOG_URL = "blog.naver.com";
+	public static final String BRUNCH_URL = "brunch.co.kr";
+	public static final String TEXT_TAG = "p, div:not(:has(p)), h1, h2, h3, h4, h5, h6";
+	public static final String TITLE_TAG = "title, h1, h2";
+	public static final String BODY_TAG = "body";
+	public static final String CONTENT_TAG = ".entry-content";
+	public static final String PLACE_SEPARATOR = "\n[PLACE INFO]\n";
+	public static final int MINIMUM_RECOGNIZED_CHARACTER = 10;
 
 	@Override
 	public boolean supports(String url) {
-		return !url.contains("tistory.com") && !url.contains("blog.naver.com") && !url.contains("brunch.co.kr");
+		return !url.contains(TISTORY_URL)
+			&& !url.contains(NAVER_BLOG_URL)
+			&& !url.contains(BRUNCH_URL);
 	}
 
 	@Override
 	@Cacheable(value = "contentCache", key = "#document.location()")
 	public CrawlCompletionResponse extractContents(Document document) {
-		String content = extractMainContent(document);
-		return CrawlingUtil.getCrawlCompletionResponse(document.select(".entry-content"), content);
-	}
-
-	private String extractMainContent(Document document) {
+		StringBuilder contentBuilder = new StringBuilder();
 		try {
-			String title = document.select("title, h1, h2").first() != null
-				? document.select("title, h1, h2").first().text()
-				: "";
-			if (!title.isEmpty()) {
-				contentBuilder.append("제목: ").append(title).append("\n\n");
-				log.info("제목 추출 성공: {}", title);
-			} else {
-				log.warn("제목 추출 실패 - URL: {}", document.location());
-			}
-
-			Element bodyElement = document.selectFirst("body");
-			if (bodyElement != null) {
-				CrawlingUtil.removeUnnecessaryElements(bodyElement);
-				Elements textElements = bodyElement.select("p, div:not(:has(p)), h1, h2, h3, h4, h5, h6");
-				for (Element element : textElements) {
-					String text = element.ownText().trim();
-					if (!text.isEmpty() && text.length() > 10) {
-						contentBuilder.append(text).append("\n");
-					}
-				}
-			} else {
-				log.warn("body 태그 선택 실패 - URL: {}", document.location());
-			}
-
-			return CrawlingUtil.preprocessText(contentBuilder.toString());
-
+			CrawlingUtil.extractTitle(document, TITLE_TAG, contentBuilder);
+			Element bodyElement = document.selectFirst(BODY_TAG);
+			CrawlingUtil.extractBodyText(bodyElement, TEXT_TAG, MINIMUM_RECOGNIZED_CHARACTER, contentBuilder);
+			String content = CrawlingUtil.preprocessText(contentBuilder.toString());
+			String placeInfo = CrawlingUtil.extractPlaceInfo(document);
+			String combined = content + PLACE_SEPARATOR + placeInfo;
+			return CrawlingUtil.getCrawlCompletionResponse(document.select(CONTENT_TAG), combined);
 		} catch (Exception e) {
-			log.error("본문 추출 중 오류 - URL: {}, 에러: {}", document.location(), e.getMessage(), e);
-			return "";
+			log.error("[본문 추출 중 오류 발생] : {}", e.getMessage());
+			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
 		}
 	}
 }

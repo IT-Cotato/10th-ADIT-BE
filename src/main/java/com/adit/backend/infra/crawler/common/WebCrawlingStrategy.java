@@ -5,7 +5,9 @@ import java.io.IOException;
 import org.jsoup.nodes.Document;
 
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
-
+/**
+ * 크롤링 전략
+ */
 public interface WebCrawlingStrategy {
 	boolean supports(String url);
 

@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Service
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -28,12 +27,8 @@ public class ContentService {
 
 	private void validateUrl(String url) {
 		if (!StringUtils.hasText(url) || !url.startsWith("http")) {
+			log.error("[검증되지 않은 URL] : {}", url);
 			throw new CrawlingException(GlobalErrorCode.INVALID_URL);
 		}
-	}
-
-	private CrawlCompletionResponse handleError(Throwable throwable) {
-		log.error("컨텐츠 추출 실패", throwable);
-		return null;
 	}
 }
