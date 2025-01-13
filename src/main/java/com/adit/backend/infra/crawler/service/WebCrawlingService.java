@@ -1,4 +1,4 @@
-package com.adit.backend.infra.crawler.Service;
+package com.adit.backend.infra.crawler.service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

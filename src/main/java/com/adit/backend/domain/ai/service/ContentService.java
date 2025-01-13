@@ -7,8 +7,8 @@ import org.springframework.util.StringUtils;
 
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
 import com.adit.backend.global.error.GlobalErrorCode;
-import com.adit.backend.infra.crawler.Service.WebCrawlingService;
 import com.adit.backend.infra.crawler.exception.CrawlingException;
+import com.adit.backend.infra.crawler.service.WebCrawlingService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
