@@ -115,4 +115,11 @@ public class CommonPlaceController {
 		List<UserPlaceResponseDto> placeByLocation = commonPlaceService.getPlaceByLocation(latitude,longitude, userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByLocation));
 	}
+
+	//주소 기반 장소 찾기 API
+	@GetMapping("/address/{userId}")
+	public ResponseEntity<ApiResponse<List<UserPlaceResponseDto>>> getPlaceByAddress(@RequestParam List<String> address, @PathVariable Long userId){
+		List<UserPlaceResponseDto> placeByAddress = commonPlaceService.getPlaceByAddress(address, userId);
+		return ResponseEntity.ok(ApiResponse.success(placeByAddress));
+	}
 }
