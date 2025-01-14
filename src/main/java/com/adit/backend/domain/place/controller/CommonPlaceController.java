@@ -118,4 +118,11 @@ public class CommonPlaceController {
 		commonPlaceService.checkVisitedPlace(userPlaceId);
 		return ResponseEntity.ok(ApiResponse.success("visit sign successfully"));
 	}
+
+	//친구 기반 장소 찾기 API
+	@GetMapping("/{userId}/friend")
+	public ResponseEntity<ApiResponse<List<UserPlaceResponseDto>>> getPlaceByFriend(@PathVariable Long userId){
+		List<UserPlaceResponseDto> placeByFriend = commonPlaceService.getPlaceByFriend(userId);
+		return ResponseEntity.ok(ApiResponse.success(placeByFriend));
+	}
 }

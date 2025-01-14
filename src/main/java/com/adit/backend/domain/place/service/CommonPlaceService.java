@@ -19,6 +19,10 @@ import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
+
+import com.adit.backend.domain.user.entity.User;
+import com.adit.backend.domain.user.repository.FriendshipRepository;
+import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.error.exception.BusinessException;
 
@@ -34,6 +38,7 @@ public class CommonPlaceService {
 
 	private final CommonPlaceRepository commonPlaceRepository;
 	private final UserPlaceRepository userPlaceRepository;
+	private final FriendshipRepository friendshipRepository;
 
 	// 새로운 장소 생성
 	public CommonPlace createPlace(CommonPlaceRequestDto requestDto) {
@@ -178,5 +183,19 @@ public class CommonPlaceService {
 		if (updatedPlace == 0){
 			throw new BusinessException("Place not update", GlobalErrorCode.UPDATE_ERROR);
 		}
+	}
+
+	//친구 기반 장소 찾기
+	public List<UserPlaceResponseDto> getPlaceByFriend(Long userId) {
+		List<Long> friendsId = friendshipRepository.findFriends(userId)
+			.orElseThrow(() -> new BusinessException("Friend not found", GlobalErrorCode.NOT_FOUND_ERROR));
+
+		Set<UserPlace> friendsCommonplaceSet = new HashSet<>();
+		friendsId.forEach(id -> {
+			List<UserPlace> foundPlaces = userPlaceRepository.findByUserId(id).orElse(Collections.emptyList());
+			friendsCommonplaceSet.addAll(foundPlaces);
+		});
+		 List<UserPlace> friendsCommonplace = new ArrayList<>(friendsCommonplaceSet);
+		 return UserPlaceResponseDto.of(friendsCommonplace);
 	}
 }

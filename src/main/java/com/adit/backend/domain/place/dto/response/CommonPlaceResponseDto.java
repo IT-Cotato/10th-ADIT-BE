@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.place.entity.CommonPlace;
+import com.adit.backend.domain.user.entity.User;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -36,4 +37,5 @@ public record CommonPlaceResponseDto(@NotNull(message = "Place ID must not be nu
 			.toList();
 
 	}
+
 }
