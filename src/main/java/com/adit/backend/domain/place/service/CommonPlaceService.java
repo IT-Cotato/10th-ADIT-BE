@@ -197,4 +197,11 @@ public class CommonPlaceService {
 		 List<UserPlace> friendsCommonplace = new ArrayList<>(friendsCommonplaceSet);
 		 return PlaceResponseDto.friend(friendsCommonplace);
 	}
+
+	//장소 메모 수정
+	public PlaceResponseDto updateUserPlace(Long userPlaceId, String memo) {
+		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		place.updatedMemo(memo);
+		return PlaceResponseDto.userPlace(place);
+	}
 }

@@ -124,4 +124,11 @@ public class CommonPlaceController {
 		List<PlaceResponseDto> placeByFriend = commonPlaceService.getPlaceByFriend(userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByFriend));
 	}
+
+	//장소 메모 수정 API
+	@PutMapping("/{userPlaceId}/memo")
+	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlace(@PathVariable Long userPlaceId , @RequestParam String memo){
+		PlaceResponseDto updateUserPlace = commonPlaceService.updateUserPlace(userPlaceId, memo);
+		return ResponseEntity.ok(ApiResponse.success(updateUserPlace));
+	}
 }
