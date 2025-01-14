@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.data.domain.PageRequest;
@@ -13,16 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
-import com.adit.backend.domain.place.dto.response.CommonPlaceResponseDto;
-import com.adit.backend.domain.place.dto.response.UserPlaceResponseDto;
+import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
 
-import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.repository.FriendshipRepository;
-import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.error.exception.BusinessException;
 
@@ -87,16 +83,16 @@ public class CommonPlaceService {
 
 	//카테고리 기반으로 장소 찾기
 	@Transactional(readOnly = true)
-	public List<UserPlaceResponseDto> getPlaceByCategory(String subCategory, Long userId) {
+	public List<PlaceResponseDto> getPlaceByCategory(String subCategory, Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByCategory(subCategory, userId)
 			   .orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
-		return  UserPlaceResponseDto.from(userPlaces);
+		return  PlaceResponseDto.userPlace(userPlaces);
 
 	}
 
 	//인기 기반으로 장소 찾기
 	@Transactional(readOnly = true)
-	public List<CommonPlaceResponseDto> getPlaceByPopular() {
+	public List<PlaceResponseDto> getPlaceByPopular() {
 		//PlaceStatistics 엔티티에서 1위부터 5위까지의 commonplaceId를 가져옴
 		Pageable pageable = PageRequest.of(0,5);
 		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable)
@@ -107,34 +103,34 @@ public class CommonPlaceService {
 										)
 										.toList();
 
-		return CommonPlaceResponseDto.from(commonPlaces);
+		return PlaceResponseDto.commonPlace(commonPlaces);
 
 	}
 
 	//저장된 장소 찾기
 	@Transactional(readOnly = true)
-	public List<UserPlaceResponseDto> getSavedPlace(Long userId) {
+	public List<PlaceResponseDto> getSavedPlace(Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
-		return UserPlaceResponseDto.from(userPlaces);
+		return PlaceResponseDto.userPlace(userPlaces);
 	}
 
 	//특정 장소 상세정보 찾기
 	@Transactional(readOnly = true)
-	public CommonPlaceResponseDto getDetailedPlace(String businessName) {
+	public PlaceResponseDto getDetailedPlace(String businessName) {
 		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(businessName)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
-		return CommonPlaceResponseDto.from(commonPlace);
+		return PlaceResponseDto.commonPlace(commonPlace);
 
 	}
 
 	//현재 위치 기반 장소 찾기
 	@Transactional(readOnly = true)
-	public List<UserPlaceResponseDto> getPlaceByLocation(double userLatitude, double userLongitude, Long userId) {
+	public List<PlaceResponseDto> getPlaceByLocation(double userLatitude, double userLongitude, Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
 		if (userPlaces.size() == 1){
-			return UserPlaceResponseDto.from(userPlaces);
+			return PlaceResponseDto.userPlace(userPlaces);
 		}
 		// 저장한 장소가 2개 이상일때 정렬
 		List<UserPlace> placeByLocation = userPlaces.stream().sorted((place1, place2) -> {
@@ -143,7 +139,7 @@ public class CommonPlaceService {
 			return Double.compare(distance1,distance2);
 		})
 			.toList();
-		return UserPlaceResponseDto.from(placeByLocation);
+		return PlaceResponseDto.userPlace(placeByLocation);
 	}
 
 	//거리 계산 메소드
@@ -159,7 +155,7 @@ public class CommonPlaceService {
 
 	//주소 기반 장소 찾기
 	@Transactional(readOnly = true)
-	public List<UserPlaceResponseDto> getPlaceByAddress(List<String> address, Long userId) {
+	public List<PlaceResponseDto> getPlaceByAddress(List<String> address, Long userId) {
 		//중복 제거를 위한 Set
 		Set<UserPlace> userPlaceSet = new HashSet<>();
 		address.forEach(partialAddress -> {
@@ -171,7 +167,7 @@ public class CommonPlaceService {
 		if (userPlaces.isEmpty()){
 			throw new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR);
 		}
-		return UserPlaceResponseDto.from(userPlaces);
+		return PlaceResponseDto.userPlace(userPlaces);
 
 
 	}
@@ -188,7 +184,7 @@ public class CommonPlaceService {
 	}
 
 	//친구 기반 장소 찾기
-	public List<UserPlaceResponseDto> getPlaceByFriend(Long userId) {
+	public List<PlaceResponseDto> getPlaceByFriend(Long userId) {
 		//사용자의 친구 ID 찾기
 		List<Long> friendsId = friendshipRepository.findFriends(userId)
 			.orElseThrow(() -> new BusinessException("Friend not found", GlobalErrorCode.NOT_FOUND_ERROR));
@@ -199,6 +195,6 @@ public class CommonPlaceService {
 			friendsCommonplaceSet.addAll(foundPlaces);
 		});
 		 List<UserPlace> friendsCommonplace = new ArrayList<>(friendsCommonplaceSet);
-		 return UserPlaceResponseDto.of(friendsCommonplace);
+		 return PlaceResponseDto.friend(friendsCommonplace);
 	}
 }
