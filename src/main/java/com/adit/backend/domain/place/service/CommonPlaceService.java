@@ -174,13 +174,8 @@ public class CommonPlaceService {
 
 	//장소 방문 여부 표시
 	public void checkVisitedPlace(Long userPlaceId) {
-		if (!userPlaceRepository.existsById((userPlaceId))){
-			throw new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR);
-		}
-		int updatedPlace = userPlaceRepository.checkByUserPlaceId(userPlaceId);
-		if (updatedPlace == 0){
-			throw new BusinessException("Place not update", GlobalErrorCode.UPDATE_ERROR);
-		}
+		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		place.updatedVisited();
 	}
 
 	//친구 기반 장소 찾기

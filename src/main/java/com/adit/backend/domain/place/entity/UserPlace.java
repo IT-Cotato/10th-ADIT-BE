@@ -39,4 +39,8 @@ public class UserPlace extends BaseEntity {
     public void updatedMemo(String memo){
         this.memo = memo;
     }
+
+    public void updatedVisited(){
+        this.visited = true;
+    }
 }
