@@ -97,6 +97,7 @@ public class CommonPlaceService {
 	//인기 기반으로 장소 찾기
 	@Transactional(readOnly = true)
 	public List<CommonPlaceResponseDto> getPlaceByPopular() {
+		//PlaceStatistics 엔티티에서 1위부터 5위까지의 commonplaceId를 가져옴
 		Pageable pageable = PageRequest.of(0,5);
 		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
@@ -159,6 +160,7 @@ public class CommonPlaceService {
 	//주소 기반 장소 찾기
 	@Transactional(readOnly = true)
 	public List<UserPlaceResponseDto> getPlaceByAddress(List<String> address, Long userId) {
+		//중복 제거를 위한 Set
 		Set<UserPlace> userPlaceSet = new HashSet<>();
 		address.forEach(partialAddress -> {
 			List<UserPlace> foundPlaces = userPlaceRepository.findByAddress(partialAddress, userId)
@@ -187,6 +189,7 @@ public class CommonPlaceService {
 
 	//친구 기반 장소 찾기
 	public List<UserPlaceResponseDto> getPlaceByFriend(Long userId) {
+		//사용자의 친구 ID 찾기
 		List<Long> friendsId = friendshipRepository.findFriends(userId)
 			.orElseThrow(() -> new BusinessException("Friend not found", GlobalErrorCode.NOT_FOUND_ERROR));
 

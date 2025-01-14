@@ -99,21 +99,21 @@ public class CommonPlaceController {
 	}
 
 	//현재 위치 기반 장소 찾기 API
-	@GetMapping("/location/{userId}")
+	@GetMapping("/{userId}/location")
 	public ResponseEntity<ApiResponse<List<UserPlaceResponseDto>>> getPlaceByLocation(@RequestParam double latitude, @RequestParam double longitude, @PathVariable Long userId){
 		List<UserPlaceResponseDto> placeByLocation = commonPlaceService.getPlaceByLocation(latitude,longitude, userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByLocation));
 	}
 
 	//주소 기반 장소 찾기 API
-	@GetMapping("/address/{userId}")
+	@GetMapping("/{userId}/address")
 	public ResponseEntity<ApiResponse<List<UserPlaceResponseDto>>> getPlaceByAddress(@RequestParam List<String> address, @PathVariable Long userId){
 		List<UserPlaceResponseDto> placeByAddress = commonPlaceService.getPlaceByAddress(address, userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByAddress));
 	}
 
 	//장소 방문 여부 표시 API
-	@PutMapping("/visit/{userPlaceId}")
+	@PutMapping("/{userPlaceId}/visit")
 	public ResponseEntity<ApiResponse<String>> checkVisitedPlace(@PathVariable Long userPlaceId){
 		commonPlaceService.checkVisitedPlace(userPlaceId);
 		return ResponseEntity.ok(ApiResponse.success("visit sign successfully"));
