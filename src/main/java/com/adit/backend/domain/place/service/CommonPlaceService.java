@@ -15,6 +15,7 @@ import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
+import com.adit.backend.domain.place.exception.placeException;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
 
@@ -55,7 +56,7 @@ public class CommonPlaceService {
 	@Transactional(readOnly = true)
 	public CommonPlace getPlaceById(Long placeId) {
 		return commonPlaceRepository.findById(placeId)
-			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+			.orElseThrow(() -> new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR));
 	}
 
 	// 장소 정보 업데이트
@@ -76,7 +77,7 @@ public class CommonPlaceService {
 	// 장소 삭제
 	public void deletePlace(Long placeId) {
 		if (!commonPlaceRepository.existsById(placeId)) {
-			throw new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR);
+			throw new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR);
 		}
 		commonPlaceRepository.deleteById(placeId);
 	}
@@ -84,8 +85,11 @@ public class CommonPlaceService {
 	//카테고리 기반으로 장소 찾기
 	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByCategory(String subCategory, Long userId) {
-		List<UserPlace> userPlaces = userPlaceRepository.findByCategory(subCategory, userId)
-			   .orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		List<UserPlace> userPlaces = userPlaceRepository.findByCategory(subCategory, userId);
+		if (userPlaces.isEmpty()){
+			throw new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR);
+		}
+
 		return  PlaceResponseDto.userPlace(userPlaces);
 
 	}
@@ -95,11 +99,13 @@ public class CommonPlaceService {
 	public List<PlaceResponseDto> getPlaceByPopular() {
 		//PlaceStatistics 엔티티에서 1위부터 5위까지의 commonplaceId를 가져옴
 		Pageable pageable = PageRequest.of(0,5);
-		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable)
-			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable);
+		if (commonPlacesId.isEmpty()){
+			throw new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR);
+		}
 		List<CommonPlace> commonPlaces = commonPlacesId.stream()
 										.map(id -> commonPlaceRepository.findById(id)
-											.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR))
+											.orElseThrow(() -> new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR))
 										)
 										.toList();
 
@@ -110,8 +116,10 @@ public class CommonPlaceService {
 	//저장된 장소 찾기
 	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getSavedPlace(Long userId) {
-		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId)
-			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
+		if (userPlaces.isEmpty()){
+			throw new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR);
+		}
 		return PlaceResponseDto.userPlace(userPlaces);
 	}
 
@@ -119,7 +127,7 @@ public class CommonPlaceService {
 	@Transactional(readOnly = true)
 	public PlaceResponseDto getDetailedPlace(String placeName) {
 		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(placeName)
-			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+			.orElseThrow(() -> new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR));
 		return PlaceResponseDto.commonPlace(commonPlace);
 
 	}
@@ -127,8 +135,10 @@ public class CommonPlaceService {
 	//현재 위치 기반 장소 찾기
 	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByLocation(double userLatitude, double userLongitude, Long userId) {
-		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId)
-			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
+		if (userPlaces.isEmpty()){
+			throw new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR);
+		}
 		if (userPlaces.size() == 1){
 			return PlaceResponseDto.userPlace(userPlaces);
 		}
@@ -159,13 +169,12 @@ public class CommonPlaceService {
 		//중복 제거를 위한 Set
 		Set<UserPlace> userPlaceSet = new HashSet<>();
 		address.forEach(partialAddress -> {
-			List<UserPlace> foundPlaces = userPlaceRepository.findByAddress(partialAddress, userId)
-				.orElse(Collections.emptyList());
+			List<UserPlace> foundPlaces = userPlaceRepository.findByAddress(partialAddress, userId);
 			userPlaceSet.addAll(foundPlaces);
 		});
 		List<UserPlace> userPlaces = new ArrayList<>(userPlaceSet);
 		if (userPlaces.isEmpty()){
-			throw new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR);
+			throw new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR);
 		}
 		return PlaceResponseDto.userPlace(userPlaces);
 
@@ -182,11 +191,11 @@ public class CommonPlaceService {
 	public List<PlaceResponseDto> getPlaceByFriend(Long userId) {
 		//사용자의 친구 ID 찾기
 		List<Long> friendsId = friendshipRepository.findFriends(userId)
-			.orElseThrow(() -> new BusinessException("Friend not found", GlobalErrorCode.NOT_FOUND_ERROR));
+			.orElseThrow(() -> new placeException(GlobalErrorCode.ID_NOT_FOUND_ERROR));
 
 		Set<UserPlace> friendsCommonplaceSet = new HashSet<>();
 		friendsId.forEach(id -> {
-			List<UserPlace> foundPlaces = userPlaceRepository.findByUserId(id).orElse(Collections.emptyList());
+			List<UserPlace> foundPlaces = userPlaceRepository.findByUserId(id);
 			friendsCommonplaceSet.addAll(foundPlaces);
 		});
 		 List<UserPlace> friendsCommonplace = new ArrayList<>(friendsCommonplaceSet);
@@ -195,7 +204,7 @@ public class CommonPlaceService {
 
 	//장소 메모 수정
 	public PlaceResponseDto updateUserPlace(Long userPlaceId, String memo) {
-		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
+		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR));
 		place.updatedMemo(memo);
 		return PlaceResponseDto.userPlace(place);
 	}

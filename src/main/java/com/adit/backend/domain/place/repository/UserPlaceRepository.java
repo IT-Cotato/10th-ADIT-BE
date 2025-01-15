@@ -18,12 +18,12 @@ import com.adit.backend.domain.place.entity.UserPlace;
 @Repository
 public interface UserPlaceRepository extends JpaRepository<UserPlace, Long> {
 	@Query("SELECT up FROM UserPlace up WHERE up.user.id = :userId AND up.commonPlace.subCategory = :subCategory")
-	Optional<List<UserPlace>> findByCategory(@Param("subCategory") String subCategory,@Param("userId") Long userId);
+	List<UserPlace> findByCategory(@Param("subCategory") String subCategory,@Param("userId") Long userId);
 
 	@Query("SELECT up FROM UserPlace up where up.user.id = :userId")
-	Optional<List<UserPlace>> findByUserId(@Param("userId") Long userId);
+	List<UserPlace> findByUserId(@Param("userId") Long userId);
 
 	@Query("SELECT up FROM UserPlace up where up.commonPlace.addressName LIKE %:partialAddress% AND up.user.id = :userId")
-	Optional<List<UserPlace>> findByAddress(@Param("partialAddress") String partialAddress, @Param("userId") Long userId);
+	List<UserPlace> findByAddress(@Param("partialAddress") String partialAddress, @Param("userId") Long userId);
 
 }

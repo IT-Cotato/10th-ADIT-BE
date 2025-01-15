@@ -114,13 +114,20 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	// Crawling
 	INVALID_URL(BAD_REQUEST, "501" , "유효하지 않은 URL입니다."),
-  
+
 	PLATFORM_NOT_SUPPORTED(NOT_FOUND,"502" , "지원하지 않는 플랫폼입니다."),
-  
+
 	CRAWLING_FAILED(BAD_REQUEST,"503" ,"크롤링을 실패했습니다." ),
 
 	//scraper
 	SCRAPER_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "4001", "API 호출을 실패했습니다"),
+
+	FIELD_NOT_FOUND(NOT_FOUND, "4002", "해당 필드를 찾지 못했습니다"),
+
+	//place
+	PLACE_NOT_FOUND_ERROR(NOT_FOUND, "5001", "해당 장소를 찾지 못했습니다"),
+
+	ID_NOT_FOUND_ERROR(NOT_FOUND, "5002", "해당 ID를 찾지 못했습니다"),
 
 	FIELD_NOT_FOUND(NOT_FOUND, "4002", "해당 필드를 찾지 못했습니다"),
 
