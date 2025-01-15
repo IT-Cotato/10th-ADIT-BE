@@ -59,7 +59,7 @@ public class CommonPlaceService {
 		return commonPlaceRepository.save(place);
 	}
 
-	public UserPlace createUserPlace(CommonPlace place, Long userId, String memo) {
+	public UserPlace createUserPlace(Long userId, CommonPlace place,String memo) {
 		if (memo.isBlank()){
 			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
 		}
@@ -67,11 +67,10 @@ public class CommonPlaceService {
 			.orElseThrow(() -> new UserException(GlobalErrorCode.USER_NOT_FOUND));
 		UserPlace userPlace = UserPlace.builder()
 			.user(user)
-			.commonPlace(place)
 			.memo(memo)
 			.visited(false)
 			.build();
-
+		place.addUserPlace(userPlace);
 		return userPlaceRepository.save(userPlace);
 	}
 
