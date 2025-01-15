@@ -14,7 +14,10 @@ import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
-import com.adit.backend.domain.place.exception.placeException;
+import com.adit.backend.domain.place.exception.CommonPlaceNotFoundException;
+import com.adit.backend.domain.place.exception.FriendNotFoundException;
+import com.adit.backend.domain.place.exception.NotValidException;
+import com.adit.backend.domain.place.exception.UserPlaceNotFoundException;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
 
@@ -57,6 +60,9 @@ public class CommonPlaceService {
 	}
 
 	public UserPlace createUserPlace(CommonPlace place, Long userId, String memo) {
+		if (memo.isBlank()){
+			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
+		}
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new UserException(GlobalErrorCode.USER_NOT_FOUND));
 		UserPlace userPlace = UserPlace.builder()
@@ -74,7 +80,7 @@ public class CommonPlaceService {
 	@Transactional(readOnly = true)
 	public CommonPlace getPlaceById(Long placeId) {
 		return commonPlaceRepository.findById(placeId)
-			.orElseThrow(() -> new placeException(GlobalErrorCode.COMMON_PLACE_NOT_FOUND));
+			.orElseThrow(() -> new CommonPlaceNotFoundException("CommonPlace not found"));
 	}
 
 	// 장소 정보 업데이트
@@ -95,7 +101,7 @@ public class CommonPlaceService {
 	// 장소 삭제
 	public void deletePlace(Long userPlaceId) {
 		if (!userPlaceRepository.existsById(userPlaceId)) {
-			throw new placeException(GlobalErrorCode.USER_PLACE_NOT_FOUND);
+			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
 		userPlaceRepository.deleteById(userPlaceId);
 	}
@@ -103,9 +109,12 @@ public class CommonPlaceService {
 	//카테고리 기반으로 장소 찾기
 	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByCategory(String subCategory, Long userId) {
+		if (subCategory.isBlank()){
+			throw new NotValidException("RequestParam not valid");
+		}
 		List<UserPlace> userPlaces = userPlaceRepository.findByCategory(subCategory, userId);
 		if (userPlaces.isEmpty()){
-			throw new placeException(GlobalErrorCode.USER_PLACE_NOT_FOUND);
+			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
 
 		return  PlaceResponseDto.userPlace(userPlaces);
@@ -118,12 +127,9 @@ public class CommonPlaceService {
 		//PlaceStatistics 엔티티에서 1위부터 5위까지의 commonplaceId를 가져옴
 		Pageable pageable = PageRequest.of(0,5);
 		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable);
-		if (commonPlacesId.isEmpty()){
-			throw new placeException(GlobalErrorCode.COMMON_PLACE_NOT_FOUND);
-		}
 		List<CommonPlace> commonPlaces = commonPlacesId.stream()
 										.map(id -> commonPlaceRepository.findById(id)
-											.orElseThrow(() -> new placeException(GlobalErrorCode.COMMON_PLACE_NOT_FOUND))
+											.orElseThrow(() -> new CommonPlaceNotFoundException("CommonPlace not found"))
 										)
 										.toList();
 
@@ -136,7 +142,7 @@ public class CommonPlaceService {
 	public List<PlaceResponseDto> getSavedPlace(Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
 		if (userPlaces.isEmpty()){
-			throw new placeException(GlobalErrorCode.USER_PLACE_NOT_FOUND);
+			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
 		return PlaceResponseDto.userPlace(userPlaces);
 	}
@@ -144,8 +150,11 @@ public class CommonPlaceService {
 	//특정 장소 상세정보 찾기
 	@Transactional(readOnly = true)
 	public PlaceResponseDto getDetailedPlace(String placeName) {
+		if (placeName.isBlank()){
+			throw new NotValidException("RequestParam not valid");
+		}
 		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(placeName)
-			.orElseThrow(() -> new placeException(GlobalErrorCode.COMMON_PLACE_NOT_FOUND));
+			.orElseThrow(() -> new CommonPlaceNotFoundException("CommonPlace not found"));
 		return PlaceResponseDto.commonPlace(commonPlace);
 
 	}
@@ -155,7 +164,7 @@ public class CommonPlaceService {
 	public List<PlaceResponseDto> getPlaceByLocation(double userLatitude, double userLongitude, Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
 		if (userPlaces.isEmpty()){
-			throw new placeException(GlobalErrorCode.USER_PLACE_NOT_FOUND);
+			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
 		if (userPlaces.size() == 1){
 			return PlaceResponseDto.userPlace(userPlaces);
@@ -184,6 +193,9 @@ public class CommonPlaceService {
 	//주소 기반 장소 찾기
 	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByAddress(List<String> address, Long userId) {
+		if (address.stream().anyMatch(String::isBlank)) {
+			throw new NotValidException("RequestParam not valid");
+		}
 		//중복 제거를 위한 Set
 		Set<UserPlace> userPlaceSet = new HashSet<>();
 		address.forEach(partialAddress -> {
@@ -192,7 +204,7 @@ public class CommonPlaceService {
 		});
 		List<UserPlace> userPlaces = new ArrayList<>(userPlaceSet);
 		if (userPlaces.isEmpty()){
-			throw new placeException(GlobalErrorCode.USER_PLACE_NOT_FOUND);
+			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
 		return PlaceResponseDto.userPlace(userPlaces);
 
@@ -201,7 +213,7 @@ public class CommonPlaceService {
 
 	//장소 방문 여부 표시
 	public void checkVisitedPlace(Long userPlaceId) {
-		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new placeException(GlobalErrorCode.USER_PLACE_NOT_FOUND));
+		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new UserPlaceNotFoundException("UserPlace not found"));
 		place.updatedVisited();
 	}
 
@@ -210,7 +222,7 @@ public class CommonPlaceService {
 		//사용자의 친구 ID 찾기
 		List<Long> friendsId = friendshipRepository.findFriends(userId);
 		if (friendsId.isEmpty()){
-			throw new placeException(GlobalErrorCode.FRIEND_NOT_FOUND);
+			throw new FriendNotFoundException("Friend not found");
 		}
 
 		Set<UserPlace> friendsCommonplaceSet = new HashSet<>();
@@ -224,7 +236,10 @@ public class CommonPlaceService {
 
 	//장소 메모 수정
 	public PlaceResponseDto updateUserPlace(Long userPlaceId, String memo) {
-		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new placeException(GlobalErrorCode.USER_PLACE_NOT_FOUND));
+		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new UserPlaceNotFoundException("UserPlace not found"));
+		if (memo.isBlank()){
+			throw new NotValidException("RequestParam not valid");
+		}
 		place.updatedMemo(memo);
 		return PlaceResponseDto.userPlace(place);
 	}
