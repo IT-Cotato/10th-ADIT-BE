@@ -112,7 +112,11 @@ public enum GlobalErrorCode implements ErrorCode {
 	//scraper
 	SCRAPER_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "4001", "API 호출을 실패했습니다"),
 
-	FIELD_NOT_FOUND(NOT_FOUND, "4002", "해당 필드를 찾지 못했습니다");
+	FIELD_NOT_FOUND(NOT_FOUND, "4002", "해당 필드를 찾지 못했습니다"),
+
+	//place
+	PLACE_NOT_FOUND_ERROR(NOT_FOUND, "5001", "해당 장소를 찾지 못했습니다"),
+	ID_NOT_FOUND_ERROR(NOT_FOUND, "5002", "해당 ID를 찾지 못했습니다");
 
 	// 에러 코드의 '코드 상태'을 반환한다.
 	private final HttpStatus httpStatus;
