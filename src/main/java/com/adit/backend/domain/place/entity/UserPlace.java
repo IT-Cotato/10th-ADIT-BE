@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,6 +36,14 @@ public class UserPlace extends BaseEntity {
 
     private String memo;
     private Boolean visited;
+
+    @Builder
+    public UserPlace(User user, CommonPlace commonPlace,String memo, Boolean visited){
+        this.user = user;
+        this.commonPlace = commonPlace;
+        this.memo = memo;
+        this.visited = visited;
+    }
 
     public void updatedMemo(String memo){
         this.memo = memo;

@@ -1,7 +1,6 @@
 package com.adit.backend.domain.place.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +18,10 @@ import com.adit.backend.domain.place.exception.placeException;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
 
+import com.adit.backend.domain.user.entity.User;
+import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.domain.user.repository.FriendshipRepository;
+import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.error.exception.BusinessException;
 
@@ -36,9 +38,10 @@ public class CommonPlaceService {
 	private final CommonPlaceRepository commonPlaceRepository;
 	private final UserPlaceRepository userPlaceRepository;
 	private final FriendshipRepository friendshipRepository;
+	private final UserRepository userRepository;
 
 	// 새로운 장소 생성
-	public CommonPlace createPlace(CommonPlaceRequestDto requestDto) {
+	public CommonPlace createCommonPlace(CommonPlaceRequestDto requestDto) {
 		CommonPlace place = CommonPlace.builder()
 			.placeName(requestDto.placeName())
 			.addressName(requestDto.addressName())
@@ -52,6 +55,21 @@ public class CommonPlaceService {
 		// DB에 저장하고 반환
 		return commonPlaceRepository.save(place);
 	}
+
+	public UserPlace createUserPlace(CommonPlace place, Long userId, String memo) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new UserException(GlobalErrorCode.USER_NOT_FOUND));
+		UserPlace userPlace = UserPlace.builder()
+			.user(user)
+			.commonPlace(place)
+			.memo(memo)
+			.visited(false)
+			.build();
+
+		return userPlaceRepository.save(userPlace);
+	}
+
+
 	// 장소 ID로 조회
 	@Transactional(readOnly = true)
 	public CommonPlace getPlaceById(Long placeId) {
@@ -208,4 +226,5 @@ public class CommonPlaceService {
 		place.updatedMemo(memo);
 		return PlaceResponseDto.userPlace(place);
 	}
+
 }
