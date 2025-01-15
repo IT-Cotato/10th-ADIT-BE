@@ -117,8 +117,8 @@ public class CommonPlaceService {
 
 	//특정 장소 상세정보 찾기
 	@Transactional(readOnly = true)
-	public PlaceResponseDto getDetailedPlace(String businessName) {
-		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(businessName)
+	public PlaceResponseDto getDetailedPlace(String placeName) {
+		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(placeName)
 			.orElseThrow(() -> new BusinessException("Place not found", GlobalErrorCode.NOT_FOUND_ERROR));
 		return PlaceResponseDto.commonPlace(commonPlace);
 
