@@ -75,11 +75,11 @@ public class CommonPlaceService {
 	}
 
 	// 장소 삭제
-	public void deletePlace(Long placeId) {
-		if (!commonPlaceRepository.existsById(placeId)) {
+	public void deletePlace(Long userPlaceId) {
+		if (!userPlaceRepository.existsById(userPlaceId)) {
 			throw new placeException(GlobalErrorCode.PLACE_NOT_FOUND_ERROR);
 		}
-		commonPlaceRepository.deleteById(placeId);
+		userPlaceRepository.deleteById(userPlaceId);
 	}
 
 	//카테고리 기반으로 장소 찾기
