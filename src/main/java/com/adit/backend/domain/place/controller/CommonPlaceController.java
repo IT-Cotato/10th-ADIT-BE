@@ -67,11 +67,11 @@ public class CommonPlaceController {
 	}
 
 	// 장소 삭제 API
-	@Operation(summary = "장소 삭제", description = "")
-	@DeleteMapping("/{placeId}")
-	public ResponseEntity<ApiResponse<String>> deletePlace(@PathVariable @Min(1)Long placeId) {
+	@Operation(summary = "장소 삭제", description = "userPlaceId에 해당하는 장소 삭제")
+	@DeleteMapping("/{userPlaceId}")
+	public ResponseEntity<ApiResponse<String>> deletePlace(@PathVariable @Min(1)Long userPlaceId) {
 		// ID로 장소를 삭제
-		commonPlaceService.deletePlace(placeId);
+		commonPlaceService.deletePlace(userPlaceId);
 		// 삭제 완료 메시지 응답
 		return ResponseEntity.ok(ApiResponse.success("Place deleted successfully"));
 	}
