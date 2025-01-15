@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.adit.backend.domain.place.exception.placeException;
 import com.adit.backend.domain.scraper.exception.scraperException;
 import com.adit.backend.global.common.ApiResponse;
 
@@ -159,5 +160,14 @@ public class GlobalExceptionHandler {
 		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
 		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HttpStatus.OK);
 	}
+
+	@ExceptionHandler(placeException.class)
+	protected final ResponseEntity<ErrorResponse> handlePlaceNotFoundException(placeException ex){
+		log.error("placeException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(ex.getErrorCode(), ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
+
+
 
 }

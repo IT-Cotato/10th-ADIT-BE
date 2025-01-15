@@ -115,9 +115,11 @@ public enum GlobalErrorCode implements ErrorCode {
 	FIELD_NOT_FOUND(NOT_FOUND, "4002", "해당 필드를 찾지 못했습니다"),
 
 	//place
-	PLACE_NOT_FOUND_ERROR(NOT_FOUND, "5001", "해당 장소를 찾지 못했습니다"),
+	COMMON_PLACE_NOT_FOUND(NOT_FOUND, "5001", "해당 Common Place 를 찾지 못했습니다"),
 
-	ID_NOT_FOUND_ERROR(NOT_FOUND, "5002", "해당 ID를 찾지 못했습니다");
+	USER_PLACE_NOT_FOUND(NOT_FOUND, "5002", "해당 User Place 를 찾지 못했습니다"),
+
+	FRIEND_NOT_FOUND(NOT_FOUND, "5003", "등록된 친구가 없습니다");
 
 	// 에러 코드의 '코드 상태'을 반환한다.
 	private final HttpStatus httpStatus;
