@@ -18,5 +18,5 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
 		"    FROM Friendship f2 " +
 		"    WHERE f2.toUser.id = :userId AND f2.status = 'accept' " +
 		")")
-	Optional<List<Long>> findFriends(@Param("userId") Long userId);
+	List<Long> findFriends(@Param("userId") Long userId);
 }

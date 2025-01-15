@@ -17,6 +17,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.adit.backend.domain.event.exception.EventAlreadyExistsException;
 import com.adit.backend.domain.event.exception.EventNotFoundException;
+import com.adit.backend.domain.place.exception.placeException;
 import com.adit.backend.domain.scraper.exception.scraperException;
 import com.adit.backend.global.common.ApiResponse;
 import com.adit.backend.global.error.exception.BusinessException;
@@ -228,5 +229,14 @@ public class GlobalExceptionHandler {
 	// 	final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_DELETION_FAILED, ex.getMessage());
 	// 	return new ResponseEntity<>(response, HttpStatus.OK);
 	// }
+
+	@ExceptionHandler(placeException.class)
+	protected final ResponseEntity<ErrorResponse> handlePlaceNotFoundException(placeException ex){
+		log.error("placeException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(ex.getErrorCode(), ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
+
+
 
 }
