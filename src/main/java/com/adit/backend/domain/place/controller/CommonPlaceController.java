@@ -52,7 +52,8 @@ public class CommonPlaceController {
 
 		// 장소 정보를 받아 CommonPlaceService에서 처리
 		CommonPlace place = commonPlaceService.createCommonPlace(requestDto);
-		UserPlace userPlace = commonPlaceService.createUserPlace(place, userId, memo);
+		UserPlace userPlace = commonPlaceService.createUserPlace(userId, place, memo);
+
 
 		// 생성된 장소를 응답으로 반환
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(PlaceResponseDto.commonPlace(place)));

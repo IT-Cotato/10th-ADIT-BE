@@ -52,4 +52,5 @@ public class UserPlace extends BaseEntity {
     public void updatedVisited(){
         this.visited = true;
     }
+
 }
