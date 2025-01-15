@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
+import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.service.CommonPlaceService;
 import com.adit.backend.global.common.ApiResponse;
 import com.adit.backend.global.error.GlobalErrorCode;
@@ -30,7 +31,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -46,11 +46,16 @@ public class CommonPlaceController {
 
 	// 장소 생성 API
 	@Operation(summary = "장소 생성", description = "카카오 맵 키워드 검색 후 CommonPlace, UserPlace 에 장소를 저장합니다")
-	@PostMapping
+	@PostMapping("/{userId}/create")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> createPlace(
-		@Valid @RequestBody CommonPlaceRequestDto requestDto) {
+		@Valid @RequestBody CommonPlaceRequestDto requestDto,@PathVariable@Min(1) Long userId,@RequestParam String memo) {
+		if (memo.isBlank()){
+			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
+		}
 		// 장소 정보를 받아 CommonPlaceService에서 처리
-		CommonPlace place = commonPlaceService.createPlace(requestDto);
+		CommonPlace place = commonPlaceService.createCommonPlace(requestDto);
+		UserPlace userPlace = commonPlaceService.createUserPlace(place, userId, memo);
+
 		// 생성된 장소를 응답으로 반환
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(PlaceResponseDto.commonPlace(place)));
 	}
