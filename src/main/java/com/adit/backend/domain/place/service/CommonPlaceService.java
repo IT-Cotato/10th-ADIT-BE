@@ -108,16 +108,21 @@ public class CommonPlaceService {
 
 	//카테고리 기반으로 장소 찾기
 	@Transactional(readOnly = true)
-	public List<PlaceResponseDto> getPlaceByCategory(String subCategory, Long userId) {
-		if (subCategory.isBlank()){
+	public List<PlaceResponseDto> getPlaceByCategory(List<String> subCategory, Long userId) {
+		if (subCategory.stream().anyMatch(String::isBlank)) {
 			throw new NotValidException("RequestParam not valid");
 		}
-		List<UserPlace> userPlaces = userPlaceRepository.findByCategory(subCategory, userId);
+		//중복 제거를 위한 Set
+		Set<UserPlace> userPlaceSet = new HashSet<>();
+		subCategory.forEach(partialCategory -> {
+			List<UserPlace> foundPlaces = userPlaceRepository.findByCategory(partialCategory, userId);
+			userPlaceSet.addAll(foundPlaces);
+		});
+		List<UserPlace> userPlaces = new ArrayList<>(userPlaceSet);
 		if (userPlaces.isEmpty()){
 			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
-
-		return  PlaceResponseDto.userPlace(userPlaces);
+		return PlaceResponseDto.userPlace(userPlaces);
 
 	}
 

@@ -82,7 +82,7 @@ public class CommonPlaceController {
 	// 카테고리 기반으로 장소 찾기 API
 	@Operation(summary = "카테고리로 장소 조회", description = "userId에 해당하는 사용자가 가진 장소 중 특정 카테고리에 해당하는 장소 조회")
 	@GetMapping("/{userId}/category")
-	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByCategory(@RequestParam String subCategory, @PathVariable @Min(1) Long userId){
+	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByCategory(@RequestParam List<String> subCategory, @PathVariable @Min(1) Long userId){
 
 		List<PlaceResponseDto> placeByCategory = commonPlaceService.getPlaceByCategory(subCategory, userId);
 
