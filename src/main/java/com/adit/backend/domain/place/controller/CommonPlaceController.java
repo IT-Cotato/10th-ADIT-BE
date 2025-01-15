@@ -28,6 +28,9 @@ import com.adit.backend.global.error.exception.BusinessException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -76,14 +79,12 @@ public class CommonPlaceController {
 	// 카테고리 기반으로 장소 찾기 API
 	@Operation(summary = "카테고리로 장소 조회", description = "userId에 해당하는 사용자가 가진 장소 중 특정 카테고리에 해당하는 장소 조회")
 	@GetMapping("/{userId}/category")
-	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByCategory(@RequestParam String subCategory, @PathVariable @Min(1) Long userID){
+	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByCategory(@RequestParam String subCategory, @PathVariable @Min(1) Long userId){
 		if (subCategory.isBlank()){
 			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
 		}
-		if (userID <= 0){
-			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
-		}
-		List<PlaceResponseDto> placeByCategory = commonPlaceService.getPlaceByCategory(subCategory, userID);
+
+		List<PlaceResponseDto> placeByCategory = commonPlaceService.getPlaceByCategory(subCategory, userId);
 
 		return ResponseEntity.ok(ApiResponse.success(placeByCategory));
 	}
@@ -108,6 +109,9 @@ public class CommonPlaceController {
 	@Operation(summary = "특정 장소 상세 정보 조회", description = "해당 placeName(상호명)을 가진 장소 조회")
 	@GetMapping("/detail")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> getDetailedPlace(@RequestParam String placeName){
+		if (placeName.isBlank()){
+			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
+		}
 		PlaceResponseDto detailedPlace = commonPlaceService.getDetailedPlace(placeName);
 		return ResponseEntity.ok(ApiResponse.success(detailedPlace));
 	}
@@ -115,7 +119,7 @@ public class CommonPlaceController {
 	//현재 위치 기반 장소 찾기 API
 	@Operation(summary = "사용자 위치로 장소 조회", description = "userId에 해당하는 사용자가 가진 장소 중 사용자의 위치와 가까운 순으로 장소 조회")
 	@GetMapping("/{userId}/location")
-	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByLocation(@RequestParam double latitude, @RequestParam double longitude, @PathVariable@Min(1) Long userId){
+	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByLocation(@RequestParam @DecimalMin("33.0") @DecimalMax("43.0") double latitude, @RequestParam @DecimalMin("124.0") @DecimalMax("132.0") double longitude, @PathVariable@Min(1) Long userId){
 		List<PlaceResponseDto> placeByLocation = commonPlaceService.getPlaceByLocation(latitude,longitude, userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByLocation));
 	}
@@ -124,6 +128,9 @@ public class CommonPlaceController {
 	@Operation(summary = "주소로 장소 조회", description = "userId에 해당하는 사용자가 가진 장소 중 address 를 포함하고 있는 장소 조회")
 	@GetMapping("/{userId}/address")
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByAddress(@RequestParam List<String> address, @PathVariable@Min(1) Long userId){
+		if (address.stream().anyMatch(String::isBlank)) {
+			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
+		}
 		List<PlaceResponseDto> placeByAddress = commonPlaceService.getPlaceByAddress(address, userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByAddress));
 	}
@@ -148,6 +155,9 @@ public class CommonPlaceController {
 	@Operation(summary = "장소 메모 수정", description = "userPlaceId에 해당하는 장소의 메모를 수정")
 	@PutMapping("/{userPlaceId}/memo")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlace(@PathVariable@Min(1) Long userPlaceId , @RequestParam String memo){
+		if (memo.isBlank()){
+			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
+		}
 		PlaceResponseDto updateUserPlace = commonPlaceService.updateUserPlace(userPlaceId, memo);
 		return ResponseEntity.ok(ApiResponse.success(updateUserPlace));
 	}
