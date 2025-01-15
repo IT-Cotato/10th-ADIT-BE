@@ -49,9 +49,7 @@ public class CommonPlaceController {
 	@PostMapping("/{userId}/create")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> createPlace(
 		@Valid @RequestBody CommonPlaceRequestDto requestDto,@PathVariable@Min(1) Long userId,@RequestParam String memo) {
-		if (memo.isBlank()){
-			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
-		}
+
 		// 장소 정보를 받아 CommonPlaceService에서 처리
 		CommonPlace place = commonPlaceService.createCommonPlace(requestDto);
 		UserPlace userPlace = commonPlaceService.createUserPlace(place, userId, memo);
@@ -85,9 +83,6 @@ public class CommonPlaceController {
 	@Operation(summary = "카테고리로 장소 조회", description = "userId에 해당하는 사용자가 가진 장소 중 특정 카테고리에 해당하는 장소 조회")
 	@GetMapping("/{userId}/category")
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByCategory(@RequestParam String subCategory, @PathVariable @Min(1) Long userId){
-		if (subCategory.isBlank()){
-			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
-		}
 
 		List<PlaceResponseDto> placeByCategory = commonPlaceService.getPlaceByCategory(subCategory, userId);
 
@@ -114,9 +109,7 @@ public class CommonPlaceController {
 	@Operation(summary = "특정 장소 상세 정보 조회", description = "해당 placeName(상호명)을 가진 장소 조회")
 	@GetMapping("/detail")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> getDetailedPlace(@RequestParam String placeName){
-		if (placeName.isBlank()){
-			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
-		}
+
 		PlaceResponseDto detailedPlace = commonPlaceService.getDetailedPlace(placeName);
 		return ResponseEntity.ok(ApiResponse.success(detailedPlace));
 	}
@@ -133,9 +126,7 @@ public class CommonPlaceController {
 	@Operation(summary = "주소로 장소 조회", description = "userId에 해당하는 사용자가 가진 장소 중 address 를 포함하고 있는 장소 조회")
 	@GetMapping("/{userId}/address")
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByAddress(@RequestParam List<String> address, @PathVariable@Min(1) Long userId){
-		if (address.stream().anyMatch(String::isBlank)) {
-			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
-		}
+
 		List<PlaceResponseDto> placeByAddress = commonPlaceService.getPlaceByAddress(address, userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByAddress));
 	}
@@ -160,9 +151,7 @@ public class CommonPlaceController {
 	@Operation(summary = "장소 메모 수정", description = "userPlaceId에 해당하는 장소의 메모를 수정")
 	@PutMapping("/{userPlaceId}/memo")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlace(@PathVariable@Min(1) Long userPlaceId , @RequestParam String memo){
-		if (memo.isBlank()){
-			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
-		}
+
 		PlaceResponseDto updateUserPlace = commonPlaceService.updateUserPlace(userPlaceId, memo);
 		return ResponseEntity.ok(ApiResponse.success(updateUserPlace));
 	}
