@@ -41,7 +41,7 @@ public class UserPlaceQueryService {
 			userPlaceSet.addAll(foundPlaces);
 		});
 		List<UserPlace> userPlaces = new ArrayList<>(userPlaceSet);
-		if (userPlaces.isEmpty()){
+		if (userPlaces.isEmpty()) {
 			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
 
@@ -53,7 +53,7 @@ public class UserPlaceQueryService {
 	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getSavedPlace(Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
-		if (userPlaces.isEmpty()){
+		if (userPlaces.isEmpty()) {
 			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
 		return userPlaces.stream().map(placeConverter::userPlaceToResponse).toList();
@@ -63,17 +63,19 @@ public class UserPlaceQueryService {
 	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByLocation(double userLatitude, double userLongitude, Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
-		if (userPlaces.isEmpty()){
+		if (userPlaces.isEmpty()) {
 			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
-		if (userPlaces.size() == 1){
+		if (userPlaces.size() == 1) {
 			return userPlaces.stream().map(placeConverter::userPlaceToResponse).toList();
 		}
 		// 저장한 장소가 2개 이상일때 정렬
 		List<UserPlace> placeByLocation = userPlaces.stream().sorted((place1, place2) -> {
-				double distance1 = getDistance(place1.getCommonPlace().getLatitude().doubleValue(),place1.getCommonPlace().getLongitude().doubleValue(), userLatitude, userLongitude);
-				double distance2 = getDistance(place2.getCommonPlace().getLatitude().doubleValue(),place2.getCommonPlace().getLongitude().doubleValue(), userLatitude, userLongitude);
-				return Double.compare(distance1,distance2);
+				double distance1 = getDistance(place1.getCommonPlace().getLatitude().doubleValue(),
+					place1.getCommonPlace().getLongitude().doubleValue(), userLatitude, userLongitude);
+				double distance2 = getDistance(place2.getCommonPlace().getLatitude().doubleValue(),
+					place2.getCommonPlace().getLongitude().doubleValue(), userLatitude, userLongitude);
+				return Double.compare(distance1, distance2);
 			})
 			.toList();
 		return placeByLocation.stream().map(placeConverter::userPlaceToResponse).toList();
@@ -85,8 +87,10 @@ public class UserPlaceQueryService {
 		double dLat = Math.toRadians(lat2 - lat1);
 		double dLon = Math.toRadians(lon2 - lon1);
 
-		double a = Math.sin(dLat/2)* Math.sin(dLat/2)+ Math.cos(Math.toRadians(lat1))* Math.cos(Math.toRadians(lat2))* Math.sin(dLon/2)* Math.sin(dLon/2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		double a =
+			Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+				* Math.sin(dLon / 2) * Math.sin(dLon / 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 		return R * c;
 	}
 
@@ -103,11 +107,10 @@ public class UserPlaceQueryService {
 			userPlaceSet.addAll(foundPlaces);
 		});
 		List<UserPlace> userPlaces = new ArrayList<>(userPlaceSet);
-		if (userPlaces.isEmpty()){
+		if (userPlaces.isEmpty()) {
 			throw new UserPlaceNotFoundException("UserPlace not found");
 		}
 		return userPlaces.stream().map(placeConverter::userPlaceToResponse).toList();
-
 
 	}
 
@@ -115,7 +118,7 @@ public class UserPlaceQueryService {
 	public List<PlaceResponseDto> getPlaceByFriend(Long userId) {
 		//사용자의 친구 ID 찾기
 		List<Long> friendsId = friendshipRepository.findFriends(userId);
-		if (friendsId.isEmpty()){
+		if (friendsId.isEmpty()) {
 			throw new FriendNotFoundException("Friend not found");
 		}
 

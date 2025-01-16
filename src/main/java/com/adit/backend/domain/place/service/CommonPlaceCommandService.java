@@ -7,9 +7,7 @@ import com.adit.backend.domain.place.converter.PlaceConverter;
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
-import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.exception.CommonPlaceNotFoundException;
-import com.adit.backend.domain.place.exception.UserPlaceNotFoundException;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -45,6 +43,5 @@ public class CommonPlaceCommandService {
 		);
 		return placeConverter.commonPlaceToResponse(place);
 	}
-
 
 }

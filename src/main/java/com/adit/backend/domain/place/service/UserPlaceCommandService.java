@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.place.converter.PlaceConverter;
-import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
@@ -28,8 +27,8 @@ public class UserPlaceCommandService {
 	private final UserPlaceRepository userPlaceRepository;
 	private final PlaceConverter placeConverter;
 
-	public PlaceResponseDto createUserPlace(Long userId, PlaceResponseDto responseDto,String memo) {
-		if (memo.isBlank()){
+	public PlaceResponseDto createUserPlace(Long userId, PlaceResponseDto responseDto, String memo) {
+		if (memo.isBlank()) {
 			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
 		}
 		User user = userRepository.findById(userId)
@@ -44,6 +43,7 @@ public class UserPlaceCommandService {
 		UserPlace savePlace = userPlaceRepository.save(userPlace);
 		return placeConverter.userPlaceToResponse(savePlace);
 	}
+
 	// 장소 삭제
 	public void deletePlace(Long userPlaceId) {
 		if (!userPlaceRepository.existsById(userPlaceId)) {
@@ -54,8 +54,9 @@ public class UserPlaceCommandService {
 
 	//장소 메모 수정
 	public PlaceResponseDto updateUserPlace(Long userPlaceId, String memo) {
-		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new UserPlaceNotFoundException("UserPlace not found"));
-		if (memo.isBlank()){
+		UserPlace place = userPlaceRepository.findById(userPlaceId)
+			.orElseThrow(() -> new UserPlaceNotFoundException("UserPlace not found"));
+		if (memo.isBlank()) {
 			throw new NotValidException("RequestParam not valid");
 		}
 		place.updatedMemo(memo);
@@ -64,7 +65,8 @@ public class UserPlaceCommandService {
 
 	//장소 방문 여부 표시
 	public void checkVisitedPlace(Long userPlaceId) {
-		UserPlace place = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new UserPlaceNotFoundException("UserPlace not found"));
+		UserPlace place = userPlaceRepository.findById(userPlaceId)
+			.orElseThrow(() -> new UserPlaceNotFoundException("UserPlace not found"));
 		place.updatedVisited();
 	}
 }

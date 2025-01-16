@@ -24,11 +24,13 @@ public class CommonPlaceQueryService {
 	private final CommonPlaceRepository commonPlaceRepository;
 	private final PlaceConverter placeConverter;
 
+	private static final int DEFAULT_PAGE_NUMBER = 0;
+	private static final int DEFAULT_PAGE_SIZE = 5;
 	//인기 기반으로 장소 찾기
 	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByPopular() {
 		//PlaceStatistics 엔티티에서 1위부터 5위까지의 commonplaceId를 가져옴
-		Pageable pageable = PageRequest.of(0,5);
+		Pageable pageable = PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE);
 		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable);
 		List<CommonPlace> commonPlaces = commonPlacesId.stream()
 			.map(id -> commonPlaceRepository.findById(id)
