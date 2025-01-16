@@ -20,14 +20,14 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PlaceStatistics extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "common_place_id", nullable = false)
-    private CommonPlace commonPlace;
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "common_place_id", nullable = false)
+	private CommonPlace commonPlace;
 
-    private Integer bookmarkCount;
-    private Integer visitCount;
+	private Integer bookmarkCount;
+	private Integer visitCount;
 }

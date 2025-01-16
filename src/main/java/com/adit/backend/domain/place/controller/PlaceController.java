@@ -2,8 +2,6 @@ package com.adit.backend.domain.place.controller;
 
 import java.util.List;
 
-
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -19,12 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
-import com.adit.backend.domain.place.entity.CommonPlace;
-import com.adit.backend.domain.place.entity.UserPlace;
-import com.adit.backend.domain.place.service.CommonPlaceService;
+import com.adit.backend.domain.place.service.CommonPlaceCommandService;
+import com.adit.backend.domain.place.service.CommonPlaceQueryService;
+import com.adit.backend.domain.place.service.UserPlaceCommandService;
+import com.adit.backend.domain.place.service.UserPlaceQueryService;
 import com.adit.backend.global.common.ApiResponse;
-import com.adit.backend.global.error.GlobalErrorCode;
-import com.adit.backend.global.error.exception.BusinessException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,9 +37,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Validated
 @Tag(name = "Place API", description = "장소 생성, 수정, 삭제, 조회할 수 있는 API 입니다")
-public class CommonPlaceController {
+public class PlaceController {
 
-	private final CommonPlaceService commonPlaceService;
+	private final CommonPlaceCommandService commonPlaceCommandService;
+	private final CommonPlaceQueryService commonPlaceQueryService;
+	private final UserPlaceCommandService userPlaceCommandService;
+	private final UserPlaceQueryService userPlaceQueryService;
 
 	// 장소 생성 API
 	@Operation(summary = "장소 생성", description = "카카오 맵 키워드 검색 후 CommonPlace, UserPlace 에 장소를 저장합니다")
@@ -51,12 +51,13 @@ public class CommonPlaceController {
 		@Valid @RequestBody CommonPlaceRequestDto requestDto,@PathVariable@Min(1) Long userId,@RequestParam String memo) {
 
 		// 장소 정보를 받아 CommonPlaceService에서 처리
-		CommonPlace place = commonPlaceService.createCommonPlace(requestDto);
-		UserPlace userPlace = commonPlaceService.createUserPlace(userId, place, memo);
+		PlaceResponseDto commonPlace = commonPlaceCommandService.createCommonPlace(requestDto);
+
+		PlaceResponseDto userPlace = userPlaceCommandService.createUserPlace(userId, commonPlace, memo);
 
 
 		// 생성된 장소를 응답으로 반환
-		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(PlaceResponseDto.commonPlace(place)));
+		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(commonPlace));
 	}
 
 	// 장소 수정 API
@@ -65,9 +66,9 @@ public class CommonPlaceController {
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> updatePlace(@PathVariable @Min(1) Long placeId,
 		@Valid @RequestBody CommonPlaceRequestDto requestDto) {
 		// ID로 기존 장소를 찾아 수정
-		CommonPlace updatedPlace = commonPlaceService.updatePlace(placeId, requestDto);
+		PlaceResponseDto commonPlace = commonPlaceCommandService.updatePlace(placeId, requestDto);
 		// 수정된 장소를 응답으로 반환
-		return ResponseEntity.ok(ApiResponse.success(PlaceResponseDto.commonPlace(updatedPlace)));
+		return ResponseEntity.ok(ApiResponse.success(commonPlace));
 	}
 
 	// 장소 삭제 API
@@ -75,7 +76,7 @@ public class CommonPlaceController {
 	@DeleteMapping("/{userPlaceId}")
 	public ResponseEntity<ApiResponse<String>> deletePlace(@PathVariable @Min(1)Long userPlaceId) {
 		// ID로 장소를 삭제
-		commonPlaceService.deletePlace(userPlaceId);
+		userPlaceCommandService.deletePlace(userPlaceId);
 		// 삭제 완료 메시지 응답
 		return ResponseEntity.ok(ApiResponse.success("Place deleted successfully"));
 	}
@@ -85,7 +86,7 @@ public class CommonPlaceController {
 	@GetMapping("/{userId}/category")
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByCategory(@RequestParam List<String> subCategory, @PathVariable @Min(1) Long userId){
 
-		List<PlaceResponseDto> placeByCategory = commonPlaceService.getPlaceByCategory(subCategory, userId);
+		List<PlaceResponseDto> placeByCategory = userPlaceQueryService.getPlaceByCategory(subCategory, userId);
 
 		return ResponseEntity.ok(ApiResponse.success(placeByCategory));
 	}
@@ -94,7 +95,7 @@ public class CommonPlaceController {
 	@Operation(summary = "인기순으로 장소 조회", description = "전체 장소 중 bookmarkCount 가 높은 순서대로 1~5위 장소 조회")
 	@GetMapping("/popular")
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByPopular(){
-		List<PlaceResponseDto> placeByPopular = commonPlaceService.getPlaceByPopular();
+		List<PlaceResponseDto> placeByPopular = commonPlaceQueryService.getPlaceByPopular();
 		return ResponseEntity.ok(ApiResponse.success(placeByPopular));
 	}
 
@@ -102,7 +103,7 @@ public class CommonPlaceController {
 	@Operation(summary = "저장된 장소 조회", description = "userId에 해당하는 사용자가 저장한 장소 조회")
 	@GetMapping("/{userId}")
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getSavedPlace(@PathVariable@Min(1) Long userId){
-		List<PlaceResponseDto> savedPlace = commonPlaceService.getSavedPlace(userId);
+		List<PlaceResponseDto> savedPlace = userPlaceQueryService.getSavedPlace(userId);
 		return ResponseEntity.ok(ApiResponse.success(savedPlace));
 	}
 
@@ -111,7 +112,7 @@ public class CommonPlaceController {
 	@GetMapping("/detail")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> getDetailedPlace(@RequestParam String placeName){
 
-		PlaceResponseDto detailedPlace = commonPlaceService.getDetailedPlace(placeName);
+		PlaceResponseDto detailedPlace = commonPlaceQueryService.getDetailedPlace(placeName);
 		return ResponseEntity.ok(ApiResponse.success(detailedPlace));
 	}
 
@@ -119,7 +120,7 @@ public class CommonPlaceController {
 	@Operation(summary = "사용자 위치로 장소 조회", description = "userId에 해당하는 사용자가 가진 장소 중 사용자의 위치와 가까운 순으로 장소 조회")
 	@GetMapping("/{userId}/location")
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByLocation(@RequestParam @DecimalMin("33.0") @DecimalMax("43.0") double latitude, @RequestParam @DecimalMin("124.0") @DecimalMax("132.0") double longitude, @PathVariable@Min(1) Long userId){
-		List<PlaceResponseDto> placeByLocation = commonPlaceService.getPlaceByLocation(latitude,longitude, userId);
+		List<PlaceResponseDto> placeByLocation = userPlaceQueryService.getPlaceByLocation(latitude, longitude, userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByLocation));
 	}
 
@@ -128,7 +129,7 @@ public class CommonPlaceController {
 	@GetMapping("/{userId}/address")
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByAddress(@RequestParam List<String> address, @PathVariable@Min(1) Long userId){
 
-		List<PlaceResponseDto> placeByAddress = commonPlaceService.getPlaceByAddress(address, userId);
+		List<PlaceResponseDto> placeByAddress = userPlaceQueryService.getPlaceByAddress(address, userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByAddress));
 	}
 
@@ -136,7 +137,7 @@ public class CommonPlaceController {
 	@Operation(summary = "장소 방문 표시", description = "userPlaceId에 해당하는 장소 방문 표시")
 	@PutMapping("/{userPlaceId}/visit")
 	public ResponseEntity<ApiResponse<String>> checkVisitedPlace(@PathVariable@Min(1) Long userPlaceId){
-		commonPlaceService.checkVisitedPlace(userPlaceId);
+		userPlaceCommandService.checkVisitedPlace(userPlaceId);
 		return ResponseEntity.ok(ApiResponse.success("visit sign successfully"));
 	}
 
@@ -144,7 +145,7 @@ public class CommonPlaceController {
 	@Operation(summary = "친구 장소 조회", description = "userId에 해당하는 사용자의 친구가 저장한 장소 조회")
 	@GetMapping("/{userId}/friend")
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByFriend(@PathVariable@Min(1) Long userId){
-		List<PlaceResponseDto> placeByFriend = commonPlaceService.getPlaceByFriend(userId);
+		List<PlaceResponseDto> placeByFriend = userPlaceQueryService.getPlaceByFriend(userId);
 		return ResponseEntity.ok(ApiResponse.success(placeByFriend));
 	}
 
@@ -153,7 +154,7 @@ public class CommonPlaceController {
 	@PutMapping("/{userPlaceId}/memo")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlace(@PathVariable@Min(1) Long userPlaceId , @RequestParam String memo){
 
-		PlaceResponseDto updateUserPlace = commonPlaceService.updateUserPlace(userPlaceId, memo);
+		PlaceResponseDto updateUserPlace = userPlaceCommandService.updateUserPlace(userPlaceId, memo);
 		return ResponseEntity.ok(ApiResponse.success(updateUserPlace));
 	}
 }
