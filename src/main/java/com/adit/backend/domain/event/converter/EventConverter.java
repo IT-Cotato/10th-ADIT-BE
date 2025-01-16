@@ -34,11 +34,6 @@ public class EventConverter {
     }
 
     public void updateEntity(Event event, EventUpdateRequestDto request) {
-        if (request.getName() != null) event.setName(request.getName());
-        if (request.getCategory() != null) event.setCategory(request.getCategory());
-        if (request.getStartDate() != null) event.setStartDate(request.getStartDate());
-        if (request.getEndDate() != null) event.setEndDate(request.getEndDate());
-        if (request.getMemo() != null) event.setMemo(request.getMemo());
-        if (request.getVisited() != null) event.setVisited(request.getVisited());
+        event.updateEvent(request);  // Event 엔터티의 update 메서드 호출
     }
 }
