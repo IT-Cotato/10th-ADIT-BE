@@ -86,7 +86,7 @@ public class Event extends BaseEntity {
     }
 
     // 업데이트 메서드
-    public void update(EventUpdateRequestDto request) {
+    public void updateEvent(EventUpdateRequestDto request) {
         if (request.getName() != null) this.name = request.getName();
         if (request.getCategory() != null) this.category = request.getCategory();
         if (request.getStartDate() != null) this.startDate = request.getStartDate();

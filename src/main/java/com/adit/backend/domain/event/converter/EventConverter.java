@@ -33,7 +33,7 @@ public class EventConverter {
                 .build();
     }
 
-    public void updateEntity(Event event, EventUpdateRequestDto request) {
-        event.updateEvent(request);  // Event 엔터티의 update 메서드 호출
+    public void updateEntity(Event event, EventUpdateRequestDto updateRequest) {
+        event.updateEvent(updateRequest);  // Event 엔터티의 update 메서드 호출
     }
 }
