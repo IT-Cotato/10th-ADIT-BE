@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.entity.BaseEntity;
 
 import jakarta.persistence.CascadeType;
@@ -48,6 +47,7 @@ public class CommonPlace extends BaseEntity {
 
 	@OneToMany(mappedBy = "commonPlace", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<UserPlace> userPlaces = new ArrayList<>();
+
 	@Builder
 	public CommonPlace(Long id, String placeName, BigDecimal latitude, BigDecimal longitude, String addressName,
 		String roadAddressName, String subCategory, String url) {
@@ -72,7 +72,7 @@ public class CommonPlace extends BaseEntity {
 		this.url = url;
 	}
 
-	public void addUserPlace(UserPlace userPlace){
+	public void addUserPlace(UserPlace userPlace) {
 		this.userPlaces.add(userPlace);
 		userPlace.setCommonPlace(this);
 	}
