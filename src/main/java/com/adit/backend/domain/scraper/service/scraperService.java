@@ -1,4 +1,4 @@
-package com.adit.backend.domain.scraper.Service;
+package com.adit.backend.domain.scraper.service;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.adit.backend.domain.scraper.dto.response.scraperResponse;
 import com.adit.backend.domain.scraper.exception.scraperException;
-import com.adit.backend.global.error.GlobalErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
