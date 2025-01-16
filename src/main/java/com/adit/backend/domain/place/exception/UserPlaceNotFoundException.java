@@ -1,6 +1,6 @@
 package com.adit.backend.domain.place.exception;
 
-public class UserPlaceNotFoundException extends RuntimeException{
+public class UserPlaceNotFoundException extends RuntimeException {
 	public UserPlaceNotFoundException(String message) {
 		super(message);
 	}
