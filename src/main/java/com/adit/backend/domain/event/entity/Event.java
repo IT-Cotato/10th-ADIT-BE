@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.adit.backend.domain.event.dto.request.EventUpdateRequestDto;
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.notification.entity.Notification;
 import com.adit.backend.domain.place.entity.CommonPlace;
@@ -82,5 +83,15 @@ public class Event extends BaseEntity {
         event.setMemo(memo);
         event.setVisited(visited);
         return event;
+    }
+
+    // 업데이트 메서드
+    public void update(EventUpdateRequestDto request) {
+        if (request.getName() != null) this.name = request.getName();
+        if (request.getCategory() != null) this.category = request.getCategory();
+        if (request.getStartDate() != null) this.startDate = request.getStartDate();
+        if (request.getEndDate() != null) this.endDate = request.getEndDate();
+        if (request.getMemo() != null) this.memo = request.getMemo();
+        if (request.getVisited() != null) this.visited = request.getVisited();
     }
 }
