@@ -8,8 +8,10 @@ import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisor;
 import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisorChain;
 import org.springframework.ai.chat.model.MessageAggregator;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
+@Slf4j
 public class LoggingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
 
 	@Override
@@ -24,10 +26,15 @@ public class LoggingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
 
 	@Override
 	public AdvisedResponse aroundCall(AdvisedRequest advisedRequest, CallAroundAdvisorChain chain) {
-		System.out.println("\nRequest: " + advisedRequest);
-		AdvisedResponse response = chain.nextAroundCall(advisedRequest);
-		System.out.println("\nResponse: " + response);
-		return response;
+		log.debug("REQUEST");
+		log.debug(String.valueOf(advisedRequest));
+		AdvisedResponse advisedResponse = chain.nextAroundCall(advisedRequest);
+		log.debug("RESPONSE");
+		log.debug(String.valueOf(advisedResponse));
+		log.info("[Input Token Usage] : {}", advisedResponse.response().getMetadata().getUsage().getPromptTokens());
+		log.info("[Output Token Usage] : {}", advisedResponse.response().getMetadata().getUsage().getGenerationTokens());
+		log.info("[Total Token Usage] : {}", advisedResponse.response().getMetadata().getUsage().getTotalTokens());
+		return advisedResponse;
 
 	}
 
