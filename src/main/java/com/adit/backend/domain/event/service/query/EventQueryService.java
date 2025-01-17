@@ -29,7 +29,7 @@ public class EventQueryService {
 
     public EventResponseDto getEventById(Long id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+                .orElseThrow(() -> new EntityNotFoundException("이벤트를 찾을 수 없습니다."));
         return eventConverter.toResponse(event);
     }
 

@@ -196,12 +196,12 @@ public class GlobalExceptionHandler {
 	 * @param ex EventCreationFailedException
 	 * @return ResponseEntity<ErrorResponse>
 	 */
-	@ExceptionHandler(EventCreationFailedException.class)
-	protected ResponseEntity<ErrorResponse> handleEventCreationFailedException(EventCreationFailedException ex) {
-		log.error("EventCreationFailedException", ex);
-		final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_CREATION_FAILED, ex.getMessage());
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
+	// @ExceptionHandler(EventCreationFailedException.class)
+	// protected ResponseEntity<ErrorResponse> handleEventCreationFailedException(EventCreationFailedException ex) {
+	// 	log.error("EventCreationFailedException", ex);
+	// 	final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_CREATION_FAILED, ex.getMessage());
+	// 	return new ResponseEntity<>(response, HttpStatus.OK);
+	// }
 
 	/**
 	 * [Exception] 이벤트 업데이트 실패 시 발생한 경우
@@ -209,12 +209,12 @@ public class GlobalExceptionHandler {
 	 * @param ex EventUpdateFailedException
 	 * @return ResponseEntity<ErrorResponse>
 	 */
-	@ExceptionHandler(EventUpdateFailedException.class)
-	protected ResponseEntity<ErrorResponse> handleEventUpdateFailedException(EventUpdateFailedException ex) {
-		log.error("EventUpdateFailedException", ex);
-		final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_UPDATE_FAILED, ex.getMessage());
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
+	// @ExceptionHandler(EventUpdateFailedException.class)
+	// protected ResponseEntity<ErrorResponse> handleEventUpdateFailedException(EventUpdateFailedException ex) {
+	// 	log.error("EventUpdateFailedException", ex);
+	// 	final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_UPDATE_FAILED, ex.getMessage());
+	// 	return new ResponseEntity<>(response, HttpStatus.OK);
+	// }
 
 	/**
 	 * [Exception] 이벤트 삭제 실패 시 발생한 경우
@@ -222,11 +222,11 @@ public class GlobalExceptionHandler {
 	 * @param ex EventDeletionFailedException
 	 * @return ResponseEntity<ErrorResponse>
 	 */
-	@ExceptionHandler(EventDeletionFailedException.class)
-	protected ResponseEntity<ErrorResponse> handleEventDeletionFailedException(EventDeletionFailedException ex) {
-		log.error("EventDeletionFailedException", ex);
-		final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_DELETION_FAILED, ex.getMessage());
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
+	// @ExceptionHandler(EventDeletionFailedException.class)
+	// protected ResponseEntity<ErrorResponse> handleEventDeletionFailedException(EventDeletionFailedException ex) {
+	// 	log.error("EventDeletionFailedException", ex);
+	// 	final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_DELETION_FAILED, ex.getMessage());
+	// 	return new ResponseEntity<>(response, HttpStatus.OK);
+	// }
 
 }
