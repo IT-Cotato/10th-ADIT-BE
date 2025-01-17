@@ -39,7 +39,7 @@ public class OpenAiController {
 	public ResponseEntity<ApiResponse<ContentListResponse>> summaryPage(
 		@Parameter(description = "분석할 웹 페이지 URL 정보", required = true)
 		@Valid @RequestBody final ContentExtractionRequest request) {
-		return ResponseEntity.ok(ApiResponse.success(openAiService.analyzeCulturalInfo(request.url())));
+		return ResponseEntity.ok(ApiResponse.success(openAiService.summaryContent(request.url())));
 	}
 
 	@Operation(

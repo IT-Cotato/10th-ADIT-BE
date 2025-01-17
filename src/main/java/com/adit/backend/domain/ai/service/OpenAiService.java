@@ -37,7 +37,7 @@ public class OpenAiService {
 	/**
 	 * URL에서 데이터를 추출 및 요약
 	 */
-	public ContentListResponse analyzeCulturalInfo(final String url) {
+	public ContentListResponse summaryContent(final String url) {
 		return contentService.extractContents(url)
 			.thenCompose(extractedContent -> {
 				log.info("[웹페이지 크롤링 완료]: {}", extractedContent);
