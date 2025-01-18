@@ -20,8 +20,8 @@ public class WebContentCrawler {
 
 	private static final int CHUNK_SIZE = 500;
 	private static final int BATCH_SIZE = 4;
-	public static final String PLACE_TAG = "a.place, a.se-map-info.__se_link, div.se-map-info.__se_link";
-	public static final String UNNECESSARY_TAGS = "script, style, button, input, textarea, "
+	private static final String PLACE_TAG = "a.place, a.se-map-info.__se_link, div.se-map-info.__se_link";
+	private static final String UNNECESSARY_TAGS = "script, style, button, input, textarea, "
 		+ "div.another_category, dic.category, div.recommend_list, div.profile, div#postListBottom, div.wrap_postcomment, "
 		+ "div.item_type_opengraph, div.lnb,div.search, div.search-tab-all div.inner50";
 
