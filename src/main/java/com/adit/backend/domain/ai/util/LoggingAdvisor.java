@@ -11,6 +11,9 @@ import org.springframework.ai.chat.model.MessageAggregator;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
+/**
+ * OpenAI 사용량 추적 및 디버깅을 위한 Advisor
+ */
 @Slf4j
 public class LoggingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
 
