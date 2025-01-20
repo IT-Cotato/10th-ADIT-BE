@@ -14,4 +14,6 @@ public interface WebCrawlingStrategy {
 	Document getDocument(String url) throws IOException;
 
 	CrawlCompletionResponse extractContents(Document document);
+
+	CrawlCompletionResponse extractContentsUsingApify(String url);
 }
