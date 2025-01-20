@@ -1,14 +1,19 @@
 package com.adit.backend.domain.place.entity;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.global.entity.BaseEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,6 +42,12 @@ public class CommonPlace extends BaseEntity {
 
 	private String url;
 
+	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Image> images = new ArrayList<>();
+
+	@OneToMany(mappedBy = "commonPlace", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<UserPlace> userPlaces = new ArrayList<>();
+
 	@Builder
 	public CommonPlace(Long id, String placeName, BigDecimal latitude, BigDecimal longitude, String addressName,
 		String roadAddressName, String subCategory, String url) {
@@ -60,4 +71,10 @@ public class CommonPlace extends BaseEntity {
 		this.subCategory = subCategory;
 		this.url = url;
 	}
+
+	public void addUserPlace(UserPlace userPlace) {
+		this.userPlaces.add(userPlace);
+		userPlace.setCommonPlace(this);
+	}
+
 }
