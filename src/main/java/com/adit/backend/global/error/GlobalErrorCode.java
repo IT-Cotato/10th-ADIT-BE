@@ -109,6 +109,16 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "3004" , "로그아웃에 실패했습니다."),
 
+
+	FAIL_CONVERT_RESPONSE(NOT_MODIFIED,"9001" , "응답 변환에 실패했습니다."),
+
+	// Crawling
+	INVALID_URL(BAD_REQUEST, "501" , "유효하지 않은 URL입니다."),
+  
+	PLATFORM_NOT_SUPPORTED(NOT_FOUND,"502" , "지원하지 않는 플랫폼입니다."),
+  
+	CRAWLING_FAILED(BAD_REQUEST,"503" ,"크롤링을 실패했습니다." );
+
 	//scraper
 	SCRAPER_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "4001", "API 호출을 실패했습니다"),
 
