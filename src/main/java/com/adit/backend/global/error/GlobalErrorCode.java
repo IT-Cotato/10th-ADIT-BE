@@ -133,11 +133,7 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	NOT_VALID(NOT_FOUND, "5004", "요청인자가 유효하지 않습니다"),
 
-	FRIEND_NOT_FOUND(NOT_FOUND, "5003", "등록된 친구가 없습니다"),
-
 	ID_NOT_FOUND_ERROR(NOT_FOUND, "5002", "해당 ID를 찾지 못했습니다"),
-
-	FIELD_NOT_FOUND(NOT_FOUND, "4002", "해당 필드를 찾지 못했습니다"),
 
 	// 이벤트 관련 오류 코드 추가
 	EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "5001", "이벤트를 찾을 수 없습니다."),

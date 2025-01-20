@@ -17,10 +17,11 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.adit.backend.domain.event.exception.EventAlreadyExistsException;
 import com.adit.backend.domain.event.exception.EventNotFoundException;
-import com.adit.backend.domain.place.exception.placeException;
-import com.adit.backend.domain.scraper.exception.scraperException;
+import com.adit.backend.domain.place.exception.CommonPlaceNotFoundException;
+import com.adit.backend.domain.place.exception.FriendNotFoundException;
+import com.adit.backend.domain.place.exception.NotValidException;
+import com.adit.backend.domain.place.exception.UserPlaceNotFoundException;
 import com.adit.backend.global.common.ApiResponse;
-import com.adit.backend.global.error.exception.BusinessException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -164,6 +165,57 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HttpStatus.OK);
 	}
 
+	/**
+	 * [Exception] CommonPlace 를 찾지 못한 경우
+	 *
+	 * @param ex Exception
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(CommonPlaceNotFoundException.class)
+	protected final ResponseEntity<ErrorResponse> handleCommonPlaceNotFoundException(CommonPlaceNotFoundException ex) {
+		log.error("CommonPlaceNotFoundException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.COMMON_PLACE_NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
+
+	/**
+	 * [Exception] UserPlace 를 찾지 못한 경우
+	 *
+	 * @param ex Exception
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(UserPlaceNotFoundException.class)
+	protected final ResponseEntity<ErrorResponse> handleUserPlaceNotFoundException(UserPlaceNotFoundException ex) {
+		log.error("UserPlaceNotFoundException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.USER_PLACE_NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
+
+	/**
+	 * [Exception] Friend 를 찾지 못한 경우
+	 *
+	 * @param ex Exception
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(FriendNotFoundException.class)
+	protected final ResponseEntity<ErrorResponse> handleFriendNotFoundException(FriendNotFoundException ex) {
+		log.error("FriendNotFoundException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.FRIEND_NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
+
+	/**
+	 * [Exception] 요청인자가 유효하지 않는 경우
+	 *
+	 * @param ex Exception
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(NotValidException.class)
+	protected final ResponseEntity<ErrorResponse> handleNotValidException(NotValidException ex) {
+		log.error("NotValidException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.NOT_VALID, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
 
 	/**
 	 * [Exception] 이벤트를 찾을 수 없을 때
@@ -229,63 +281,62 @@ public class GlobalExceptionHandler {
 	// 	final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_DELETION_FAILED, ex.getMessage());
 	// 	return new ResponseEntity<>(response, HttpStatus.OK);
 	// }
+	//
+	// @ExceptionHandler(placeException.class)
+	// protected final ResponseEntity<ErrorResponse> handlePlaceNotFoundException(placeException ex){
+	// 	log.error("placeException", ex);
+	// 	ErrorResponse errorResponse = ErrorResponse.of(ex.getErrorCode(), ex.getMessage());
+	// /**
+	//  * [Exception] CommonPlace 를 찾지 못한 경우
+	//  *
+	//  * @param ex Exception
+	//  * @return ResponseEntity<ErrorResponse>
+	//  */
+	// @ExceptionHandler(CommonPlaceNotFoundException.class)
+	// protected final ResponseEntity<ErrorResponse> handleCommonPlaceNotFoundException(CommonPlaceNotFoundException ex) {
+	// 	log.error("CommonPlaceNotFoundException", ex);
+	// 	ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.COMMON_PLACE_NOT_FOUND, ex.getMessage());
+	// 	return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	// }
+	//
+	// /**
+	//  * [Exception] UserPlace 를 찾지 못한 경우
+	//  *
+	//  * @param ex Exception
+	//  * @return ResponseEntity<ErrorResponse>
+	//  */
+	// @ExceptionHandler(UserPlaceNotFoundException.class)
+	// protected final ResponseEntity<ErrorResponse> handleUserPlaceNotFoundException(UserPlaceNotFoundException ex) {
+	// 	log.error("UserPlaceNotFoundException", ex);
+	// 	ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.USER_PLACE_NOT_FOUND, ex.getMessage());
+	// 	return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	// }
+	//
+	// /**
+	//  * [Exception] Friend 를 찾지 못한 경우
+	//  *
+	//  * @param ex Exception
+	//  * @return ResponseEntity<ErrorResponse>
+	//  */
+	// @ExceptionHandler(FriendNotFoundException.class)
+	// protected final ResponseEntity<ErrorResponse> handleFriendNotFoundException(FriendNotFoundException ex) {
+	// 	log.error("FriendNotFoundException", ex);
+	// 	ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.FRIEND_NOT_FOUND, ex.getMessage());
+	// 	return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	// }
+	//
+	// /**
+	//  * [Exception] 요청인자가 유효하지 않는 경우
+	//  *
+	//  * @param ex Exception
+	//  * @return ResponseEntity<ErrorResponse>
+	//  */
+	// @ExceptionHandler(NotValidException.class)
+	// protected final ResponseEntity<ErrorResponse> handleNotValidException(NotValidException ex) {
+	// 	log.error("NotValidException", ex);
+	// 	ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.NOT_VALID, ex.getMessage());
+	// 	return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	// 	}
 
-	@ExceptionHandler(placeException.class)
-	protected final ResponseEntity<ErrorResponse> handlePlaceNotFoundException(placeException ex){
-		log.error("placeException", ex);
-		ErrorResponse errorResponse = ErrorResponse.of(ex.getErrorCode(), ex.getMessage());
-	/**
-	 * [Exception] CommonPlace 를 찾지 못한 경우
-	 *
-	 * @param ex Exception
-	 * @return ResponseEntity<ErrorResponse>
-	 */
-	@ExceptionHandler(CommonPlaceNotFoundException.class)
-	protected final ResponseEntity<ErrorResponse> handleCommonPlaceNotFoundException(CommonPlaceNotFoundException ex) {
-		log.error("CommonPlaceNotFoundException", ex);
-		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.COMMON_PLACE_NOT_FOUND, ex.getMessage());
-		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+
 	}
-
-	/**
-	 * [Exception] UserPlace 를 찾지 못한 경우
-	 *
-	 * @param ex Exception
-	 * @return ResponseEntity<ErrorResponse>
-	 */
-	@ExceptionHandler(UserPlaceNotFoundException.class)
-	protected final ResponseEntity<ErrorResponse> handleUserPlaceNotFoundException(UserPlaceNotFoundException ex) {
-		log.error("UserPlaceNotFoundException", ex);
-		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.USER_PLACE_NOT_FOUND, ex.getMessage());
-		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
-	}
-
-	/**
-	 * [Exception] Friend 를 찾지 못한 경우
-	 *
-	 * @param ex Exception
-	 * @return ResponseEntity<ErrorResponse>
-	 */
-	@ExceptionHandler(FriendNotFoundException.class)
-	protected final ResponseEntity<ErrorResponse> handleFriendNotFoundException(FriendNotFoundException ex) {
-		log.error("FriendNotFoundException", ex);
-		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.FRIEND_NOT_FOUND, ex.getMessage());
-		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
-	}
-
-	/**
-	 * [Exception] 요청인자가 유효하지 않는 경우
-	 *
-	 * @param ex Exception
-	 * @return ResponseEntity<ErrorResponse>
-	 */
-	@ExceptionHandler(NotValidException.class)
-	protected final ResponseEntity<ErrorResponse> handleNotValidException(NotValidException ex) {
-		log.error("NotValidException", ex);
-		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.NOT_VALID, ex.getMessage());
-		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
-	}
-
-
-
-}
