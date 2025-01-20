@@ -24,6 +24,7 @@ public class GenericWebCrawlingStrategy extends AbstractWebCrawlingStrategy {
 	public static final String TISTORY_URL = "tistory.com";
 	public static final String NAVER_BLOG_URL = "blog.naver.com";
 	public static final String BRUNCH_URL = "brunch.co.kr";
+	private static final String INSTAGRAM_URL = "instagram.com";
 	public static final String TEXT_TAG = "p, div:not(:has(p)), h1, h2, h3, h4, h5, h6";
 	public static final String TITLE_TAG = "title, h1, h2";
 	public static final String BODY_TAG = "body";
@@ -35,7 +36,8 @@ public class GenericWebCrawlingStrategy extends AbstractWebCrawlingStrategy {
 	public boolean supports(String url) {
 		return !url.contains(TISTORY_URL)
 			&& !url.contains(NAVER_BLOG_URL)
-			&& !url.contains(BRUNCH_URL);
+			&& !url.contains(BRUNCH_URL)
+			&& !url.contains(INSTAGRAM_URL);
 	}
 
 	@Override
