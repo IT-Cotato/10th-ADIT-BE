@@ -58,7 +58,7 @@ dependencies {
     // Jsoup
     implementation 'org.jsoup:jsoup:1.18.3'
 
-    //jackson
+    // Jackson
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.0'
 
     runtimeOnly 'com.mysql:mysql-connector-j'

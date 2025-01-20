@@ -15,7 +15,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'  # Gradle 캐싱 추가
+          cache: 'gradle'
 
       - name: Create .env file
         run: |
@@ -28,6 +28,9 @@ jobs:
           echo "SPRING_AI_OPENAI_API_KEY=${{ secrets.SPRING_AI_OPENAI_API_KEY }}" >> .env
           echo "JWT_KEY=${{ secrets.JWT_KEY }}" >> .env
           echo "SERVER_BASE_URL=${{ secrets.SERVER_BASE_URL }}" >> .env
+          echo "SCRAPER_API_TOKEN=${{ secrets.SCRAPER_API_TOKEN }}" >> .env
+          echo "SCRAPER_BASE_URL=${{ secrets.SCRAPER_BASE_URL }}" >> .env
+          echo "SCRAPER_OUTPUT_URL=${{ secrets.SCRAPER_OUTPUT_URL }}" >> .env
         shell: bash
 
       - name: Grant execute permission for gradlew
@@ -36,21 +39,22 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: clean build -x test # 테스트 제외 옵션 추가
+          arguments: clean build -x test
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: AditServer
           path: build/libs/*.jar
-          retention-days: 1  # 아티팩트 보관 기간 설정
+          retention-days: 1
+          compression-level: 0
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: AditServer
           path: build/libs/
@@ -66,6 +70,9 @@ jobs:
           echo "SPRING_AI_OPENAI_API_KEY=${{ secrets.SPRING_AI_OPENAI_API_KEY }}" >> .env
           echo "JWT_KEY=${{ secrets.JWT_KEY }}" >> .env
           echo "SERVER_BASE_URL=${{ secrets.SERVER_BASE_URL }}" >> .env
+          echo "SCRAPER_API_TOKEN=${{ secrets.SCRAPER_API_TOKEN }}" >> .env
+          echo "SCRAPER_BASE_URL=${{ secrets.SCRAPER_BASE_URL }}" >> .env
+          echo "SCRAPER_OUTPUT_URL=${{ secrets.SCRAPER_OUTPUT_URL }}" >> .env
 
       - name: Deploy to EC2
         env:
@@ -76,10 +83,8 @@ jobs:
           echo "$EC2_SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
           
-          # .env 파일 전송
           scp -i private_key.pem -o StrictHostKeyChecking=no .env $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/.env
           
-          # JAR 파일 찾기 및 전송
           jar_file=$(find build/libs -name '*.jar' ! -name '*plain.jar' | head -n 1)
           if [ -z "$jar_file" ]; then
             echo "JAR file not found"
@@ -88,7 +93,6 @@ jobs:
           
           scp -i private_key.pem -o StrictHostKeyChecking=no "$jar_file" $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/AditServer.jar
           
-          # 애플리케이션 재시작
           ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_HOST "
             pid=\$(pgrep java || echo '')
             if [ ! -z \"\$pid\" ]; then

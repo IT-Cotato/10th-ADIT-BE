@@ -15,7 +15,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.adit.backend.domain.event.exception.EventAlreadyExistsException;
+import com.adit.backend.domain.event.exception.EventNotFoundException;
+import com.adit.backend.domain.scraper.exception.scraperException;
 import com.adit.backend.global.common.ApiResponse;
+import com.adit.backend.global.error.exception.BusinessException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -158,4 +162,71 @@ public class GlobalExceptionHandler {
 		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
 		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HttpStatus.OK);
 	}
+
+
+	/**
+	 * [Exception] 이벤트를 찾을 수 없을 때
+	 *
+	 * @param ex EventNotFoundException
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(EventNotFoundException.class)
+	protected ResponseEntity<ErrorResponse> handleEventNotFoundException(EventNotFoundException ex) {
+		log.error("EventNotFoundException", ex);
+		final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	/**
+	 * [Exception] 이미 존재하는 이벤트일 때
+	 *
+	 * @param ex EventAlreadyExistsException
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(EventAlreadyExistsException.class)
+	protected ResponseEntity<ErrorResponse> handleEventAlreadyExistsException(EventAlreadyExistsException ex) {
+		log.error("EventAlreadyExistsException", ex);
+		final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_ALREADY_EXISTS, ex.getMessage());
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	/**
+	 * [Exception] 이벤트 생성 실패 시 발생한 경우
+	 *
+	 * @param ex EventCreationFailedException
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	// @ExceptionHandler(EventCreationFailedException.class)
+	// protected ResponseEntity<ErrorResponse> handleEventCreationFailedException(EventCreationFailedException ex) {
+	// 	log.error("EventCreationFailedException", ex);
+	// 	final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_CREATION_FAILED, ex.getMessage());
+	// 	return new ResponseEntity<>(response, HttpStatus.OK);
+	// }
+
+	/**
+	 * [Exception] 이벤트 업데이트 실패 시 발생한 경우
+	 *
+	 * @param ex EventUpdateFailedException
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	// @ExceptionHandler(EventUpdateFailedException.class)
+	// protected ResponseEntity<ErrorResponse> handleEventUpdateFailedException(EventUpdateFailedException ex) {
+	// 	log.error("EventUpdateFailedException", ex);
+	// 	final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_UPDATE_FAILED, ex.getMessage());
+	// 	return new ResponseEntity<>(response, HttpStatus.OK);
+	// }
+
+	/**
+	 * [Exception] 이벤트 삭제 실패 시 발생한 경우
+	 *
+	 * @param ex EventDeletionFailedException
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	// @ExceptionHandler(EventDeletionFailedException.class)
+	// protected ResponseEntity<ErrorResponse> handleEventDeletionFailedException(EventDeletionFailedException ex) {
+	// 	log.error("EventDeletionFailedException", ex);
+	// 	final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_DELETION_FAILED, ex.getMessage());
+	// 	return new ResponseEntity<>(response, HttpStatus.OK);
+	// }
+
 }

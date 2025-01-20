@@ -109,13 +109,31 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "3004" , "로그아웃에 실패했습니다."),
 
-	FAIL_CONVERT_RESPONSE(NOT_MODIFIED,"9001" , "응답 변환에 실패했습니다."),
 
+	FAIL_CONVERT_RESPONSE(NOT_MODIFIED,"9001" , "응답 변환에 실패했습니다."),
 
 	// Crawling
 	INVALID_URL(BAD_REQUEST, "501" , "유효하지 않은 URL입니다."),
+  
 	PLATFORM_NOT_SUPPORTED(NOT_FOUND,"502" , "지원하지 않는 플랫폼입니다."),
+  
 	CRAWLING_FAILED(BAD_REQUEST,"503" ,"크롤링을 실패했습니다." );
+
+	//scraper
+	SCRAPER_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "4001", "API 호출을 실패했습니다"),
+
+	FIELD_NOT_FOUND(NOT_FOUND, "4002", "해당 필드를 찾지 못했습니다"),
+
+	// 이벤트 관련 오류 코드 추가
+	EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "5001", "이벤트를 찾을 수 없습니다."),
+
+	EVENT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "5002", "이미 존재하는 이벤트입니다."),
+
+	EVENT_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "5003", "이벤트 생성에 실패했습니다."),
+
+	EVENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "5004", "이벤트 업데이트에 실패했습니다."),
+
+	EVENT_DELETION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "5005", "이벤트 삭제에 실패했습니다.");
 
 	// 에러 코드의 '코드 상태'을 반환한다.
 	private final HttpStatus httpStatus;
