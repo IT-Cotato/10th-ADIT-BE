@@ -2,6 +2,9 @@ package com.adit.backend.infra.crawler.platform;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -72,8 +75,11 @@ public class InstagramCrawlingStrategy extends AbstractWebCrawlingStrategy {
 			// Output 데이터에서 caption 필드 추출
 			String caption = getCaptionFromOutput(outputResponse);
 
+			//Output 데이터에서 images 필드 추출
+			List<String> imageUrls = getImageUrlsFromOutput(outputResponse);
+
 			// caption 반환
-			return CrawlCompletionResponse.of(caption, null);
+			return CrawlCompletionResponse.of(caption, imageUrls);
 		} catch (Exception e) {
 			throw new CrawlingException(SCRAPER_API_FAILED);
 		}
@@ -133,6 +139,18 @@ public class InstagramCrawlingStrategy extends AbstractWebCrawlingStrategy {
 		}
 
 		return firstPost.get("caption").asText();
+	}
+
+	private List<String> getImageUrlsFromOutput(JsonNode outputResponse) {
+		JsonNode firstPost = outputResponse.get(0);
+		if (!firstPost.has("images")) {
+			throw new CrawlingException(FIELD_NOT_FOUND);
+		}
+		List<String> imageUrls = new ArrayList<>();
+		for (JsonNode imageNode : firstPost.get("images")) {
+			imageUrls.add(imageNode.asText());
+		}
+		return imageUrls;
 	}
 
 }
