@@ -7,6 +7,6 @@ import lombok.Builder;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record scraperResponse() {
-	public record scarperInfoDto(@JsonProperty("caption") String caption
+	public record scarperInfoDto(@JsonProperty("caption") String caption, @JsonProperty("displayUrl") String displayUrl
 	){ }
 }

@@ -1,3 +1,6 @@
+
+
+
 package com.adit.backend.domain.scraper.service;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.adit.backend.domain.scraper.dto.response.scraperResponse;
 import com.adit.backend.domain.scraper.exception.scraperException;
+import com.adit.backend.global.error.GlobalErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
@@ -54,8 +58,10 @@ public class scraperService {
 			// Output 데이터에서 caption 필드 추출
 			String caption = getCaptionFromOutput(outputResponse);
 
+			String displayUrl = getDisPlayUrlFromOutput(outputResponse);
+
 			// caption 반환
-			return new scraperResponse.scarperInfoDto(caption);
+			return new scraperResponse.scarperInfoDto(caption, displayUrl);
 
 		} catch (Exception e) {
 			throw new scraperException(SCRAPER_API_FAILED);
@@ -116,5 +122,13 @@ public class scraperService {
 		}
 
 		return firstPost.get("caption").asText();
+	}
+
+	private String getDisPlayUrlFromOutput(JsonNode outputResponse){
+		JsonNode firstPost = outputResponse.get(0);
+		if (!firstPost.has("displayUrl")){
+			throw new scraperException(FIELD_NOT_FOUND);
+		}
+		return firstPost.get("displayUrl").asText();
 	}
 }
