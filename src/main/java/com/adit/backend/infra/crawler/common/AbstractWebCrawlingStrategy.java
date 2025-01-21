@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -21,5 +23,10 @@ public abstract class AbstractWebCrawlingStrategy implements WebCrawlingStrategy
 			.userAgent(USER_AGENT)
 			.timeout(TIMEOUT_SECONDS * 1000)
 			.get();
+	}
+
+	@Override
+	public CrawlCompletionResponse extractContentsUsingApify(String url) {
+		throw new UnsupportedOperationException("This strategy does not support Apify API");
 	}
 }
