@@ -1,10 +1,8 @@
 package com.adit.backend.domain.auth.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,14 +32,6 @@ public class AuthController {
 	public ResponseEntity<ApiResponse<KakaoRequest.AuthDto>> joinAuth(KakaoRequest.AuthDto request, HttpServletResponse response) {
 		return ResponseEntity.ok(
 			ApiResponse.success(request));
-	}
-
-	@Operation(summary = "카카오 토큰 재발급")
-	@PostMapping("/reissue")
-	public ResponseEntity<ApiResponse<KakaoResponse.AccessTokenDto>> reissueToken(
-		@CookieValue(name = "refreshToken") KakaoRequest.RefreshTokenDto request, HttpServletResponse response) {
-		return ResponseEntity.ok(
-			ApiResponse.success(authCommandService.reIssueKakaoToken(request.refreshToken(), response)));
 	}
 
 	@Operation(summary = "카카오 로그아웃")
