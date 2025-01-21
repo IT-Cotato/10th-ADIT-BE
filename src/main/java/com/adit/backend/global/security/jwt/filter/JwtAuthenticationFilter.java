@@ -1,19 +1,12 @@
 package com.adit.backend.global.security.jwt.filter;
 
-import static com.adit.backend.global.error.GlobalErrorCode.*;
-
 import java.io.IOException;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.adit.backend.domain.user.principal.PrincipalDetails;
-import com.adit.backend.domain.user.principal.PrincipalDetailsService;
-import com.adit.backend.domain.user.repository.UserRepository;
-import com.adit.backend.global.error.exception.BusinessException;
-import com.adit.backend.global.error.exception.TokenException;
 import com.adit.backend.global.security.jwt.util.JwtTokenProvider;
 
 import jakarta.servlet.FilterChain;
@@ -25,59 +18,64 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
 	private final JwtTokenProvider tokenProvider;
-	private final UserRepository userRepository;
-	private final PrincipalDetailsService principalDetailsService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-		FilterChain filterChain) {
-		try {
-			String accessToken = tokenProvider.extractAccessToken(request)
-				.filter(tokenProvider::isAccessTokenValid)
-				.orElse(null);
-			String refreshToken = tokenProvider.extractRefreshToken(request)
-				.filter(tokenProvider::isRefreshTokenValid)
-				.orElse(null);
+		FilterChain filterChain) throws ServletException, IOException {
 
-			if (refreshToken != null && (accessToken == null || !tokenProvider.isAccessTokenValid(accessToken))) {
-				String newAccessToken = tokenProvider.checkRefreshTokenAndReIssueAccessToken(
-					tokenProvider.getAuthentication(accessToken), refreshToken);
-				setAuthentication(newAccessToken);
-				return;
-			} else if (refreshToken == null) {
-				checkAccessTokenAndAuthentication(request, response, filterChain);
+		try {
+			String accessToken = tokenProvider.extractAccessToken(request).orElse(null);
+			String refreshToken = tokenProvider.extractRefreshToken(request).orElse(null);
+
+			if (accessToken != null) {
+				processAccessToken(accessToken, refreshToken);
 			}
-		} catch (ServletException e) {
-			throw new BusinessException(SERVLET_ERROR);
-		} catch (IOException e) {
-			throw new BusinessException(IO_ERROR);
+			filterChain.doFilter(request, response);
+		} catch (Exception e) {
+			log.error("JWT Filter Error: {}", e.getMessage());
+			filterChain.doFilter(request, response);
 		}
 	}
 
-	private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
-		FilterChain filterChain) throws ServletException, IOException {
-		log.info("checkAccessTokenAndAuthentication() 호출");
-		tokenProvider.extractAccessToken(request)
-			.filter(tokenProvider::isAccessTokenValid)
-			.ifPresent(accessToken -> tokenProvider.getSocialId(accessToken)
-				.ifPresent(socialId -> userRepository.findBySocialId(socialId)
-					.ifPresent(user -> setAuthentication(accessToken))));
-		filterChain.doFilter(request, response);
+	private void processAccessToken(String accessToken, String refreshToken) {
+		try {
+			if (tokenProvider.isAccessTokenValid(accessToken)) {
+				setAuthentication(accessToken);
+				return;
+			}
+
+			if (refreshToken != null && tokenProvider.isRefreshTokenValid(refreshToken)) {
+				reissueAccessToken(refreshToken);
+			}
+		} catch (Exception e) {
+			log.error("Token processing error: {}", e.getMessage());
+		}
+	}
+
+	private void reissueAccessToken(String refreshToken) {
+		try {
+			String newAccessToken = tokenProvider.checkRefreshTokenAndReIssueAccessToken(null, refreshToken);
+			if (newAccessToken != null) {
+				setAuthentication(newAccessToken);
+			}
+		} catch (Exception e) {
+			log.error("Token reissue error: {}", e.getMessage());
+		}
 	}
 
 	private void setAuthentication(String accessToken) {
-		String socialId = tokenProvider.getSocialId(accessToken).orElseThrow(() -> new TokenException(TOKEN_NOT_FOUND));
-		PrincipalDetails principalDetails = principalDetailsService.loadUserByUsername(socialId);
-
-		Authentication authentication = new UsernamePasswordAuthenticationToken(
-			principalDetails,
-			null,
-			principalDetails.getAuthorities()
-		);
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		try {
+			Authentication authentication = tokenProvider.getAuthentication(accessToken);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			log.debug("Authentication set for user");
+		} catch (Exception e) {
+			log.error("Authentication setting error: {}", e.getMessage());
+		}
 	}
-
 }
+

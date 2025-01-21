@@ -2,6 +2,9 @@ package com.adit.backend.global.security.jwt.service;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,53 +22,46 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Transactional
 public class JwtTokenService {
 
-	private static final String KAKAO_LOGOUT_URL = "https://kapi.kakao.com/v1/user/logout";
+	@Value("${token.access.expiration}")
+	String accessExpirationAt;
+
+	@Value("${token.refresh.expiration}")
+	String refreshExpirationAt;
 	private final TokenRepository tokenRepository;
 	private final UserRepository userRepository;
 
-	public void saveOrUpdate(String socialId, String refreshToken, String accessToken) {
-		log.info("Processing token saveOrUpdate for socialId: {}", socialId);
-		User user = userRepository.findBySocialId(socialId)
+	@Transactional
+	public void saveOrUpdate(String email, String refreshToken, String accessToken) {
+		log.info("Processing token saveOrUpdate for email: {}", email);
+		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
 
-		tokenRepository.findByUserWithFetch(socialId)
+		tokenRepository.findByUserWithFetch(email)
 			.ifPresentOrElse(
 				token -> {
 					log.info("발급된 토큰이 존재합니다. 업데이트합니다.");
-					token.updateRefreshToken(refreshToken);
-					token.updateAccessToken(accessToken, "");
+					updateTokens(accessToken, refreshToken, token);
 				},
 				() -> {
 					log.info("발급된 토큰이 존재하지 않습니다 발급합니다.");
 					Token newToken = Token.builder()
 						.user(user)
-						.refreshToken(refreshToken)
-						.accessToken(accessToken)
 						.build();
+					updateTokens(accessToken, refreshToken, newToken);
 					tokenRepository.save(newToken);
 				}
 			);
-		log.info("Token successfully saved or updated for socialId: {}", socialId);
 	}
 
-	public Token findByAccessTokenOrThrow(String refreshToken) {
-		return tokenRepository.findTokenByRefreshToken(refreshToken)
-			.orElseThrow(() -> new TokenException(TOKEN_NOT_FOUND));
+	public Optional<Token> findByAccessTokenOrThrow(String refreshToken) {
+		return Optional.ofNullable(tokenRepository.findTokenByRefreshToken(refreshToken)
+			.orElseThrow(() -> new TokenException(TOKEN_NOT_FOUND)));
 	}
 
-	public void updateAccessToken(String accessToken, Token token) {
-		token.updateAccessToken(accessToken, "");
+	public void updateTokens(String accessToken, String refreshToken, Token token) {
+		token.updateAccessToken(accessToken, accessExpirationAt);
+		token.updateRefreshToken(refreshToken, refreshExpirationAt);
 	}
-
-	public void updateRefreshToken(String refreshToken, Token token) {
-		token.updateRefreshToken(refreshToken);
-	}
-
-	public void deleteToken(String accessToken) {
-		tokenRepository.deleteByAccessToken(accessToken);
-	}
-
 }

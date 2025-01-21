@@ -9,11 +9,17 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
+import com.adit.backend.global.security.jwt.filter.JwtAuthenticationFilter;
+import com.adit.backend.global.security.jwt.filter.TokenExceptionFilter;
 import com.adit.backend.global.security.jwt.handler.CustomAccessDeniedHandler;
 import com.adit.backend.global.security.jwt.handler.CustomAuthenticationEntryPoint;
+import com.adit.backend.global.security.oauth.handler.OAuth2SuccessHandler;
+import com.adit.backend.global.security.oauth.service.CustomOAuth2UserService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +34,9 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	private final CorsFilter corsFilter;
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
@@ -55,6 +64,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(request -> request
 				.requestMatchers(
 					"/",
+					"/login/**",
 					"/api/ai/**",
 					"/api/user/**",
 					"/api/auth/**",
@@ -63,11 +73,20 @@ public class SecurityConfig {
 					"/v3/api-docs/**",
 					"/swagger-resources/**",
 					"/webjars/**",
-					"/api/scraper/**"
+					"/api/scraper/**",
+					"/oauth2/**"  // OAuth2 엔드포인트 추가
 				).permitAll()
 				.anyRequest().authenticated()
 			)
-
+			// OAuth2 로그인 설정 추가
+			.oauth2Login(oauth2 -> oauth2
+				.userInfoEndpoint(userInfo -> userInfo
+					.userService(customOAuth2UserService)
+				)
+				.successHandler(oAuth2SuccessHandler)
+			)
+			.addFilterBefore(new TokenExceptionFilter(), OAuth2AuthorizationRequestRedirectFilter.class)
+			.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 			.exceptionHandling(exceptions -> exceptions
 				.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 				.accessDeniedHandler(new CustomAccessDeniedHandler()));
