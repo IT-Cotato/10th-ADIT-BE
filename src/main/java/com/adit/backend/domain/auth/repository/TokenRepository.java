@@ -13,8 +13,8 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
 	Optional<Token> findTokenByRefreshToken(String refreshToken);
 
-	@Query("SELECT t FROM Token t JOIN FETCH t.user WHERE t.user.socialId = :socialId")
-	Optional<Token> findByUserWithFetch(String socialId);
+	@Query("SELECT t FROM Token t JOIN FETCH t.user u WHERE u.email = :email")
+	Optional<Token> findByUserWithFetch(@Param("email") String email);
 
 	Optional<Token> findByAccessToken(String accessToken);
 

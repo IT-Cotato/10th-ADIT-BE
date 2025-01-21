@@ -8,14 +8,12 @@ import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.enums.Role;
 import com.adit.backend.domain.user.enums.SocialType;
 import com.adit.backend.global.security.jwt.exception.AuthException;
-import com.adit.backend.global.util.KeyGenerator;
 
 import lombok.Builder;
 
 @Builder
 public record OAuth2UserInfo(
 	String name,
-	Role role,
 	String email,
 	String profile
 ) {
@@ -46,7 +44,6 @@ public record OAuth2UserInfo(
 			.email(email)
 			.nickname(DEFAULT_NICKNAME)
 			.profile(profile)
-			.socialId(KeyGenerator.generateKey())
 			.socialType(SocialType.KAKAO)
 			.role(Role.GUEST)
 			.build();

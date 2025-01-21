@@ -25,8 +25,8 @@ public class PrincipalDetailsService implements UserDetailsService {
 	private final UserRepository userRepository;
 
 	@Override
-	public PrincipalDetails loadUserByUsername(String socialId) throws UsernameNotFoundException {
-		User user = userRepository.findBySocialId(socialId)
+	public PrincipalDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
 
 		return new PrincipalDetails(
@@ -44,8 +44,8 @@ public class PrincipalDetailsService implements UserDetailsService {
 		);
 	}
 
-	public User getUser(String socialId) {
-		return userRepository.findBySocialId(socialId)
+	public User getUser(String email) {
+		return userRepository.findByEmail(email)
 			.orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
 	}
 }

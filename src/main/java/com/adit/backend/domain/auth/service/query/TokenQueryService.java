@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
 import com.adit.backend.domain.auth.entity.Token;
 import com.adit.backend.domain.auth.repository.TokenRepository;
-import com.adit.backend.domain.user.enums.Role;
 import com.adit.backend.global.error.exception.TokenException;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -45,7 +44,6 @@ public class TokenQueryService {
 
 		return OAuth2UserInfo.builder()
 			.name(name)
-			.role(Role.GUEST)
 			.email(email)
 			.profile(profileImageUrl)
 			.build();

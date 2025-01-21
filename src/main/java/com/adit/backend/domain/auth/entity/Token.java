@@ -28,7 +28,7 @@ public class Token {
 	private Long id;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "social_id", referencedColumnName = "social_id")
+	@JoinColumn(name = "email", referencedColumnName = "email")
 	private User user;
 
 	private String accessToken;
@@ -36,9 +36,9 @@ public class Token {
 	private LocalDateTime tokenExpiresAt;
 	private LocalDateTime refreshTokenExpiresAt;
 
-	public Token updateRefreshToken(String refreshToken) {
+	public void updateRefreshToken(String refreshToken, String refreshTokenExpiresAt) {
 		this.refreshToken = refreshToken;
-		return this;
+		this.refreshTokenExpiresAt = LocalDateTime.now().plusSeconds(Long.parseLong(refreshTokenExpiresAt));
 	}
 
 	public void updateAccessToken(String accessToken, String tokenExpiresAt) {
