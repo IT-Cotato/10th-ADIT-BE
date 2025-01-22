@@ -7,7 +7,9 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.adit.backend.domain.user.converter.UserConverter;
 import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
+import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.Friendship;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.exception.UserException;
@@ -82,5 +84,14 @@ public class FriendshipService {
 		allRequests.put("sentRequests", sentFriendRequests.stream().map(FriendshipResponseDto::from).toList());
 		allRequests.put("receivedRequests", receivedFriendRequests.stream().map(FriendshipResponseDto::from).toList());
 		return allRequests;
+	}
+
+	//친구 목록 확인
+	public List<UserResponse.InfoDto> findFriends(Long userId){
+		List<Long> friendsId = friendshipRepository.findFriends(userId);
+		return friendsId.stream().map(id -> userRepository.findById(id)
+				.orElseThrow(() -> new UserException(GlobalErrorCode.USER_NOT_FOUND)))
+			.map(UserConverter::InfoDto).toList();
+
 	}
 }

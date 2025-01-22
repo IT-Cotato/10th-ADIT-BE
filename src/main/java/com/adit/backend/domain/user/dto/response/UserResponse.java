@@ -10,5 +10,4 @@ public record UserResponse() {
 	public record InfoDto(String email, String name, String nickname, String socialId, Role role) {
 	}
 
-
 }
