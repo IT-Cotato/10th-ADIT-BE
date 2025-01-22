@@ -1,15 +1,19 @@
 package com.adit.backend.domain.user.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.adit.backend.domain.user.dto.request.FriendRequestDto;
+import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
 import com.adit.backend.domain.user.entity.Friendship;
 import com.adit.backend.domain.user.entity.User;
+import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.domain.user.repository.FriendshipRepository;
 import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.GlobalErrorCode;
-import com.adit.backend.global.error.exception.BusinessException;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,44 +30,57 @@ public class FriendshipService {
 
 	// 친구 요청 보내기
 
-	public Friendship sendFriendRequest(FriendRequestDto requestDto) {
-		User fromUser = userRepository.findById(requestDto.fromUser().getId())
-			.orElseThrow(() -> new BusinessException("User not found", GlobalErrorCode.NOT_FOUND_ERROR));
-		User toUser = userRepository.findById(requestDto.toUser().getId())
-			.orElseThrow(() -> new BusinessException("User not found", GlobalErrorCode.NOT_FOUND_ERROR));
+	// public Friendship sendFriendRequest(FriendRequestDto requestDto) {
+	// 	User fromUser = userRepository.findById(requestDto.fromUser().getId())
+	// 		.orElseThrow(() -> new BusinessException("User not found", GlobalErrorCode.NOT_FOUND_ERROR));
+	// 	User toUser = userRepository.findById(requestDto.toUser().getId())
+	// 		.orElseThrow(() -> new BusinessException("User not found", GlobalErrorCode.NOT_FOUND_ERROR));
+	//
+	// 	Friendship friendRequest = Friendship.builder()
+	// 		.fromUser(fromUser)
+	// 		.toUser(toUser)
+	// 		.status("PENDING")
+	// 		.build();
+	//
+	// 	return friendshipRepository.save(friendRequest);
+	// }
+	//
+	// // 친구 요청 수락
+	// public void acceptFriendRequest(Long requestId) {
+	// 	Friendship friendRequest = friendshipRepository.findById(requestId)
+	// 		.orElseThrow(() -> new BusinessException("Friend request not found", GlobalErrorCode.NOT_FOUND_ERROR));
+	//
+	// 	friendRequest.setStatus("ACCEPTED");
+	// 	friendshipRepository.save(friendRequest);
+	// }
+	//
+	// // 친구 요청 거절
+	// public void rejectFriendRequest(Long requestId) {
+	// 	Friendship friendRequest = friendshipRepository.findById(requestId)
+	// 		.orElseThrow(() -> new BusinessException("Friend request not found", GlobalErrorCode.NOT_FOUND_ERROR));
+	//
+	// 	friendRequest.setStatus("REJECTED");
+	// 	friendshipRepository.save(friendRequest);
+	// }
+	//
+	// // 친구 삭제
+	// public void removeFriend(Long friendId) {
+	// 	if (!friendshipRepository.existsById(friendId)) {
+	// 		throw new BusinessException("Friend not found", GlobalErrorCode.NOT_FOUND_ERROR);
+	// 	}
+	// 	friendshipRepository.deleteById(friendId);
+	// }
 
-		Friendship friendRequest = Friendship.builder()
-			.fromUser(fromUser)
-			.toUser(toUser)
-			.status("PENDING")
-			.build();
+	//친구 요청 목록 확인
+	public Map<String, List<FriendshipResponseDto>> checkRequest(Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new UserException(GlobalErrorCode.USER_NOT_FOUND));
+		List<Friendship> sentFriendRequests = user.getSentFriendRequests();
+		List<Friendship> receivedFriendRequests = user.getReceivedFriendRequests();
 
-		return friendshipRepository.save(friendRequest);
-	}
-
-	// 친구 요청 수락
-	public void acceptFriendRequest(Long requestId) {
-		Friendship friendRequest = friendshipRepository.findById(requestId)
-			.orElseThrow(() -> new BusinessException("Friend request not found", GlobalErrorCode.NOT_FOUND_ERROR));
-
-		friendRequest.setStatus("ACCEPTED");
-		friendshipRepository.save(friendRequest);
-	}
-
-	// 친구 요청 거절
-	public void rejectFriendRequest(Long requestId) {
-		Friendship friendRequest = friendshipRepository.findById(requestId)
-			.orElseThrow(() -> new BusinessException("Friend request not found", GlobalErrorCode.NOT_FOUND_ERROR));
-
-		friendRequest.setStatus("REJECTED");
-		friendshipRepository.save(friendRequest);
-	}
-
-	// 친구 삭제
-	public void removeFriend(Long friendId) {
-		if (!friendshipRepository.existsById(friendId)) {
-			throw new BusinessException("Friend not found", GlobalErrorCode.NOT_FOUND_ERROR);
-		}
-		friendshipRepository.deleteById(friendId);
+		Map<String, List<FriendshipResponseDto>> allRequests = new HashMap<>();
+		allRequests.put("sentRequests", sentFriendRequests.stream().map(FriendshipResponseDto::from).toList());
+		allRequests.put("receivedRequests", receivedFriendRequests.stream().map(FriendshipResponseDto::from).toList());
+		return allRequests;
 	}
 }

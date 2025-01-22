@@ -13,7 +13,7 @@ import lombok.Builder;
  */
 @Builder
 public record FriendshipResponseDto(Long id, @NotNull(message = "From User ID must not be nul") User fromUser,
-									@NotNull(message = "To User ID must not be nul") User toUser, String status)
+									@NotNull(message = "To User ID must not be nul") User toUser, Boolean status)
 	implements Serializable {
 	public static FriendshipResponseDto from(Friendship friendship) {
 		return new FriendshipResponseDto(

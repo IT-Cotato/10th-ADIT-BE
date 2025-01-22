@@ -2,7 +2,6 @@ package com.adit.backend.domain.user.entity;
 
 import com.adit.backend.global.entity.BaseEntity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -26,19 +25,20 @@ public class Friendship extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	//JSON 직렬화 문제로 인해 즉시 로딩으로 변경
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "from_user_id", nullable = false)
 	private User fromUser;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	//JSON 직렬화 문제로 인해 즉시 로딩으로 변경
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "to_user_id", nullable = false)
 	private User toUser;
 
-	@Column(nullable = false)
-	private String status;
+	private Boolean status;
 
 	@Builder
-	public Friendship(Long id, User fromUser, User toUser, String status) {
+	public Friendship(Long id, User fromUser, User toUser, Boolean status) {
 		this.id = id;
 		this.fromUser = fromUser;
 		this.toUser = toUser;

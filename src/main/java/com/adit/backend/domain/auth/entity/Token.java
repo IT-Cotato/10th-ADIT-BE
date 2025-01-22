@@ -3,6 +3,7 @@ package com.adit.backend.domain.auth.entity;
 import java.time.LocalDateTime;
 
 import com.adit.backend.domain.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,6 +30,7 @@ public class Token {
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "social_id", referencedColumnName = "social_id")
+	@JsonManagedReference
 	private User user;
 
 	private String accessToken;
