@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.auth.dto.response.ReissueResponse;
 import com.adit.backend.domain.auth.entity.Token;
+import com.adit.backend.domain.auth.service.query.TokenQueryService;
 import com.adit.backend.global.security.jwt.exception.AuthException;
 import com.adit.backend.global.security.jwt.util.JwtTokenProvider;
 
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuthCommandService {
+	private final TokenQueryService tokenQueryService;
 	private final TokenCommandService tokenCommandService;
 	private final JwtTokenProvider jwtTokenProvider;
 
@@ -36,7 +38,7 @@ public class AuthCommandService {
 
 	public ReissueResponse reIssue(String refreshToken, HttpServletResponse response) {
 		Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
-		Token token = tokenCommandService.validateRefreshToken(refreshToken);
+		Token token = tokenQueryService.validateRefreshToken(refreshToken);
 		log.info("[브라우저에서 들어온 쿠키] == [DB에 저장된 토큰], {}", refreshToken.equals(token.getRefreshToken()));
 		if (!refreshToken.equals(token.getRefreshToken())) {
 			log.warn("[쿠키로 들어온 토큰과 DB의 토큰이 일치하지 않음.]");
@@ -49,7 +51,7 @@ public class AuthCommandService {
 
 	@Transactional
 	public void logout(String refreshToken, HttpServletResponse response) {
-		Token existToken = tokenCommandService.validateRefreshToken(refreshToken);
+		Token existToken = tokenQueryService.validateRefreshToken(refreshToken);
 		tokenCommandService.deleteToken(existToken);
 		addRefreshTokenToCookie(null, response);
 		log.info("[로그아웃 진행 완료]");
