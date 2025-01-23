@@ -15,7 +15,7 @@ import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.Friendship;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.exception.friend.FriendRequestNotFoundException;
-import com.adit.backend.domain.user.exception.user.UserException;
+import com.adit.backend.domain.user.exception.user.UserNotFoundException;
 import com.adit.backend.domain.user.repository.FriendshipRepository;
 import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.GlobalErrorCode;
@@ -37,9 +37,9 @@ public class FriendshipService {
 	//친구 요청 보내기
 	public FriendshipResponseDto sendFriendRequest(FriendRequestDto requestDto) {
 		User fromUser = userRepository.findById(requestDto.fromUser().getId())
-			.orElseThrow(() -> new UserException(GlobalErrorCode.NOT_FOUND_ERROR));
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 		User toUser = userRepository.findById(requestDto.toUser().getId())
-			.orElseThrow(() -> new UserException(GlobalErrorCode.NOT_FOUND_ERROR));
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		Friendship forwardRequest = friendConverter.toForwardEntity(requestDto);
 
@@ -78,7 +78,7 @@ public class FriendshipService {
 	//친구 요청 목록 확인
 	public Map<String, List<FriendshipResponseDto>> checkRequest(Long userId) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(GlobalErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 		List<Friendship> sentFriendRequests = user.getSentFriendRequests();
 		List<Friendship> receivedFriendRequests = user.getReceivedFriendRequests();
 
@@ -92,7 +92,7 @@ public class FriendshipService {
 	public List<UserResponse.InfoDto> findFriends(Long userId){
 		List<Long> friendsId = friendshipRepository.findFriends(userId);
 		return friendsId.stream().map(id -> userRepository.findById(id)
-				.orElseThrow(() -> new UserException(GlobalErrorCode.USER_NOT_FOUND)))
+				.orElseThrow(() -> new UserNotFoundException("User not found")))
 			.map(UserConverter::InfoDto).toList();
 
 	}

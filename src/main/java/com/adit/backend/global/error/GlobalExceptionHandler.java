@@ -21,6 +21,10 @@ import com.adit.backend.domain.place.exception.CommonPlaceNotFoundException;
 import com.adit.backend.domain.place.exception.FriendNotFoundException;
 import com.adit.backend.domain.place.exception.NotValidException;
 import com.adit.backend.domain.place.exception.UserPlaceNotFoundException;
+import com.adit.backend.domain.user.exception.friend.FriendRequestNotFoundException;
+import com.adit.backend.domain.user.exception.user.NickNameNullException;
+import com.adit.backend.domain.user.exception.user.NickNameValidateException;
+import com.adit.backend.domain.user.exception.user.UserNotFoundException;
 import com.adit.backend.global.common.ApiResponse;
 
 import lombok.extern.slf4j.Slf4j;
@@ -268,4 +272,58 @@ public class GlobalExceptionHandler {
 	// 	final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_UPDATE_FAILED, ex.getMessage());
 	// 	return new ResponseEntity<>(response, HttpStatus.OK);
 	// }
+
+	/**
+	 * [Exception] FriendRequest 를 찾지 못한 경우
+	 *
+	 * @param ex Exception
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(FriendRequestNotFoundException.class)
+	protected final ResponseEntity<ErrorResponse> handleFriendRequestNotFoundException(
+		FriendRequestNotFoundException ex) {
+		log.error("FriendRequestNotFoundException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.FRIEND_REQUEST_NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
+
+	/**
+	 * [Exception] NickName 이 null 일 경우
+	 *
+	 * @param ex Exception
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(NickNameNullException.class)
+	protected final ResponseEntity<ErrorResponse> handleNickNameNullException(NickNameNullException ex) {
+		log.error("NickNameNullException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.NICKNAME_NULL, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
+
+	/**
+	 * [Exception] NickName 이 중복일 경우
+	 *
+	 * @param ex Exception
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(NickNameValidateException.class)
+	protected final ResponseEntity<ErrorResponse> handleNickNameValidateException(NickNameValidateException ex) {
+		log.error("NickNameValidateException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.NICKNAME_ALREADY_EXIST, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
+
+	/**
+	 * [Exception] user 를 찾지 못한 경우
+	 *
+	 * @param ex Exception
+	 * @return ResponseEntity<ErrorResponse>
+	 */
+	@ExceptionHandler(UserNotFoundException.class)
+	protected final ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
+		log.error("UserNotFoundException", ex);
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.USER_NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+	}
+
 }

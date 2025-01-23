@@ -100,6 +100,8 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	NICKNAME_ALREADY_EXIST(BAD_REQUEST, "2002", "이미 존재하는 닉네임입니다."),
 
+	NICKNAME_NULL(NOT_FOUND,"2003", "닉네임이 비어있습니다."),
+
 	//Auth
 	KAKAO_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "3001", "카카오 서버에 에러가 발생했습니다."),
 

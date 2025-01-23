@@ -11,7 +11,7 @@ import com.adit.backend.domain.place.exception.NotValidException;
 import com.adit.backend.domain.place.exception.UserPlaceNotFoundException;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.exception.user.UserException;
+import com.adit.backend.domain.user.exception.user.UserNotFoundException;
 import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.error.exception.BusinessException;
@@ -29,10 +29,10 @@ public class UserPlaceCommandService {
 
 	public PlaceResponseDto createUserPlace(Long userId, PlaceResponseDto responseDto, String memo) {
 		if (memo.isBlank()) {
-			throw new BusinessException(GlobalErrorCode.NOT_VALID_ERROR);
+			throw new NotValidException("memo not valid");
 		}
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(GlobalErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 		UserPlace userPlace = UserPlace.builder()
 			.user(user)
 			.memo(memo)

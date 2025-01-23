@@ -47,7 +47,7 @@ public class CommonPlaceQueryService {
 	@Transactional(readOnly = true)
 	public PlaceResponseDto getDetailedPlace(String placeName) {
 		if (placeName.isBlank()){
-			throw new NotValidException("RequestParam not valid");
+			throw new NotValidException("PlaceName not valid");
 		}
 		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(placeName)
 			.orElseThrow(() -> new CommonPlaceNotFoundException("CommonPlace not found"));
