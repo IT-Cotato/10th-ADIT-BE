@@ -57,15 +57,20 @@ public class FriendshipService {
 
 		friendRequest.acceptRequest();
 	}
-	//
-	// // 친구 요청 거절
-	// public void rejectFriendRequest(Long requestId) {
-	// 	Friendship friendRequest = friendshipRepository.findById(requestId)
-	// 		.orElseThrow(() -> new BusinessException("Friend request not found", GlobalErrorCode.NOT_FOUND_ERROR));
-	//
-	// 	friendRequest.setStatus("REJECTED");
-	// 	friendshipRepository.save(friendRequest);
-	// }
+
+	// 친구 요청 거절
+	public void rejectFriendRequest(Long requestId) {
+		Friendship friendRequest = friendshipRepository.findById(requestId)
+			.orElseThrow(() -> new FriendRequestNotFoundException("Friend request not found"));
+
+		User fromUser = friendRequest.getFromUser();
+		User toUser = friendRequest.getToUser();
+		Friendship friendship = friendshipRepository.findByUser(fromUser, toUser);
+
+		friendshipRepository.deleteById(requestId);
+		friendshipRepository.delete(friendship);
+
+	}
 	//
 	// // 친구 삭제
 	// public void removeFriend(Long friendId) {

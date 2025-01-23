@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.adit.backend.domain.user.entity.Friendship;
+import com.adit.backend.domain.user.entity.User;
 
 public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
 	@Query("SELECT f1.toUser.id " +
@@ -19,4 +20,6 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
 		")")
 	List<Long> findFriends(@Param("userId") Long userId);
 
+	@Query("SELECT fs FROM Friendship fs where fs.fromUser = :toUser AND fs.toUser = :fromUser")
+	Friendship findByUser(@Param("fromUser") User fromUser, @Param("toUser") User toUser);
 }

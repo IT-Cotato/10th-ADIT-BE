@@ -44,7 +44,7 @@ public class FriendshipController {
 	}
 
 	 // 친구 요청 수락 API
-	@Operation(summary = "친구 요청 수락", description = "requestId에 해당하는 요청을 수락")
+	@Operation(summary = "친구 요청 수락", description = "requestId에 해당하는 요청을 true 로 저장")
 	@PostMapping("/accept")
 	public ResponseEntity<ApiResponse<String>> acceptFriendRequest(@RequestParam Long requestId) {
 		// 요청 ID로 친구 요청을 수락 처리
@@ -52,13 +52,14 @@ public class FriendshipController {
 		return ResponseEntity.ok(ApiResponse.success("Friend request accepted"));
 	}
 
-	// // 친구 요청 거절 API
-	// @PostMapping("/reject")
-	// public ResponseEntity<ApiResponse<String>> rejectFriendRequest(@RequestParam Long requestId) {
-	// 	// 요청 ID로 친구 요청을 거절 처리
-	// 	friendshipService.rejectFriendRequest(requestId);
-	// 	return ResponseEntity.ok(ApiResponse.success("Friend request rejected"));
-	// }
+	// 친구 요청 거절 API
+	@Operation(summary = "친구 요청 거절", description = "requestId에 해당하는 요청과 그에 따른 역방향 요청 데이터 삭제")
+	@PostMapping("/reject")
+	public ResponseEntity<ApiResponse<String>> rejectFriendRequest(@RequestParam Long requestId) {
+		// 요청 ID로 친구 요청을 거절 처리
+		friendshipService.rejectFriendRequest(requestId);
+		return ResponseEntity.ok(ApiResponse.success("Friend request rejected"));
+	}
 	//
 	// // 친구 삭제 API
 	// @DeleteMapping("/{friendId}")
