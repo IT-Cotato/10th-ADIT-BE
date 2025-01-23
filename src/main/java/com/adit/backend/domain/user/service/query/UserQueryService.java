@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.exception.UserException;
+import com.adit.backend.domain.user.exception.user.UserException;
 import com.adit.backend.domain.user.repository.UserRepository;
 
 import lombok.AccessLevel;

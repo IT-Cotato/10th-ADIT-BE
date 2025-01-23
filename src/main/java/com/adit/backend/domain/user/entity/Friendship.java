@@ -44,4 +44,8 @@ public class Friendship extends BaseEntity {
 		this.toUser = toUser;
 		this.status = status;
 	}
+
+	public void acceptRequest(){
+		this.status = true;
+	}
 }

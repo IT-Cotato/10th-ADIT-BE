@@ -14,7 +14,8 @@ import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
 import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.Friendship;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.exception.UserException;
+import com.adit.backend.domain.user.exception.friend.FriendRequestNotFoundException;
+import com.adit.backend.domain.user.exception.user.UserException;
 import com.adit.backend.domain.user.repository.FriendshipRepository;
 import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.GlobalErrorCode;
@@ -48,15 +49,14 @@ public class FriendshipService {
 		friendshipRepository.save(reverseRequest);
 		return friendConverter.toResponse(savedForwardRequest);
 	}
-	//
-	// // 친구 요청 수락
-	// public void acceptFriendRequest(Long requestId) {
-	// 	Friendship friendRequest = friendshipRepository.findById(requestId)
-	// 		.orElseThrow(() -> new BusinessException("Friend request not found", GlobalErrorCode.NOT_FOUND_ERROR));
-	//
-	// 	friendRequest.setStatus("ACCEPTED");
-	// 	friendshipRepository.save(friendRequest);
-	// }
+
+	// 친구 요청 수락
+	public void acceptFriendRequest(Long requestId) {
+		Friendship friendRequest = friendshipRepository.findById(requestId)
+			.orElseThrow(() -> new FriendRequestNotFoundException("Friend request not found"));
+
+		friendRequest.acceptRequest();
+	}
 	//
 	// // 친구 요청 거절
 	// public void rejectFriendRequest(Long requestId) {

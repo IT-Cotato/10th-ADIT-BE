@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.adit.backend.domain.user.dto.request.FriendRequestDto;
@@ -41,15 +42,16 @@ public class FriendshipController {
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(ApiResponse.success(savedForwardRequest));
 	}
-	//
-	// // 친구 요청 수락 API
-	// @PostMapping("/accept")
-	// public ResponseEntity<ApiResponse<String>> acceptFriendRequest(@RequestParam Long requestId) {
-	// 	// 요청 ID로 친구 요청을 수락 처리
-	// 	friendshipService.acceptFriendRequest(requestId);
-	// 	return ResponseEntity.ok(ApiResponse.success("Friend request accepted"));
-	// }
-	//
+
+	 // 친구 요청 수락 API
+	@Operation(summary = "친구 요청 수락", description = "requestId에 해당하는 요청을 수락")
+	@PostMapping("/accept")
+	public ResponseEntity<ApiResponse<String>> acceptFriendRequest(@RequestParam Long requestId) {
+		// 요청 ID로 친구 요청을 수락 처리
+		friendshipService.acceptFriendRequest(requestId);
+		return ResponseEntity.ok(ApiResponse.success("Friend request accepted"));
+	}
+
 	// // 친구 요청 거절 API
 	// @PostMapping("/reject")
 	// public ResponseEntity<ApiResponse<String>> rejectFriendRequest(@RequestParam Long requestId) {

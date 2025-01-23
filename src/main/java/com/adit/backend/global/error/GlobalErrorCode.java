@@ -144,7 +144,10 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	EVENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "5004", "이벤트 업데이트에 실패했습니다."),
 
-	EVENT_DELETION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "5005", "이벤트 삭제에 실패했습니다.");
+	EVENT_DELETION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "5005", "이벤트 삭제에 실패했습니다."),
+
+	//friend
+	FRIEND_REQUEST_NOT_FOUND(NOT_FOUND,"6001", "친구 요청을 찾지 못했습니다");
 
 	// 에러 코드의 '코드 상태'을 반환한다.
 	private final HttpStatus httpStatus;

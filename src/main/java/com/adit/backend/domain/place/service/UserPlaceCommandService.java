@@ -11,7 +11,7 @@ import com.adit.backend.domain.place.exception.NotValidException;
 import com.adit.backend.domain.place.exception.UserPlaceNotFoundException;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.exception.UserException;
+import com.adit.backend.domain.user.exception.user.UserException;
 import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.error.exception.BusinessException;
