@@ -19,17 +19,21 @@ public class CorsConfig {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowCredentials(true);
-		config.addAllowedOrigin(SERVER_URL);
-		config.addAllowedOrigin(FRONT_URL);
-		config.addAllowedHeader("*");
-		config.addAllowedMethod("*");
-		config.setExposedHeaders(List.of("accessToken"));
-		config.addExposedHeader("Set-Cookie");
-		config.setMaxAge(3600L);
-
-		source.registerCorsConfiguration("/api/**", config);
-		return new CorsFilter(source);
+	        config.setAllowCredentials(true);
+	        config.addAllowedOrigin(SERVER_URL);
+	        config.addAllowedOrigin(FRONT_URL);
+	        config.addAllowedHeader("*");
+	        config.addAllowedMethod("*");
+	        config.setExposedHeaders(List.of(
+	            "accessToken", 
+	            "Authorization", 
+	            "Authorization-refresh"
+	        ));
+	        config.addExposedHeader("Set-Cookie");
+	        
+	        // 모든 엔드포인트에 대해 CORS 설정 적용
+	        source.registerCorsConfiguration("/**", config);
+	        return new CorsFilter(source);
 	}
 }
 
