@@ -9,6 +9,7 @@ import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.domain.user.repository.UserRepository;
+import com.adit.backend.global.error.exception.BusinessException;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,11 @@ public class UserQueryService {
 
 	private final UserRepository userRepository;
 	public static final String DEFAULT_NICKNAME = "GUEST";
+
+	public User findUserByEmail(String email) {
+		return userRepository.findByEmail(email)
+			.orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
+	}
 
 	public User findUserByAccessToken(String accessToken) {
 		return userRepository.findUserByToken_AccessToken(accessToken)

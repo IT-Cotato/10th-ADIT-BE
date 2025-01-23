@@ -9,11 +9,18 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.CorsFilter;
 
+import com.adit.backend.global.security.jwt.filter.JwtAuthenticationFilter;
+import com.adit.backend.global.security.jwt.filter.TokenExceptionFilter;
 import com.adit.backend.global.security.jwt.handler.CustomAccessDeniedHandler;
 import com.adit.backend.global.security.jwt.handler.CustomAuthenticationEntryPoint;
+import com.adit.backend.global.security.oauth.handler.OAuth2SuccessHandler;
+import com.adit.backend.global.security.oauth.service.CustomOAuth2UserService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +34,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class SecurityConfig {
 
+	private static final String[] WHITE_LIST = {
+		"/",
+		"/login/**",
+		"/api/ai/**",
+		"/api/user/**",
+		"/api/auth/**",
+		"/swagger-ui/**",
+		"/swagger-ui.html",
+		"/v3/api-docs/**",
+		"/swagger-resources/**",
+		"/webjars/**",
+		"/api/scraper/**",
+		"/oauth2/**"
+	};
 	private final CorsFilter corsFilter;
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
@@ -52,22 +76,21 @@ public class SecurityConfig {
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.addFilter(corsFilter)
+
 			.authorizeHttpRequests(request -> request
-				.requestMatchers(
-					"/",
-					"/api/ai/**",
-					"/api/user/**",
-					"/api/auth/**",
-					"/swagger-ui/**",
-					"/swagger-ui.html",
-					"/v3/api-docs/**",
-					"/swagger-resources/**",
-					"/webjars/**",
-					"/api/scraper/**"
-				).permitAll()
+				.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+				.requestMatchers(WHITE_LIST).permitAll()
 				.anyRequest().authenticated()
 			)
-
+			// OAuth2 로그인 설정 추가
+			.oauth2Login(oauth2 -> oauth2
+				.userInfoEndpoint(userInfo -> userInfo
+					.userService(customOAuth2UserService)
+				)
+				.successHandler(oAuth2SuccessHandler)
+			)
+			.addFilterBefore(new TokenExceptionFilter(), OAuth2AuthorizationRequestRedirectFilter.class)
+			.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 			.exceptionHandling(exceptions -> exceptions
 				.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 				.accessDeniedHandler(new CustomAccessDeniedHandler()));

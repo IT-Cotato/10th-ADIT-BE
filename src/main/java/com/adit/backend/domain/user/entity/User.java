@@ -39,7 +39,7 @@ public class User extends BaseEntity {
 	@Column(nullable = false, length = 10)
 	private String name;
 
-	@Column(nullable = false, length = 20, unique = true)
+	@Column(nullable = false, unique = true)
 	private String email;
 
 	@Column(nullable = false, length = 50)
@@ -47,9 +47,6 @@ public class User extends BaseEntity {
 
 	@Column(nullable = false)
 	private String profile;
-
-	@Column(name = "social_id", nullable = false, unique = true)
-	private String socialId;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -59,7 +56,7 @@ public class User extends BaseEntity {
 	@Enumerated(value = EnumType.STRING)
 	private Role role;
 
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(mappedBy = "user", orphanRemoval = true)
 	private Token token;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -75,13 +72,11 @@ public class User extends BaseEntity {
 	private List<Friendship> receivedFriendRequests = new ArrayList<>();
 
 	@Builder
-	public User(String name, String email, String nickname, String profile, String socialId, SocialType socialType,
-		Role role) {
+	public User(String name, String email, String nickname, String profile, SocialType socialType, Role role) {
 		this.name = name;
 		this.email = email;
 		this.nickname = nickname;
 		this.profile = profile;
-		this.socialId = socialId;
 		this.socialType = socialType;
 		this.role = role;
 	}

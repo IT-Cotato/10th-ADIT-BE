@@ -39,7 +39,7 @@ public record PrincipalDetails(
 
 	@Override
 	public String getUsername() {
-		return user.getSocialId();
+		return user.getEmail();
 	}
 
 	@Override
