@@ -5,6 +5,10 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +21,7 @@ import com.adit.backend.domain.user.dto.request.FriendRequestDto;
 import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
 import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.Friendship;
+import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.domain.user.service.FriendshipService;
 import com.adit.backend.global.common.ApiResponse;
 
@@ -60,14 +65,16 @@ public class FriendshipController {
 		friendshipService.rejectFriendRequest(requestId);
 		return ResponseEntity.ok(ApiResponse.success("Friend request rejected"));
 	}
-	//
-	// // 친구 삭제 API
-	// @DeleteMapping("/{friendId}")
-	// public ResponseEntity<ApiResponse<String>> removeFriend(@PathVariable Long friendId) {
-	// 	// 친구 관계를 삭제
-	// 	friendshipService.removeFriend(friendId);
-	// 	return ResponseEntity.ok(ApiResponse.success("Friend removed"));
-	// }
+
+	// 친구 삭제 API
+	@DeleteMapping("/{friendId}")
+	public ResponseEntity<ApiResponse<String>> removeFriend(@PathVariable Long friendId,
+	@AuthenticationPrincipal PrincipalDetails principalDetails ) {
+		// 친구 관계를 삭제
+		Long userId = principalDetails.getUserId();
+		friendshipService.removeFriend(userId, friendId);
+		return ResponseEntity.ok(ApiResponse.success("Friend removed"));
+	}
 
 	//친구 요청 목록 확인 API
 	@Operation(summary = "친구 요청 목록 조회", description = "userId에 해당하는 사용자가 보내거나 받은 친구 요청 조회")

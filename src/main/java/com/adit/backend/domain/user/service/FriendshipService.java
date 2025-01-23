@@ -71,14 +71,15 @@ public class FriendshipService {
 		friendshipRepository.delete(friendship);
 
 	}
-	//
-	// // 친구 삭제
-	// public void removeFriend(Long friendId) {
-	// 	if (!friendshipRepository.existsById(friendId)) {
-	// 		throw new BusinessException("Friend not found", GlobalErrorCode.NOT_FOUND_ERROR);
-	// 	}
-	// 	friendshipRepository.deleteById(friendId);
-	// }
+
+	// 친구 삭제
+	public void removeFriend(Long userId, Long friendId) {
+		List<Long> friends = friendshipRepository.findFriends(userId);
+		if (!friends.contains(friendId)){
+			throw new UserNotFoundException("Friend not found");
+		}
+		friendshipRepository.deleteFriend(userId, friendId);
+	}
 
 	//친구 요청 목록 확인
 	public Map<String, List<FriendshipResponseDto>> checkRequest(Long userId) {
