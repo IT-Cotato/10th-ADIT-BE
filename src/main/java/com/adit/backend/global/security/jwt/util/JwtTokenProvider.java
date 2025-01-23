@@ -23,7 +23,6 @@ import org.springframework.util.StringUtils;
 
 import com.adit.backend.domain.auth.repository.TokenRepository;
 import com.adit.backend.domain.auth.service.query.TokenQueryService;
-import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.global.error.exception.TokenException;
 import com.adit.backend.global.security.jwt.service.JwtTokenService;
 
@@ -99,8 +98,10 @@ public class JwtTokenProvider {
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining());
 
+		String subject = authentication.getName();
+
 		return Jwts.builder()
-			.subject(((PrincipalDetails)authentication.getPrincipal()).getUser().getEmail()) // email을 subject로 사용
+			.subject(subject)
 			.claim(KEY_ROLE, authorities)
 			.issuedAt(now)
 			.expiration(expiredDate)

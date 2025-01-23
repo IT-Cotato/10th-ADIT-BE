@@ -1,8 +1,6 @@
 package com.adit.backend.domain.auth.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +35,7 @@ public class AuthController {
 	@Operation(summary = "사용자 토큰 재발급", description = "사용자의 JWT 토큰을 재 발급합니다.")
 	@PostMapping("/reissue")
 	public ResponseEntity<ApiResponse<ReissueResponse>> tokenReissue(
-		@CookieValue(name = "refreshToken") String refreshToken, @AuthenticationPrincipal UserDetails userDetails,
+		@CookieValue(name = "refreshToken") String refreshToken,
 		HttpServletResponse response) {
 		return ResponseEntity.ok(ApiResponse.success(authCommandService.reIssue(refreshToken, response)));
 	}

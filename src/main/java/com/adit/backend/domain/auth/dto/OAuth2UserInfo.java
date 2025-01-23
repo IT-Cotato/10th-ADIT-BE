@@ -18,8 +18,6 @@ public record OAuth2UserInfo(
 	String profile
 ) {
 
-	public static final String DEFAULT_NICKNAME = "GUEST";
-
 	public static OAuth2UserInfo of(String registrationId, Map<String, Object> attributes) throws AuthException {
 		return switch (registrationId) {
 			case "kakao" -> ofKakao(attributes);
@@ -42,7 +40,7 @@ public record OAuth2UserInfo(
 		return User.builder()
 			.name(name)
 			.email(email)
-			.nickname(DEFAULT_NICKNAME)
+			.nickname(Role.GUEST.getKey())
 			.profile(profile)
 			.socialType(SocialType.KAKAO)
 			.role(Role.GUEST)
