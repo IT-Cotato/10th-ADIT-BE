@@ -48,7 +48,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				setAuthentication(accessToken);
 				return;
 			}
-
 			if (refreshToken != null && tokenProvider.isRefreshTokenValid(refreshToken)) {
 				reissueAccessToken(refreshToken);
 			}

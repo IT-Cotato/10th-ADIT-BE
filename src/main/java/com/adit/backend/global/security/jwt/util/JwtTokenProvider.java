@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.adit.backend.domain.auth.repository.TokenRepository;
 import com.adit.backend.domain.auth.service.query.TokenQueryService;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.global.error.exception.TokenException;
@@ -49,6 +50,7 @@ public class JwtTokenProvider {
 
 	private static SecretKey secretKey;
 	private final JwtTokenService jwtTokenService;
+	private final TokenRepository tokenRepository;
 	@Value("${token.key}")
 	private String key;
 	@Value("${token.access.expiration}")
