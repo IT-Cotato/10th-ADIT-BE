@@ -19,7 +19,8 @@ import com.adit.backend.domain.user.dto.request.FriendRequestDto;
 import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
 import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
-import com.adit.backend.domain.user.service.FriendshipService;
+import com.adit.backend.domain.user.service.command.FriendCommandService;
+import com.adit.backend.domain.user.service.query.FriendQueryService;
 import com.adit.backend.global.common.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +33,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class FriendshipController {
 
-	private final FriendshipService friendshipService;
+	private final FriendCommandService friendCommandService;
+	private final FriendQueryService friendQueryService;
 
 	//친구 요청 보내기 API
 	@Operation(summary = "친구 요청 보내기", description = "fromUserId, toUserId 정보를 바탕으로 정방향,역방향 관계 저장")
@@ -40,7 +42,7 @@ public class FriendshipController {
 	public ResponseEntity<ApiResponse<FriendshipResponseDto>> sendFriendRequest(
 		@Valid @RequestBody FriendRequestDto requestDto) {
 		// 친구 요청을 처리하여 응답 반환
-		FriendshipResponseDto savedForwardRequest = friendshipService.sendFriendRequest(requestDto);
+		FriendshipResponseDto savedForwardRequest = friendCommandService.sendFriendRequest(requestDto);
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(ApiResponse.success(savedForwardRequest));
 	}
@@ -50,7 +52,7 @@ public class FriendshipController {
 	@PostMapping("/accept")
 	public ResponseEntity<ApiResponse<String>> acceptFriendRequest(@RequestParam Long requestId) {
 		// 요청 ID로 친구 요청을 수락 처리
-		friendshipService.acceptFriendRequest(requestId);
+		friendCommandService.acceptFriendRequest(requestId);
 		return ResponseEntity.ok(ApiResponse.success("Friend request accepted"));
 	}
 
@@ -59,7 +61,7 @@ public class FriendshipController {
 	@PostMapping("/reject")
 	public ResponseEntity<ApiResponse<String>> rejectFriendRequest(@RequestParam Long requestId) {
 		// 요청 ID로 친구 요청을 거절 처리
-		friendshipService.rejectFriendRequest(requestId);
+		friendCommandService.rejectFriendRequest(requestId);
 		return ResponseEntity.ok(ApiResponse.success("Friend request rejected"));
 	}
 
@@ -70,7 +72,7 @@ public class FriendshipController {
 	@AuthenticationPrincipal PrincipalDetails principalDetails ) {
 		// 친구 관계를 삭제
 		Long userId = principalDetails.getUserId();
-		friendshipService.removeFriend(userId, friendId);
+		friendCommandService.removeFriend(userId, friendId);
 		return ResponseEntity.ok(ApiResponse.success("Friend removed"));
 	}
 
@@ -79,7 +81,7 @@ public class FriendshipController {
 	@GetMapping("/{userId}/check")
 	public ResponseEntity<ApiResponse<Map<String, List<FriendshipResponseDto>>>> checkRequest(
 		@PathVariable Long userId) {
-		Map<String, List<FriendshipResponseDto>> requests = friendshipService.checkRequest(userId);
+		Map<String, List<FriendshipResponseDto>> requests = friendQueryService.checkRequest(userId);
 		return ResponseEntity.ok(ApiResponse.success(requests));
 	}
 
@@ -87,7 +89,7 @@ public class FriendshipController {
 	@Operation(summary = "친구 목록 조회", description = "userId에 해당하는 사용자의 친구 조회")
 	@GetMapping("/{userId}")
 	public ResponseEntity<ApiResponse<List<UserResponse.InfoDto>>> findFriends(@PathVariable Long userId){
-		List<UserResponse.InfoDto> friendList = friendshipService.findFriends(userId);
+		List<UserResponse.InfoDto> friendList = friendQueryService.findFriends(userId);
 		return ResponseEntity.ok(ApiResponse.success(friendList));
 	}
 
@@ -97,7 +99,7 @@ public class FriendshipController {
 	public ResponseEntity<ApiResponse<Map<String, UserResponse.InfoDto>>> findUser(@RequestParam String NickName,
 		@AuthenticationPrincipal PrincipalDetails principalDetails) {
 		Long userId = principalDetails.getUserId();
-		Map<String, UserResponse.InfoDto> searchedUser = friendshipService.findUser(NickName, userId);
+		Map<String, UserResponse.InfoDto> searchedUser = friendQueryService.findUser(NickName, userId);
 		return ResponseEntity.ok(ApiResponse.success(searchedUser));
 	}
 }
