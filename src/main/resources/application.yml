@@ -55,7 +55,7 @@ token:
   refresh:
     expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
     cookie:
-      name: refresh
+      name: refreshToken
 
 apify:
   token: ${SCRAPER_API_TOKEN}
