@@ -5,9 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.adit.backend.domain.user.dto.request.FriendRequestDto;
 import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
 import com.adit.backend.domain.user.dto.response.UserResponse;
-import com.adit.backend.domain.user.entity.Friendship;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.domain.user.service.FriendshipService;
 import com.adit.backend.global.common.ApiResponse;
@@ -67,6 +64,7 @@ public class FriendshipController {
 	}
 
 	// 친구 삭제 API
+	@Operation(summary = "친구 삭제", description = "friendId에 해당하는 친구를 삭제")
 	@DeleteMapping("/{friendId}")
 	public ResponseEntity<ApiResponse<String>> removeFriend(@PathVariable Long friendId,
 	@AuthenticationPrincipal PrincipalDetails principalDetails ) {
@@ -91,5 +89,15 @@ public class FriendshipController {
 	public ResponseEntity<ApiResponse<List<UserResponse.InfoDto>>> findFriends(@PathVariable Long userId){
 		List<UserResponse.InfoDto> friendList = friendshipService.findFriends(userId);
 		return ResponseEntity.ok(ApiResponse.success(friendList));
+	}
+
+	//사용자 검색 API
+	@Operation(summary = "사용자 검색", description = "해당 NickName 에 해당하는 사용자 조회")
+	@GetMapping("/search")
+	public ResponseEntity<ApiResponse<Map<String, UserResponse.InfoDto>>> findUser(@RequestParam String NickName,
+		@AuthenticationPrincipal PrincipalDetails principalDetails) {
+		Long userId = principalDetails.getUserId();
+		Map<String, UserResponse.InfoDto> searchedUser = friendshipService.findUser(NickName, userId);
+		return ResponseEntity.ok(ApiResponse.success(searchedUser));
 	}
 }

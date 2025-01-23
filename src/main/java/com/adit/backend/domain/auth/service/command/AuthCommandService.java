@@ -52,6 +52,7 @@ public class AuthCommandService {
 	private final TokenQueryService tokenQueryService;
 	private final UserQueryService userQueryService;
 	private final UserCommandService userCommandService;
+	private final UserConverter userConverter;
 
 	@Value("${spring.security.oauth2.client.registration.kakao.client-id}")
 	private String clientId;
@@ -116,7 +117,7 @@ public class AuthCommandService {
 		Token token = tokenQueryService.findTokenByAccessToken(accessToken);
 		userCommandService.saveUserWithToken(user, token);
 		log.info("[로그인 성공] Email : {}", user.getEmail());
-		return UserConverter.InfoDto(user);
+		return userConverter.InfoDto(user);
 	}
 
 	private void addRefreshTokenToCookie(String refreshToken, HttpServletResponse response) {

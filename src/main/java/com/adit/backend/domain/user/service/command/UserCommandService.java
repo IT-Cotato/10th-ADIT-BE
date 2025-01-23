@@ -22,13 +22,14 @@ public class UserCommandService {
 
 	private final UserRepository userRepository;
 	private final UserQueryService userQueryService;
+	private final UserConverter userConverter;
 
 	public UserResponse.InfoDto changeNickname(String accessToken, String nickname) {
 		User user = userQueryService.findUserByAccessToken(accessToken);
 		userQueryService.validateDuplicateNicknames(nickname);
 		user.changeNickName(nickname);
 		user.updateRole();
-		return UserConverter.InfoDto(user);
+		return userConverter.InfoDto(user);
 	}
 
 	public User saveUserWithToken(User user, Token token) {
