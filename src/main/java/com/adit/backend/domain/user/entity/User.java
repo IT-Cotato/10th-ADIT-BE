@@ -56,7 +56,7 @@ public class User extends BaseEntity {
 	@Enumerated(value = EnumType.STRING)
 	private Role role;
 
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(mappedBy = "user", orphanRemoval = true)
 	private Token token;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
