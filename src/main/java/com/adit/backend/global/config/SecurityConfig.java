@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.CorsFilter;
 
 import com.adit.backend.global.security.jwt.filter.JwtAuthenticationFilter;
@@ -33,6 +34,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class SecurityConfig {
 
+	public static final String[] WHITE_LIST = {
+		"/",
+		"/login/**",
+		"/api/ai/**",
+		"/api/user/**",
+		"/api/auth/**",
+		"/swagger-ui/**",
+		"/swagger-ui.html",
+		"/v3/api-docs/**",
+		"/swagger-resources/**",
+		"/webjars/**",
+		"/api/scraper/**",
+		"/oauth2/**"
+	};
 	private final CorsFilter corsFilter;
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -61,21 +76,10 @@ public class SecurityConfig {
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.addFilter(corsFilter)
+
 			.authorizeHttpRequests(request -> request
-				.requestMatchers(
-					"/",
-					"/login/**",
-					"/api/ai/**",
-					"/api/user/**",
-					"/api/auth/**",
-					"/swagger-ui/**",
-					"/swagger-ui.html",
-					"/v3/api-docs/**",
-					"/swagger-resources/**",
-					"/webjars/**",
-					"/api/scraper/**",
-					"/oauth2/**"  // OAuth2 엔드포인트 추가
-				).permitAll()
+				.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+				.requestMatchers(WHITE_LIST).permitAll()
 				.anyRequest().authenticated()
 			)
 			// OAuth2 로그인 설정 추가
