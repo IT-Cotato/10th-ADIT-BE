@@ -34,7 +34,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class SecurityConfig {
 
-	public static final String[] WHITE_LIST = {
+	private static final String[] WHITE_LIST = {
 		"/",
 		"/login/**",
 		"/api/ai/**",
