@@ -7,7 +7,9 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.adit.backend.domain.user.converter.FriendConverter;
 import com.adit.backend.domain.user.converter.UserConverter;
+import com.adit.backend.domain.user.dto.request.FriendRequestDto;
 import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
 import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.Friendship;
@@ -29,23 +31,23 @@ public class FriendshipService {
 
 	private final FriendshipRepository friendshipRepository;
 	private final UserRepository userRepository;
+	private final FriendConverter friendConverter;
 
-	// 친구 요청 보내기
+	//친구 요청 보내기
+	public FriendshipResponseDto sendFriendRequest(FriendRequestDto requestDto) {
+		User fromUser = userRepository.findById(requestDto.fromUser().getId())
+			.orElseThrow(() -> new UserException(GlobalErrorCode.NOT_FOUND_ERROR));
+		User toUser = userRepository.findById(requestDto.toUser().getId())
+			.orElseThrow(() -> new UserException(GlobalErrorCode.NOT_FOUND_ERROR));
 
-	// public Friendship sendFriendRequest(FriendRequestDto requestDto) {
-	// 	User fromUser = userRepository.findById(requestDto.fromUser().getId())
-	// 		.orElseThrow(() -> new BusinessException("User not found", GlobalErrorCode.NOT_FOUND_ERROR));
-	// 	User toUser = userRepository.findById(requestDto.toUser().getId())
-	// 		.orElseThrow(() -> new BusinessException("User not found", GlobalErrorCode.NOT_FOUND_ERROR));
-	//
-	// 	Friendship friendRequest = Friendship.builder()
-	// 		.fromUser(fromUser)
-	// 		.toUser(toUser)
-	// 		.status("PENDING")
-	// 		.build();
-	//
-	// 	return friendshipRepository.save(friendRequest);
-	// }
+		Friendship forwardRequest = friendConverter.toForwardEntity(requestDto);
+
+		Friendship reverseRequest = friendConverter.toReverseEntity(requestDto);
+
+		Friendship savedForwardRequest = friendshipRepository.save(forwardRequest);
+		friendshipRepository.save(reverseRequest);
+		return friendConverter.toResponse(savedForwardRequest);
+	}
 	//
 	// // 친구 요청 수락
 	// public void acceptFriendRequest(Long requestId) {
@@ -81,8 +83,8 @@ public class FriendshipService {
 		List<Friendship> receivedFriendRequests = user.getReceivedFriendRequests();
 
 		Map<String, List<FriendshipResponseDto>> allRequests = new HashMap<>();
-		allRequests.put("sentRequests", sentFriendRequests.stream().map(FriendshipResponseDto::from).toList());
-		allRequests.put("receivedRequests", receivedFriendRequests.stream().map(FriendshipResponseDto::from).toList());
+		allRequests.put("sentRequests", sentFriendRequests.stream().map(friendConverter::toResponse).toList());
+		allRequests.put("receivedRequests", receivedFriendRequests.stream().map(friendConverter::toResponse).toList());
 		return allRequests;
 	}
 

@@ -15,12 +15,5 @@ import lombok.Builder;
 public record FriendshipResponseDto(Long id, @NotNull(message = "From User ID must not be nul") User fromUser,
 									@NotNull(message = "To User ID must not be nul") User toUser, Boolean status)
 	implements Serializable {
-	public static FriendshipResponseDto from(Friendship friendship) {
-		return new FriendshipResponseDto(
-			friendship.getId(),
-			friendship.getFromUser(),
-			friendship.getToUser(),
-			friendship.getStatus()
-		);
-	}
+
 }
