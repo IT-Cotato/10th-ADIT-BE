@@ -3,7 +3,6 @@ package com.adit.backend.domain.user.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.adit.backend.domain.auth.entity.Token;
 import com.adit.backend.domain.event.entity.Event;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.user.enums.Role;
@@ -19,7 +18,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -55,9 +53,6 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	@Enumerated(value = EnumType.STRING)
 	private Role role;
-
-	@OneToOne(mappedBy = "user", orphanRemoval = true)
-	private Token token;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Event> events = new ArrayList<>();
@@ -95,11 +90,6 @@ public class User extends BaseEntity {
 	public void addFriendRequest(Friendship friendship) {
 		this.sentFriendRequests.add(friendship);
 		friendship.setFromUser(this);
-	}
-
-	public void addToken(Token token) {
-		this.token = token;
-		token.updateUserInfo(this);
 	}
 
 	public void changeNickName(String nickName) {

@@ -29,11 +29,6 @@ public class UserQueryService {
 			.orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
 	}
 
-	public User findUserByAccessToken(String accessToken) {
-		return userRepository.findUserByToken_AccessToken(accessToken)
-			.orElseThrow(() -> new UserException(USER_NOT_FOUND));
-	}
-
 	public User findUserByOAuthInfo(OAuth2UserInfo oAuth2UserInfo) {
 		return userRepository.findByEmail(oAuth2UserInfo.email())
 			.orElseGet(oAuth2UserInfo::toEntity);

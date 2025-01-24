@@ -8,9 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.adit.backend.domain.auth.entity.Token;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.global.security.jwt.entity.RefreshToken;
+import com.adit.backend.global.security.jwt.entity.Token;
 import com.adit.backend.global.security.jwt.repository.RefreshTokenRepository;
 import com.adit.backend.global.security.jwt.util.JwtTokenProvider;
 

@@ -20,12 +20,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.adit.backend.domain.auth.entity.Token;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.domain.user.principal.PrincipalDetailsService;
 import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.exception.TokenException;
+import com.adit.backend.global.security.jwt.entity.Token;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -83,13 +83,6 @@ public class JwtTokenProvider {
 	private void setSecretKey() {
 		byte[] keyBytes = Base64.getDecoder().decode(key);
 		secretKey = Keys.hmacShaKeyFor(keyBytes);
-		validateKeyStrength(keyBytes);
-	}
-
-	private void validateKeyStrength(byte[] keyBytes) {
-		if (keyBytes.length < 32) { // 256 bits
-			throw new IllegalArgumentException("Secret key must be at least 256 bits long");
-		}
 	}
 
 	private String generateToken(Authentication authentication, long expireTime) {
@@ -111,37 +104,14 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public String generateAccessToken(Authentication authentication) {
-		return generateToken(authentication, accessTokenExpirationAt);
-	}
-
-	public String generateRefreshToken(Authentication authentication) {
-		return generateToken(authentication, refreshTokenExpirationAt);
-	}
-
 	public Token createToken(Authentication authentication) {
-		String accessToken = generateAccessToken(authentication);
-		String refreshToken = generateRefreshToken(authentication);
+		String accessToken = generateToken(authentication, accessTokenExpirationAt);
+		String refreshToken = generateToken(authentication, refreshTokenExpirationAt);
 		return Token.builder()
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
 			.build();
 	}
-
-/*	public Token checkRefreshTokenAndReIssueAccessToken(Authentication authentication, String refreshToken) {
-		return jwtTokenService.findByAccessTokenOrThrow(refreshToken)
-			.filter(token -> isRefreshTokenValid(refreshToken))
-			.map(token -> {
-				String newRefreshToken = generateRefreshToken(authentication);
-				String newAccessToken = generateAccessToken(authentication);
-				jwtTokenService.updateTokens(newAccessToken, newRefreshToken, token);
-				return token.builder()
-					.accessToken(newAccessToken)
-					.refreshToken(refreshToken)
-					.build();
-			})
-			.orElseThrow(() -> new TokenException(REFRESH_TOKEN_EXPIRED));
-	}*/
 
 	public boolean isRefreshTokenValid(String refreshToken) {
 		try {
@@ -155,13 +125,13 @@ public class JwtTokenProvider {
 		return false;
 	}
 
-	public boolean isAccessTokenValid(String accessToken) {
+	public void isAccessTokenValid(String accessToken) {
 		try {
 			if (!StringUtils.hasText(accessToken)) {
 				throw new TokenException(TOKEN_NOT_FOUND);
 			}
 			Claims claims = parseClaims(accessToken);
-			return !claims.getExpiration().before(new Date());
+			claims.getExpiration();
 		} catch (SecurityException | MalformedJwtException e) {
 			throw new TokenException(INVALID_JWT_SIGNATURE);
 		} catch (ExpiredJwtException e) {
