@@ -32,7 +32,7 @@ public class UserController {
 	@PostMapping("/nickname")
 	@Operation(summary = "닉네임 변경", description = "사용자 로그인 정보를 이용하여 요청된 값으로 닉네임을 변경합니다.")
 	public ResponseEntity<ApiResponse<UserResponse.InfoDto>> changeNickname(
-		@AuthenticationPrincipal User user, @RequestBody @Valid UserRequest.NicknameDto request) {
+		@AuthenticationPrincipal(expression = "user") User user, @RequestBody @Valid UserRequest.NicknameDto request) {
 		return ResponseEntity.ok(
 			ApiResponse.success(userCommandService.changeNickname(user, request.nickname())));
 	}

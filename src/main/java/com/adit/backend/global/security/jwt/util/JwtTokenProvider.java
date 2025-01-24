@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -158,7 +159,7 @@ public class JwtTokenProvider {
 	private Authentication createAuthentication(Claims claims, String token) {
 		List<SimpleGrantedAuthority> authorities = getAuthorities(claims);
 		User user = userRepository.findById(Long.valueOf(claims.getSubject())).orElseThrow();
-		PrincipalDetails principal = principalDetailsService.loadUserByUsername(user.getEmail());
+		UserDetails principal = principalDetailsService.loadUserByUsername(user.getEmail());
 		return new UsernamePasswordAuthenticationToken(principal, token, authorities);
 	}
 
@@ -166,7 +167,7 @@ public class JwtTokenProvider {
 		try {
 			Claims claims = parseClaims(token);
 			Authentication auth = createAuthentication(claims, token);
-			log.info("[Authentication] 사용자 인증 생성: {}:", claims.getSubject());
+			log.info("[Authentication] 사용자 인증 생성: {}", claims.getSubject());
 			return auth;
 		} catch (Exception e) {
 			log.info("[Authentication] 사용자 인증 생성 실패", e.getCause());

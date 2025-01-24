@@ -68,7 +68,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
-		log.info("요청 경로 및 메서드: {}, {}", path, request.getMethod());
+		log.info("[Log] 요청 경로, 메서드: {}, {}", path, request.getMethod());
 		return isAuthPath(request.getRequestURI()) || isWhiteList(request);
 	}
 
