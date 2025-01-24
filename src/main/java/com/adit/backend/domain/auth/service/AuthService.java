@@ -1,4 +1,4 @@
-package com.adit.backend.domain.auth.service.command;
+package com.adit.backend.domain.auth.service;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.auth.dto.response.ReissueResponse;
-import com.adit.backend.domain.auth.entity.Token;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.global.error.exception.BusinessException;
 import com.adit.backend.global.security.jwt.entity.RefreshToken;
+import com.adit.backend.global.security.jwt.entity.Token;
 import com.adit.backend.global.security.jwt.repository.BlackListRepository;
 import com.adit.backend.global.security.jwt.repository.RefreshTokenRepository;
 import com.adit.backend.global.security.jwt.service.JwtTokenService;
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class AuthCommandService {
+public class AuthService {
 	private final JwtTokenProvider tokenProvider;
 	private final JwtTokenService jwtTokenService;
 	private final BlackListRepository blackListRepository;
