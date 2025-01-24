@@ -10,10 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.auth.entity.Token;
 import com.adit.backend.domain.auth.repository.TokenRepository;
-import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.repository.UserRepository;
-import com.adit.backend.global.error.exception.BusinessException;
 import com.adit.backend.global.error.exception.TokenException;
+import com.adit.backend.global.security.jwt.entity.BlackList;
+import com.adit.backend.global.security.jwt.repository.BlackListRepository;
+import com.adit.backend.global.security.jwt.util.JwtTokenProvider;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +30,10 @@ public class JwtTokenService {
 	@Value("${token.refresh.expiration}")
 	String refreshExpirationAt;
 	private final TokenRepository tokenRepository;
-	private final UserRepository userRepository;
+	private final BlackListRepository blackListRepository;
+	private final JwtTokenProvider tokenProvider;
 
-	@Transactional
+/*	@Transactional
 	public void saveOrUpdate(String email, String refreshToken, String accessToken) {
 		log.info("Processing token saveOrUpdate for email: {}", email);
 		User user = userRepository.findByEmail(email)
@@ -53,7 +54,7 @@ public class JwtTokenService {
 					tokenRepository.save(newToken);
 				}
 			);
-	}
+	}*/
 
 	public Optional<Token> findByAccessTokenOrThrow(String refreshToken) {
 		return Optional.ofNullable(tokenRepository.findTokenByRefreshToken(refreshToken)
@@ -63,5 +64,15 @@ public class JwtTokenService {
 	public void updateTokens(String accessToken, String refreshToken, Token token) {
 		token.updateAccessToken(accessToken, accessExpirationAt);
 		token.updateRefreshToken(refreshToken, refreshExpirationAt);
+	}
+
+	@Transactional
+	public void setBlackList(String token) {
+		BlackList blackList = BlackList.builder()
+			.id(token)
+			.ttl((tokenProvider.getExpiration(token)))
+			.build();
+		blackListRepository.save(blackList);
+		log.info("[Token] 토큰 블랙리스트 추가 완료 : {}", token);
 	}
 }

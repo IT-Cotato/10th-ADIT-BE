@@ -17,14 +17,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.adit.backend.domain.auth.repository.TokenRepository;
-import com.adit.backend.domain.auth.service.query.TokenQueryService;
+import com.adit.backend.domain.auth.entity.Token;
+import com.adit.backend.domain.user.entity.User;
+import com.adit.backend.domain.user.principal.PrincipalDetails;
+import com.adit.backend.domain.user.principal.PrincipalDetailsService;
+import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.exception.TokenException;
-import com.adit.backend.global.security.jwt.service.JwtTokenService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -33,6 +34,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -42,14 +44,14 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JwtTokenProvider {
-	private final TokenQueryService tokenService;
+
+	private final PrincipalDetailsService principalDetailsService;
 
 	private static final String BEARER = "Bearer ";
 	private static final String KEY_ROLE = "role";
 
 	private static SecretKey secretKey;
-	private final JwtTokenService jwtTokenService;
-	private final TokenRepository tokenRepository;
+	private final UserRepository userRepository;
 	@Value("${token.key}")
 	private String key;
 	@Value("${token.access.expiration}")
@@ -62,7 +64,7 @@ public class JwtTokenProvider {
 	private String refreshCookieName;
 
 	private static Claims parseClaims(String token) {
-		log.info("token:, {}", token);
+		log.info("[Token] 토큰 유효성 검증:, {}", token);
 		if (!StringUtils.hasText(token)) {
 			throw new TokenException(INVALID_TOKEN);
 		}
@@ -98,7 +100,7 @@ public class JwtTokenProvider {
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining());
 
-		String subject = authentication.getName();
+		String subject = String.valueOf(getUserDetails(authentication).getUser().getId());
 
 		return Jwts.builder()
 			.subject(subject)
@@ -117,17 +119,29 @@ public class JwtTokenProvider {
 		return generateToken(authentication, refreshTokenExpirationAt);
 	}
 
-	public String checkRefreshTokenAndReIssueAccessToken(Authentication authentication, String refreshToken) {
+	public Token createToken(Authentication authentication) {
+		String accessToken = generateAccessToken(authentication);
+		String refreshToken = generateRefreshToken(authentication);
+		return Token.builder()
+			.accessToken(accessToken)
+			.refreshToken(refreshToken)
+			.build();
+	}
+
+/*	public Token checkRefreshTokenAndReIssueAccessToken(Authentication authentication, String refreshToken) {
 		return jwtTokenService.findByAccessTokenOrThrow(refreshToken)
 			.filter(token -> isRefreshTokenValid(refreshToken))
 			.map(token -> {
 				String newRefreshToken = generateRefreshToken(authentication);
 				String newAccessToken = generateAccessToken(authentication);
 				jwtTokenService.updateTokens(newAccessToken, newRefreshToken, token);
-				return newAccessToken;
+				return token.builder()
+					.accessToken(newAccessToken)
+					.refreshToken(refreshToken)
+					.build();
 			})
 			.orElseThrow(() -> new TokenException(REFRESH_TOKEN_EXPIRED));
-	}
+	}*/
 
 	public boolean isRefreshTokenValid(String refreshToken) {
 		try {
@@ -157,23 +171,24 @@ public class JwtTokenProvider {
 		}
 	}
 
-	public Optional<String> extractAccessToken(HttpServletRequest request) {
+	public Optional<String> extractAccessTokenFromHeader(HttpServletRequest request) {
 		return Optional.ofNullable(request.getHeader(accessTokenHeader))
-			.filter(refreshToken -> refreshToken.startsWith(BEARER))
-			.map(refreshToken -> refreshToken.replace(BEARER, ""));
+			.filter(token -> token.startsWith(BEARER))
+			.map(token -> token.replace(BEARER, ""));
 	}
 
-	public Optional<String> extractRefreshToken(HttpServletRequest request) {
-		return Optional.ofNullable(
-			Arrays.stream(request.getCookies())
+	public Optional<String> extractRefreshTokenFromCookie(HttpServletRequest request) {
+		return Optional.ofNullable(request.getCookies())
+			.flatMap(cookies -> Arrays.stream(cookies)
 				.filter(cookie -> cookie.getName().equals(refreshCookieName))
-				.findFirst()
-				.get().getValue());
+				.map(Cookie::getValue)
+				.findFirst());
 	}
 
 	private Authentication createAuthentication(Claims claims, String token) {
 		List<SimpleGrantedAuthority> authorities = getAuthorities(claims);
-		User principal = new User(claims.getSubject(), "", authorities);
+		User user = userRepository.findById(Long.valueOf(claims.getSubject())).orElseThrow();
+		PrincipalDetails principal = principalDetailsService.loadUserByUsername(user.getEmail());
 		return new UsernamePasswordAuthenticationToken(principal, token, authorities);
 	}
 
@@ -181,16 +196,31 @@ public class JwtTokenProvider {
 		try {
 			Claims claims = parseClaims(token);
 			Authentication auth = createAuthentication(claims, token);
-			log.debug("Authentication created for user: {}", claims.getSubject());
+			log.info("[Authentication] 사용자 인증 생성: {}:", claims.getSubject());
 			return auth;
 		} catch (Exception e) {
-			log.error("Failed to create authentication from token", e);
+			log.info("[Authentication] 사용자 인증 생성 실패", e.getCause());
 			throw new TokenException(ACCESS_TOKEN_EXPIRED);
 		}
+	}
+
+	public Authentication getAuthenticationFromRefreshToken(String refreshToken) {
+		Claims claims = parseClaims(refreshToken);
+		return createAuthentication(claims, refreshToken);
 	}
 
 	private List<SimpleGrantedAuthority> getAuthorities(Claims claims) {
 		return Collections.singletonList(new SimpleGrantedAuthority(
 			claims.get(KEY_ROLE).toString()));
 	}
+
+	public Long getExpiration(String token) {
+		Claims claims = parseClaims(token);
+		return claims.getExpiration().getTime() - new Date().getTime();
+	}
+
+	public PrincipalDetails getUserDetails(Authentication authentication) {
+		return (PrincipalDetails)authentication.getPrincipal();
+	}
+
 }
