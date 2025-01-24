@@ -87,8 +87,8 @@ public class JwtTokenProvider {
 	}
 
 	private String generateToken(Authentication authentication, long expireTime) {
-		Date now = new Date();
-		Date expiredDate = new Date(now.getTime() + expireTime);
+		Date now = new Date(System.currentTimeMillis());
+		Date expiredDate = new Date(System.currentTimeMillis() + expireTime);
 
 		String authorities = authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
