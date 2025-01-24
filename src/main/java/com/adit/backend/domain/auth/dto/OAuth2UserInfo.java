@@ -43,7 +43,7 @@ public record OAuth2UserInfo(
 			.nickname(Role.GUEST.getKey())
 			.profile(profile)
 			.socialType(SocialType.KAKAO)
-			.role(Role.GUEST)
+			.role(Role.USER)
 			.build();
 	}
 }
