@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.adit.backend.domain.user.annotation.ChangeNicknameApiSpec;
+import com.adit.backend.domain.user.annotation.DuplicateNicknameResponse;
+import com.adit.backend.domain.user.annotation.SuccessNicknameResponse;
 import com.adit.backend.domain.user.dto.request.UserRequest;
 import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.User;
@@ -29,14 +32,17 @@ public class UserController {
 	private final UserCommandService userCommandService;
 	private final UserQueryService userQueryService;
 
+	@ChangeNicknameApiSpec
+	@DuplicateNicknameResponse
 	@PostMapping("/nickname")
-	@Operation(summary = "닉네임 변경", description = "사용자 로그인 정보를 이용하여 요청된 값으로 닉네임을 변경합니다.")
 	public ResponseEntity<ApiResponse<UserResponse.InfoDto>> changeNickname(
 		@AuthenticationPrincipal(expression = "user") User user, @RequestBody @Valid UserRequest.NicknameDto request) {
 		return ResponseEntity.ok(
 			ApiResponse.success(userCommandService.changeNickname(user, request.nickname())));
 	}
 
+	@SuccessNicknameResponse
+	@DuplicateNicknameResponse
 	@PostMapping("/validation")
 	@Operation(summary = "닉네임 중복 테스트", description = "닉네임 중복 및 제한사항을 테스트합니다.")
 	public ResponseEntity<ApiResponse<String>> validateNickname(

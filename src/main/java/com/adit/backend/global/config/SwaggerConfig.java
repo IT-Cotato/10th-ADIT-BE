@@ -15,19 +15,20 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 public class SwaggerConfig {
 	@Bean
 	public OpenAPI openAPI() {
-		// 카카오 액세스 토큰 인증 방식 정의
+		// 액세스 토큰 인증 방식 정의
 		SecurityScheme accessTokenAuth = new SecurityScheme()
-			.type(SecurityScheme.Type.APIKEY)
+			.type(SecurityScheme.Type.HTTP)
+			.scheme("bearer")
+			.bearerFormat("JWT")
 			.in(SecurityScheme.In.HEADER)
 			.name("Authorization");
 
-		// 카카오 리프레시 토큰 헤더 정의
+		// 리프레시 토큰 인증 방식 정의
 		SecurityScheme refreshTokenAuth = new SecurityScheme()
 			.type(SecurityScheme.Type.APIKEY)
-			.in(SecurityScheme.In.HEADER)
-			.name("Authorization-refresh");
+			.in(SecurityScheme.In.COOKIE)
+			.name("refreshToken");
 
-		// Security 요구사항 정의
 		SecurityRequirement securityRequirement = new SecurityRequirement()
 			.addList("accessTokenAuth")
 			.addList("refreshTokenAuth");
