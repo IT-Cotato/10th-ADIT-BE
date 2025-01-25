@@ -6,11 +6,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.adit.backend.domain.auth.annotation.LogoutResponse;
+import com.adit.backend.domain.auth.annotation.RefreshTokenCookie;
+import com.adit.backend.domain.auth.annotation.ReissueTokenResponse;
 import com.adit.backend.domain.auth.dto.response.ReissueResponse;
-import com.adit.backend.domain.auth.service.command.AuthCommandService;
+import com.adit.backend.domain.auth.service.AuthService;
 import com.adit.backend.global.common.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,34 +22,26 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Tag(name = "Auth API", description = "사용자 토큰 발급 관련 API")
 public class AuthController {
 
-	private final AuthCommandService authCommandService;
-/*
+	private final AuthService authService;
 
-	@Operation(summary = "카카오 회원가입 응답", description = "")
-	@Parameter(name = "code", description = "카카오 인가 코드", required = true)
-	@GetMapping("/join")
-	public ResponseEntity<String> joinAuth(KakaoRequest.AuthDto request,
-		HttpServletResponse response) {
-		return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
-	}
-*/
-
-	@Operation(summary = "사용자 토큰 재발급", description = "사용자의 JWT 토큰을 재 발급합니다.")
+	@ReissueTokenResponse
+	@Operation(summary = "사용자 토큰 재발급", description = "사용자의 RefreshToken을 이용하여 JWT 토큰을 재 발급합니다.")
 	@PostMapping("/reissue")
 	public ResponseEntity<ApiResponse<ReissueResponse>> tokenReissue(
-		@CookieValue(name = "refreshToken") String refreshToken,
+		@RefreshTokenCookie @CookieValue(name = "refreshToken") String refreshToken,
 		HttpServletResponse response) {
-		return ResponseEntity.ok(ApiResponse.success(authCommandService.reIssue(refreshToken, response)));
+		return ResponseEntity.ok(ApiResponse.success(authService.reIssue(refreshToken, response)));
 	}
 
-	@Operation(summary = "사용자 로그아웃", description = "사용자의 JWT 토큰을 제거하고 로그아웃합니다.")
+	@LogoutResponse
 	@PostMapping("/logout")
-	public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken") String refreshToken,
+	public ResponseEntity<Void> logout(
+		@RefreshTokenCookie @CookieValue(name = "refreshToken") String refreshToken,
 		HttpServletResponse response) {
-		authCommandService.logout(refreshToken, response);
+		authService.logout(refreshToken, response);
 		return ResponseEntity.noContent().build();
 	}
-
 }
