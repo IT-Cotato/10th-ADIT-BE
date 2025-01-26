@@ -118,17 +118,17 @@ public class SecurityConfig {
 			)
 
 			// OAuth2 로그인 설정
-			.oauth2Login(oauth2 -> oauth2
-				.userInfoEndpoint(userInfo -> userInfo
-					.userService(customOAuth2UserService)
-				)
-				.authorizationEndpoint(authEndpoint -> authEndpoint
-					.baseUri("/oauth2/authorization")
-					.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
-				.redirectionEndpoint(redirect -> redirect
-					.baseUri(frontRedirectUrl))
-				.successHandler(oAuth2SuccessHandler)
-				.failureHandler(oAuth2FailureHandler)
+			.oauth2Login(AbstractHttpConfigurer::disable
+				// .userInfoEndpoint(userInfo -> userInfo
+				// 	.userService(customOAuth2UserService)
+				// )
+				// .authorizationEndpoint(authEndpoint -> authEndpoint
+				// 	.baseUri("/oauth2/authorization")
+				// 	.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
+				// .redirectionEndpoint(redirect -> redirect
+				// 	.baseUri(frontRedirectUrl))
+				// .successHandler(oAuth2SuccessHandler)
+				// .failureHandler(oAuth2FailureHandler)
 			)
 
 			// JWT 관련 필터 추가
