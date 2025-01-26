@@ -1,5 +1,6 @@
 package com.adit.backend.global.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +24,7 @@ import com.adit.backend.global.security.jwt.handler.CustomAccessDeniedHandler;
 import com.adit.backend.global.security.jwt.handler.CustomAuthenticationEntryPoint;
 import com.adit.backend.global.security.oauth.handler.OAuth2FailureHandler;
 import com.adit.backend.global.security.oauth.handler.OAuth2SuccessHandler;
+import com.adit.backend.global.security.oauth.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.adit.backend.global.security.oauth.service.CustomOAuth2UserService;
 
 import lombok.AccessLevel;
@@ -36,6 +38,8 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class SecurityConfig {
+
+	private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
 	private static final String[] WHITE_LIST = {
 		"/",
@@ -52,6 +56,8 @@ public class SecurityConfig {
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 	private final OAuth2FailureHandler oAuth2FailureHandler;
 	private final JwtAuthorizationFilter jwtAuthorizationFilter;
+	@Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+	String frontRedirectUrl;
 
 	/**
 	 * 보안 검사를 무시할 웹 리소스 설정
@@ -116,6 +122,11 @@ public class SecurityConfig {
 				.userInfoEndpoint(userInfo -> userInfo
 					.userService(customOAuth2UserService)
 				)
+				.authorizationEndpoint(authEndpoint -> authEndpoint
+					.baseUri("/oauth2/authorization")
+					.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
+				.redirectionEndpoint(redirect -> redirect
+					.baseUri(frontRedirectUrl))
 				.successHandler(oAuth2SuccessHandler)
 				.failureHandler(oAuth2FailureHandler)
 			)

@@ -89,7 +89,7 @@ public class AuthService {
 		ZonedDateTime seoulTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 		ZonedDateTime expirationTime = seoulTime.plusSeconds(Long.parseLong(refreshTokenExpiresAt));
 		cookie.setMaxAge((int)(expirationTime.toEpochSecond() - seoulTime.toEpochSecond()));
-		cookie.setSecure(true);
+		//cookie.setSecure(true);
 		cookie.setHttpOnly(true);
 		response.addCookie(cookie);
 		log.info("[Token] RefreshToken 생성 완료: {}", cookie.getValue());
