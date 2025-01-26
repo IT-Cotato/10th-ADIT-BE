@@ -57,7 +57,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		ZonedDateTime seoulTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 		ZonedDateTime expirationTime = seoulTime.plusSeconds(refreshTokenExpirationAt);
 		cookie.setMaxAge((int)(expirationTime.toEpochSecond() - seoulTime.toEpochSecond()));
-		cookie.setSecure(true);
+		//cookie.setSecure(true);
 		cookie.setHttpOnly(true);
 		response.addCookie(cookie);
 		log.info("[Token] JWT 토큰 생성 및 발급 email : {}", userDetails.getUsername());
