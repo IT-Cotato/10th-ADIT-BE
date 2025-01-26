@@ -12,7 +12,6 @@ public class UserConverter {
 			.email(user.getEmail())
 			.name(user.getName())
 			.nickname(user.getNickname())
-			.socialId(user.getSocialId())
 			.role(user.getRole())
 			.build();
 	}

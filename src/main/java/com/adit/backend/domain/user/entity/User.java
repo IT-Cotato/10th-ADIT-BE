@@ -3,13 +3,11 @@ package com.adit.backend.domain.user.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.adit.backend.domain.auth.entity.Token;
 import com.adit.backend.domain.event.entity.Event;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.user.enums.Role;
 import com.adit.backend.domain.user.enums.SocialType;
 import com.adit.backend.global.entity.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -20,7 +18,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -40,7 +37,7 @@ public class User extends BaseEntity {
 	@Column(nullable = false, length = 10)
 	private String name;
 
-	@Column(nullable = false, length = 20, unique = true)
+	@Column(nullable = false, unique = true)
 	private String email;
 
 	@Column(nullable = false, length = 50)
@@ -48,9 +45,6 @@ public class User extends BaseEntity {
 
 	@Column(nullable = false)
 	private String profile;
-
-	@Column(name = "social_id", nullable = false, unique = true)
-	private String socialId;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -60,34 +54,24 @@ public class User extends BaseEntity {
 	@Enumerated(value = EnumType.STRING)
 	private Role role;
 
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonBackReference
-	private Token token;
-
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonBackReference
 	private List<Event> events = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonBackReference
 	private List<UserPlace> userPlaces = new ArrayList<>();
 
 	@OneToMany(mappedBy = "fromUser", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonBackReference
 	private List<Friendship> sentFriendRequests = new ArrayList<>();
 
 	@OneToMany(mappedBy = "toUser", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonBackReference
 	private List<Friendship> receivedFriendRequests = new ArrayList<>();
 
 	@Builder
-	public User(String name, String email, String nickname, String profile, String socialId, SocialType socialType,
-		Role role) {
+	public User(String name, String email, String nickname, String profile, SocialType socialType, Role role) {
 		this.name = name;
 		this.email = email;
 		this.nickname = nickname;
 		this.profile = profile;
-		this.socialId = socialId;
 		this.socialType = socialType;
 		this.role = role;
 	}
@@ -106,11 +90,6 @@ public class User extends BaseEntity {
 	public void addFriendRequest(Friendship friendship) {
 		this.sentFriendRequests.add(friendship);
 		friendship.setFromUser(this);
-	}
-
-	public void addToken(Token token) {
-		this.token = token;
-		token.updateUserInfo(this);
 	}
 
 	public void changeNickName(String nickName) {

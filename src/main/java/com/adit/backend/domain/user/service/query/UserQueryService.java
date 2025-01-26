@@ -7,10 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.exception.user.NickNameNullException;
-import com.adit.backend.domain.user.exception.user.NickNameValidateException;
-import com.adit.backend.domain.user.exception.user.UserNotFoundException;
+import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.domain.user.repository.UserRepository;
+import com.adit.backend.global.error.exception.BusinessException;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +24,9 @@ public class UserQueryService {
 	private final UserRepository userRepository;
 	public static final String DEFAULT_NICKNAME = "GUEST";
 
-	public User findUserByAccessToken(String accessToken) {
-		return userRepository.findUserByToken_AccessToken(accessToken)
-			.orElseThrow(() -> new UserNotFoundException("User not found"));
+	public User findUserByEmail(String email) {
+		return userRepository.findByEmail(email)
+			.orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
 	}
 
 	public User findUserByOAuthInfo(OAuth2UserInfo oAuth2UserInfo) {
@@ -37,9 +36,9 @@ public class UserQueryService {
 
 	public void validateDuplicateNicknames(String nickname) {
 		if (nickname == null || nickname.trim().isEmpty()) {
-			throw new NickNameNullException("NickName is null");
+			throw new UserException(NULL_POINT_ERROR);
 		} else if (userRepository.existsByNickname(nickname)) {
-			throw new NickNameValidateException("NickName is already exist");
+			throw new UserException(NICKNAME_ALREADY_EXIST);
 		}
 	}
 }
