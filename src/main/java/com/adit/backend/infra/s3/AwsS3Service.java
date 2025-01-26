@@ -1,4 +1,4 @@
-package com.adit.backend.infra.crawler.service;
+package com.adit.backend.infra.s3;
 
 import java.io.IOException;
 import java.io.InputStream;
