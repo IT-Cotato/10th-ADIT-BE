@@ -12,7 +12,6 @@ import com.adit.backend.domain.auth.annotation.OAuthLoginResponse;
 import com.adit.backend.domain.auth.annotation.RefreshTokenCookie;
 import com.adit.backend.domain.auth.annotation.ReissueTokenResponse;
 import com.adit.backend.domain.auth.dto.request.KakaoRequest;
-import com.adit.backend.domain.auth.dto.response.LoginResponse;
 import com.adit.backend.domain.auth.dto.response.ReissueResponse;
 import com.adit.backend.domain.auth.service.AuthService;
 import com.adit.backend.global.common.ApiResponse;
@@ -33,9 +32,8 @@ public class AuthController {
 
 	@OAuthLoginResponse
 	@GetMapping("/login")
-	public ResponseEntity<ApiResponse<LoginResponse>> oauthLogin(KakaoRequest.AuthDto code,
-		HttpServletResponse response) {
-		return ResponseEntity.ok(ApiResponse.success(authService.login(code, response)));
+	public ResponseEntity<ApiResponse<String>> oauthLogin(KakaoRequest.AuthDto code,) {
+		return ResponseEntity.ok(ApiResponse.success("로그인에 성공하였습니다."));
 	}
 
 	@ReissueTokenResponse

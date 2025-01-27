@@ -4,6 +4,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 public record KakaoRequest() {
 
-	public record AuthDto(@RequestParam("code") String code) {
+	public record AuthDto(@RequestParam("code") String code, @RequestParam("state") String state) {
 	}
 }
