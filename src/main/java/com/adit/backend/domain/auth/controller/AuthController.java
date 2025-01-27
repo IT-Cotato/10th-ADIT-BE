@@ -32,7 +32,7 @@ public class AuthController {
 
 	@OAuthLoginResponse
 	@GetMapping("/login")
-	public ResponseEntity<ApiResponse<String>> oauthLogin(KakaoRequest.AuthDto code,) {
+	public ResponseEntity<ApiResponse<String>> oauthLogin(KakaoRequest.AuthDto code) {
 		return ResponseEntity.ok(ApiResponse.success("로그인에 성공하였습니다."));
 	}
 
