@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,9 @@ public class AuthService {
 	private final BlackListRepository blackListRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
 
+	@Value("${token.access.header}")
+	private String accessTokenHeader;
+
 	@Value("${token.refresh.expiration}")
 	private String refreshTokenExpiresAt;
 
@@ -57,6 +61,18 @@ public class AuthService {
 		OAuth2UserInfo oAuth2UserInfo = kakaoOAuthService.requestOAuth2UserInfo(kakaoTokenInfo.accessToken());
 		UserResponse.InfoDto infoDto = userCommandService.createOrUpdateUser(oAuth2UserInfo);
 
+		Token token = tokenProvider.createToken(infoDto.Id(), infoDto.role());
+		String newAccessToken = token.getAccessToken();
+		String newRefreshToken = token.getRefreshToken();
+
+		Authentication authentication = tokenProvider.getAuthentication(newAccessToken);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		response.setHeader(accessTokenHeader, "Bearer " + newAccessToken);
+
+		RefreshToken refreshToken = new RefreshToken(infoDto.Id(), newRefreshToken);
+		refreshTokenRepository.save(refreshToken);
+		addRefreshTokenToCookie(newRefreshToken, response);
+		log.info("[User] 사용자 로그인 및 토큰 발급 완료");
 		return LoginResponse.from(infoDto.role());
 	}
 
@@ -77,7 +93,8 @@ public class AuthService {
 			throw new BusinessException(TOKEN_NOT_FOUND);
 		}
 		jwtTokenService.setBlackList(refreshToken);
-		Token token = tokenProvider.createToken(authentication);
+		Token token = tokenProvider.createToken(userDetails.getUser().getId(), userDetails.getUser().getRole());
+
 		findToken.updateRefreshToken(token.getRefreshToken());
 		refreshTokenRepository.save(findToken);
 
@@ -94,7 +111,7 @@ public class AuthService {
 		jwtTokenService.setBlackList(refreshToken);
 		refreshTokenRepository.delete(existRefreshToken);
 		addRefreshTokenToCookie(null, response);
-		log.info("[Logout] 로그아웃 완료");
+		log.info("[User] 로그아웃 완료");
 	}
 
 	private void addRefreshTokenToCookie(String refreshToken, HttpServletResponse response) {
@@ -113,4 +130,3 @@ public class AuthService {
 	}
 
 }
-

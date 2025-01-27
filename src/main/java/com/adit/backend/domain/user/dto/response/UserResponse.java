@@ -7,8 +7,7 @@ import lombok.Builder;
 public record UserResponse() {
 
 	@Builder
-	public record InfoDto(String email, String name, String nickname, String socialId, Role role) {
+	public record InfoDto(Long Id, String email, String name, String nickname, Role role) {
 	}
-
 
 }

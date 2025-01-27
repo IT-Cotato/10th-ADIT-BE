@@ -50,7 +50,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		PrincipalDetails userDetails = tokenProvider.getUserDetails(authentication);
 
 		//Access Token 생성 및 응답 헤더 추가
-		Token token = tokenProvider.createToken(authentication);
+		Token token = tokenProvider.createToken(userDetails.getUser().getId(), userDetails.getUser().getRole());
 		response.addHeader(accessTokenHeader, "Bearer " + token.getAccessToken());
 
 		//Refresh Token 생성 및 응답 쿠키 추가
