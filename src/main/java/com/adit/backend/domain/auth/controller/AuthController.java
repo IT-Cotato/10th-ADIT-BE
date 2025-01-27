@@ -2,13 +2,16 @@ package com.adit.backend.domain.auth.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.adit.backend.domain.auth.annotation.LogoutResponse;
+import com.adit.backend.domain.auth.annotation.OAuthLoginResponse;
 import com.adit.backend.domain.auth.annotation.RefreshTokenCookie;
 import com.adit.backend.domain.auth.annotation.ReissueTokenResponse;
+import com.adit.backend.domain.auth.dto.request.KakaoRequest;
 import com.adit.backend.domain.auth.dto.response.ReissueResponse;
 import com.adit.backend.domain.auth.service.AuthService;
 import com.adit.backend.global.common.ApiResponse;
@@ -26,6 +29,12 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
 	private final AuthService authService;
+
+	@OAuthLoginResponse
+	@GetMapping("/login")
+	public ResponseEntity<ApiResponse<String>> oauthLogin(KakaoRequest.AuthDto code) {
+		return ResponseEntity.ok(ApiResponse.success("로그인에 성공하였습니다."));
+	}
 
 	@ReissueTokenResponse
 	@Operation(summary = "사용자 토큰 재발급", description = "사용자의 RefreshToken을 이용하여 JWT 토큰을 재 발급합니다.")

@@ -3,6 +3,7 @@ package com.adit.backend.domain.user.service.command;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
 import com.adit.backend.domain.user.converter.UserConverter;
 import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.User;
@@ -26,6 +27,13 @@ public class UserCommandService {
 		user.changeNickName(nickname);
 		user.updateRole();
 		userRepository.save(user);
+		return UserConverter.InfoDto(user);
+	}
+
+	public UserResponse.InfoDto createOrUpdateUser(OAuth2UserInfo oAuth2UserInfo) {
+		User user = userQueryService.findOrGetUserByOAuthInfo(oAuth2UserInfo);
+		userRepository.save(user);
+		log.info("[User] 유저 저장 완료 email : {}", user.getEmail());
 		return UserConverter.InfoDto(user);
 	}
 }
