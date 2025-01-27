@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class KakaoOAuthService {
+	public static final String KAKAO_ACCOUNT_PATH = "kakao_account";
 	private final RestTemplate restTemplate;
 
 	@Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -62,6 +63,7 @@ public class KakaoOAuthService {
 		params.add("client_secret", clientSecret);
 		params.add("redirect_uri", redirectUri);
 		params.add("code", code);
+		log.info("[User] 인가코드 -> 카카오 액세스 토큰 발급 완료");
 		return request(tokenUri, new HttpEntity<>(params, headers), KakaoResponse.TokenInfoDto.class);
 	}
 
@@ -90,9 +92,10 @@ public class KakaoOAuthService {
 	public OAuth2UserInfo requestOAuth2UserInfo(String accessToken) {
 		ResponseEntity<JsonNode> response = callUserInfo(accessToken);
 		JsonNode userInfo = response.getBody();
-		String name = userInfo.path("kakao_account").path("profile").path("nickname").asText();
-		String email = userInfo.path("kakao_account").path("email").asText();
-		String profileImageUrl = userInfo.path("kakao_account").path("profile").path("thumbnail_image_url").asText();
+		String name = userInfo.path(KAKAO_ACCOUNT_PATH).path("profile").path("nickname").asText();
+		String email = userInfo.path(KAKAO_ACCOUNT_PATH).path("email").asText();
+		String profileImageUrl = userInfo.path(KAKAO_ACCOUNT_PATH).path("profile").path("thumbnail_image_url").asText();
+		log.info("[User] 카카오 액세스 토큰 -> 유저 정보 반환 완료");
 		return OAuth2UserInfo.from(name, email, profileImageUrl);
 	}
 

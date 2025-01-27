@@ -22,16 +22,21 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 		examples = @ExampleObject(
 			name = "SuccessResponse",
 			value = """
-            {
-              "success": true,
-              "data": {
-                "nickname": "새로운닉네임"
-              },
-              "error": null
-            }
-            """
+				{
+				  "success": true,
+				  "data": {
+					"Id": 1,
+					"email": "example@google.com",
+					"name": "이름",
+					"nickname": "새로운 닉네임",
+					"role": "USER"
+				  },
+				  "error": null
+				}
+				"""
 		),
 		schema = @Schema(implementation = ApiResponse.class)))
 @UnauthorizedResponse
 @ForbiddenResponse
-public @interface ChangeNicknameApiSpec {}
+public @interface ChangeNicknameApiSpec {
+}
