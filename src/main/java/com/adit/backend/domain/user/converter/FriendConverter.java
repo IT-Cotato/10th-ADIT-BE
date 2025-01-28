@@ -9,7 +9,7 @@ import com.adit.backend.domain.user.entity.Friendship;
 @Component
 public class FriendConverter {
 
-	public FriendshipResponseDto toResponse(Friendship friendship){
+	public FriendshipResponseDto toResponse(Friendship friendship) {
 		return FriendshipResponseDto.builder()
 			.fromUser(friendship.getFromUser())
 			.toUser(friendship.getToUser())
@@ -17,7 +17,7 @@ public class FriendConverter {
 			.build();
 	}
 
-	public Friendship toForwardEntity(FriendRequestDto friendRequestDto){
+	public Friendship toForwardEntity(FriendRequestDto friendRequestDto) {
 		return Friendship.builder()
 			.fromUser(friendRequestDto.fromUser())
 			.toUser(friendRequestDto.toUser())
@@ -25,7 +25,7 @@ public class FriendConverter {
 			.build();
 	}
 
-	public Friendship toReverseEntity(FriendRequestDto friendRequestDto){
+	public Friendship toReverseEntity(FriendRequestDto friendRequestDto) {
 		return Friendship.builder()
 			.fromUser(friendRequestDto.toUser())
 			.toUser(friendRequestDto.fromUser())

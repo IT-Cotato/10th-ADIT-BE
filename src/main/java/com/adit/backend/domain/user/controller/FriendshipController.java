@@ -19,7 +19,6 @@ import com.adit.backend.domain.user.dto.request.FriendRequestDto;
 import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
 import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.domain.user.service.command.FriendCommandService;
 import com.adit.backend.domain.user.service.query.FriendQueryService;
 import com.adit.backend.global.common.ApiResponse;
@@ -79,9 +78,9 @@ public class FriendshipController {
 	//친구 요청 목록 확인 API
 	@Operation(summary = "친구 요청 목록 조회", description = "userId에 해당하는 사용자가 보내거나 받은 친구 요청 조회")
 	@GetMapping("/{userId}/check")
-	public ResponseEntity<ApiResponse<Map<String, List<FriendshipResponseDto>>>> checkRequest(
+	public ResponseEntity<ApiResponse<Map<String, List<UserResponse.InfoDto>>>> checkRequest(
 		@AuthenticationPrincipal (expression = "user") User user) {
-		Map<String, List<FriendshipResponseDto>> requests = friendQueryService.checkRequest(user.getId());
+		Map<String, List<UserResponse.InfoDto>> requests = friendQueryService.checkRequest(user.getId());
 		return ResponseEntity.ok(ApiResponse.success(requests));
 	}
 

@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.user.converter.FriendConverter;
 import com.adit.backend.domain.user.converter.UserConverter;
-import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
 import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.Friendship;
 import com.adit.backend.domain.user.entity.User;
@@ -33,15 +32,32 @@ public class FriendQueryService {
 	private final FriendConverter friendConverter;
 
 	//친구 요청 목록 확인
-	public Map<String, List<FriendshipResponseDto>> checkRequest(Long userId) {
+	public Map<String, List<UserResponse.InfoDto>> checkRequest(Long userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new UserNotFoundException("User not found"));
 		List<Friendship> sentFriendRequests = user.getSentFriendRequests();
 		List<Friendship> receivedFriendRequests = user.getReceivedFriendRequests();
 
-		Map<String, List<FriendshipResponseDto>> allRequests = new HashMap<>();
-		allRequests.put("sentRequests", sentFriendRequests.stream().map(friendConverter::toResponse).toList());
-		allRequests.put("receivedRequests", receivedFriendRequests.stream().map(friendConverter::toResponse).toList());
+		Map<String, List<UserResponse.InfoDto>> allRequests = new HashMap<>();
+
+		//사용자의 보낸 요청
+		allRequests.put("sentRequests", sentFriendRequests.stream()
+			.map(friendship -> friendshipRepository.findByUser(friendship.getFromUser(), friendship.getToUser()))
+			.filter(friendship -> !friendship.getStatus())
+			.map(friendship -> userRepository.findById(friendship.getFromUser().getId())
+				.orElseThrow(() -> new UserNotFoundException("User not found")))
+			.map(userConverter::InfoDto)
+			.toList());
+
+		//사용자의 받은 요청
+		allRequests.put("receivedRequests", receivedFriendRequests.stream()
+			.map(friendship -> friendshipRepository.findByUser(friendship.getFromUser(), friendship.getToUser()))
+			.filter(friendship -> !friendship.getStatus())
+			.map(friendship -> userRepository.findById(friendship.getToUser().getId())
+				.orElseThrow(() -> new UserNotFoundException("User not found")))
+			.map(userConverter::InfoDto)
+			.toList());
+
 		return allRequests;
 	}
 
