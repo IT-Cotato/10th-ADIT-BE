@@ -33,7 +33,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
 @Transactional
@@ -72,14 +71,14 @@ public class AuthService {
 		RefreshToken refreshToken = new RefreshToken(infoDto.Id(), newRefreshToken);
 		refreshTokenRepository.save(refreshToken);
 		addRefreshTokenToCookie(newRefreshToken, response);
-		log.info("[User] 사용자 로그인 및 토큰 발급 완료");
+		log.debug("[User] 사용자 로그인 및 토큰 발급 완료");
 		return LoginResponse.from(infoDto.role());
 	}
 
 	// 토큰 재발급
 	public ReissueResponse reIssue(String refreshToken, HttpServletResponse response) {
 		if (!tokenProvider.isRefreshTokenValid(refreshToken) || blackListRepository.existsById(refreshToken)) {
-			log.warn("[Token] 블랙리스트에 존재하는 토큰입니다.]: {}", blackListRepository.existsById(refreshToken));
+			log.error("[Token] 블랙리스트에 존재하는 토큰입니다.]: {}", blackListRepository.existsById(refreshToken));
 			throw new BusinessException(NOT_VALID_ERROR);
 		}
 		Authentication authentication = tokenProvider.getAuthenticationFromRefreshToken(refreshToken);
@@ -87,9 +86,9 @@ public class AuthService {
 		RefreshToken findToken = refreshTokenRepository.findById(userDetails.getUser().getId())
 			.orElseThrow(() -> new BusinessException(TOKEN_NOT_FOUND));
 
-		log.info("[Token] 동일한 토큰입니다. Cookie == DB : {}", refreshToken.equals(findToken.getRefreshToken()));
+		log.debug("[Token] 동일한 토큰입니다. Cookie == DB : {}", refreshToken.equals(findToken.getRefreshToken()));
 		if (!refreshToken.equals(findToken.getRefreshToken())) {
-			log.warn("[Token] 동일하지 않은 토큰입니다. Cookie != DB | refreshToken: {}, findToken : {}", refreshToken, findToken);
+			log.error("[Token] 동일하지 않은 토큰입니다. Cookie != DB | refreshToken: {}, findToken : {}", refreshToken, findToken);
 			throw new BusinessException(TOKEN_NOT_FOUND);
 		}
 		jwtTokenService.setBlackList(refreshToken);
@@ -111,7 +110,7 @@ public class AuthService {
 		jwtTokenService.setBlackList(refreshToken);
 		refreshTokenRepository.delete(existRefreshToken);
 		addRefreshTokenToCookie(null, response);
-		log.info("[User] 로그아웃 완료");
+		log.debug("[User] 로그아웃 완료");
 	}
 
 	private void addRefreshTokenToCookie(String refreshToken, HttpServletResponse response) {
@@ -126,7 +125,6 @@ public class AuthService {
 		//cookie.setSecure(true);
 		cookie.setHttpOnly(true);
 		response.addCookie(cookie);
-		log.info("[Token] RefreshToken 생성 완료: {}", cookie.getValue());
+		log.debug("[Token] RefreshToken 생성 완료: {}", cookie.getValue());
 	}
-
 }

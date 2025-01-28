@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
 import com.adit.backend.domain.auth.dto.response.KakaoResponse;
-import com.adit.backend.global.security.jwt.exception.AuthException;
+import com.adit.backend.domain.auth.exception.AuthException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.AccessLevel;

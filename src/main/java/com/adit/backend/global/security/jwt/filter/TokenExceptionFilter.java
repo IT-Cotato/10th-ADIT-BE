@@ -20,8 +20,7 @@ public class TokenExceptionFilter extends OncePerRequestFilter {
 		try {
 			filterChain.doFilter(request, response);
 		} catch (TokenException e) {
-			response.sendError(e.getErrorCode().getHttpStatus(),
-				e.getMessage());
+			response.sendError(e.getErrorCode().getHttpStatus(), e.getMessage());
 		}
 	}
 

@@ -50,7 +50,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		FilterChain filterChain) throws ServletException, IOException {
 		String accessToken = tokenProvider.extractAccessTokenFromHeader(request);
 		if (accessToken != null) {
-			log.info("[Token] JwtAuthorizationFilter 토큰 검증 accessToken : {}", accessToken);
+			log.debug("[Token] JwtAuthorizationFilter 토큰 검증 accessToken : {}", accessToken);
 			tokenProvider.isAccessTokenValid(accessToken);
 			setAuthentication(accessToken);
 		} else {
@@ -73,7 +73,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
-		log.info("[Log] 요청 경로, 메서드: {}, {}", path, request.getMethod());
+		log.trace("[Request] 요청 경로, 메서드: {}, {}", path, request.getMethod());
 		return isAuthPath(request.getRequestURI()) || isWhiteList(request);
 	}
 
@@ -88,4 +88,5 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		return pathMatcher.match(AUTH_PATH, requestURI) || pathMatcher.match(LOGIN_PATH, requestURI);
 	}
 }
+
 

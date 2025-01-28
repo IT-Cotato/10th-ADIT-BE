@@ -27,6 +27,7 @@ public enum GlobalErrorCode implements ErrorCode {
 	NOT_VALID_HEADER_ERROR(HttpStatus.SC_BAD_REQUEST, "GBL-010", "헤더 데이터가 유효하지 않습니다."),
 	SERVLET_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "GBL-011", "서블릿 처리 중 오류가 발생했습니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "GBL-012", "서버 내부 오류가 발생했습니다."),
+	UNAUTHORIZED_ERROR(HttpStatus.SC_UNAUTHORIZED, "GBL-013", "인증에 실패하였습니다."),
 
 	/********************************** Transaction Domain **********************************/
 	INSERT_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "TRX-001", "Insert Transaction Error Exception"),
