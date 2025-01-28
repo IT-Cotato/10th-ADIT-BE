@@ -50,7 +50,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	}
 
 	private User getOrSaveUser(OAuth2UserInfo oAuth2UserInfo) {
-		User user = userQueryService.findUserByOAuthInfo(oAuth2UserInfo);
+		User user = userQueryService.findOrGetUserByOAuthInfo(oAuth2UserInfo);
 		user.decideSocialType();
 		return userRepository.save(user);
 	}

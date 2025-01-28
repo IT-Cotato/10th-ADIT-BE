@@ -39,8 +39,8 @@ public class SwaggerConfig {
 				.addSecuritySchemes("refreshTokenAuth", refreshTokenAuth))
 			.security(Arrays.asList(securityRequirement))
 			.info(new Info()
-				.title("어딧(ADIT) api 명세서")
-				.description("ADIT api 명세서입니다.")
+				.title("오딧(ODIT) api 명세서")
+				.description("ODIT api 명세서입니다.")
 				.version("1.0.0"));
 	}
 }
