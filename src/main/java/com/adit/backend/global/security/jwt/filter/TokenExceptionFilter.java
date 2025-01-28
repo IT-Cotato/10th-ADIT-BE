@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.adit.backend.global.error.exception.TokenException;
+import com.adit.backend.global.security.jwt.exception.TokenException;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,4 +1,4 @@
-package com.adit.backend.global.security.jwt.exception;
+package com.adit.backend.domain.auth.exception;
 
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.error.exception.BusinessException;

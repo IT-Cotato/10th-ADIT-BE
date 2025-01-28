@@ -11,7 +11,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.adit.backend.global.error.GlobalErrorCode;
-import com.adit.backend.global.error.exception.TokenException;
+import com.adit.backend.global.security.jwt.exception.TokenException;
 import com.adit.backend.global.security.jwt.util.JwtTokenProvider;
 
 import jakarta.servlet.FilterChain;

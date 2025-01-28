@@ -23,7 +23,7 @@ import com.adit.backend.domain.place.exception.NotValidException;
 import com.adit.backend.domain.place.exception.UserPlaceNotFoundException;
 import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.global.common.ApiResponse;
-import com.adit.backend.global.error.exception.TokenException;
+import com.adit.backend.global.security.jwt.exception.TokenException;
 import com.adit.backend.infra.crawler.exception.CrawlingException;
 
 import jakarta.servlet.http.HttpServletRequest;

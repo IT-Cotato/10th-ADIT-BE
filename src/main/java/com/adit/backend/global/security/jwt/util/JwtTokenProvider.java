@@ -24,8 +24,8 @@ import com.adit.backend.domain.user.enums.Role;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.domain.user.principal.PrincipalDetailsService;
 import com.adit.backend.domain.user.repository.UserRepository;
-import com.adit.backend.global.error.exception.TokenException;
 import com.adit.backend.global.security.jwt.entity.Token;
+import com.adit.backend.global.security.jwt.exception.TokenException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
