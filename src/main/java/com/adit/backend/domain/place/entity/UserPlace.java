@@ -29,7 +29,6 @@ public class UserPlace extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
-	@JsonManagedReference
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
