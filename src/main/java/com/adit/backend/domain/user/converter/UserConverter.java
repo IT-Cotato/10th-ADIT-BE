@@ -9,9 +9,10 @@ import com.adit.backend.domain.user.entity.User;
 public class UserConverter {
 	public UserResponse.InfoDto InfoDto(User user) {
 		return UserResponse.InfoDto.builder()
+			.Id(user.getId())
 			.email(user.getEmail())
-			.name(user.getName())
 			.nickname(user.getNickname())
+			.name(user.getName())
 			.role(user.getRole())
 			.build();
 	}

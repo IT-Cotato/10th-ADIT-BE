@@ -7,11 +7,18 @@ import java.time.ZonedDateTime;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
+import com.adit.backend.domain.auth.dto.request.KakaoRequest;
+import com.adit.backend.domain.auth.dto.response.KakaoResponse;
+import com.adit.backend.domain.auth.dto.response.LoginResponse;
 import com.adit.backend.domain.auth.dto.response.ReissueResponse;
+import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
+import com.adit.backend.domain.user.service.command.UserCommandService;
 import com.adit.backend.global.error.exception.BusinessException;
 import com.adit.backend.global.security.jwt.entity.RefreshToken;
 import com.adit.backend.global.security.jwt.entity.Token;
@@ -19,6 +26,7 @@ import com.adit.backend.global.security.jwt.repository.BlackListRepository;
 import com.adit.backend.global.security.jwt.repository.RefreshTokenRepository;
 import com.adit.backend.global.security.jwt.service.JwtTokenService;
 import com.adit.backend.global.security.jwt.util.JwtTokenProvider;
+import com.adit.backend.infra.oauth.KakaoOAuthService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,12 +36,18 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuthService {
 	private final JwtTokenProvider tokenProvider;
 	private final JwtTokenService jwtTokenService;
+	private final KakaoOAuthService kakaoOAuthService;
+	private final UserCommandService userCommandService;
 	private final BlackListRepository blackListRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
+
+	@Value("${token.access.header}")
+	private String accessTokenHeader;
 
 	@Value("${token.refresh.expiration}")
 	private String refreshTokenExpiresAt;
@@ -41,8 +55,28 @@ public class AuthService {
 	@Value("${token.refresh.cookie.name}")
 	private String refreshTokenCookieName;
 
+	//로그인
+	public LoginResponse login(KakaoRequest.AuthDto request, HttpServletResponse response) {
+		KakaoResponse.TokenInfoDto kakaoTokenInfo = kakaoOAuthService.requestTokenIssuance(request.code()).getBody();
+		OAuth2UserInfo oAuth2UserInfo = kakaoOAuthService.requestOAuth2UserInfo(kakaoTokenInfo.accessToken());
+		UserResponse.InfoDto infoDto = userCommandService.createOrUpdateUser(oAuth2UserInfo);
+
+		Token token = tokenProvider.createToken(infoDto.Id(), infoDto.role());
+		String newAccessToken = token.getAccessToken();
+		String newRefreshToken = token.getRefreshToken();
+
+		Authentication authentication = tokenProvider.getAuthentication(newAccessToken);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		response.setHeader(accessTokenHeader, "Bearer " + newAccessToken);
+
+		RefreshToken refreshToken = new RefreshToken(infoDto.Id(), newRefreshToken);
+		refreshTokenRepository.save(refreshToken);
+		addRefreshTokenToCookie(newRefreshToken, response);
+		log.info("[User] 사용자 로그인 및 토큰 발급 완료");
+		return LoginResponse.from(infoDto.role());
+	}
+
 	// 토큰 재발급
-	@Transactional
 	public ReissueResponse reIssue(String refreshToken, HttpServletResponse response) {
 		if (!tokenProvider.isRefreshTokenValid(refreshToken) || blackListRepository.existsById(refreshToken)) {
 			log.warn("[Token] 블랙리스트에 존재하는 토큰입니다.]: {}", blackListRepository.existsById(refreshToken));
@@ -59,7 +93,8 @@ public class AuthService {
 			throw new BusinessException(TOKEN_NOT_FOUND);
 		}
 		jwtTokenService.setBlackList(refreshToken);
-		Token token = tokenProvider.createToken(authentication);
+		Token token = tokenProvider.createToken(userDetails.getUser().getId(), userDetails.getUser().getRole());
+
 		findToken.updateRefreshToken(token.getRefreshToken());
 		refreshTokenRepository.save(findToken);
 
@@ -68,7 +103,6 @@ public class AuthService {
 	}
 
 	// 토큰 삭제 및 로그아웃
-	@Transactional
 	public void logout(String refreshToken, HttpServletResponse response) {
 		Authentication authentication = tokenProvider.getAuthenticationFromRefreshToken(refreshToken);
 		PrincipalDetails userDetails = tokenProvider.getUserDetails(authentication);
@@ -77,7 +111,7 @@ public class AuthService {
 		jwtTokenService.setBlackList(refreshToken);
 		refreshTokenRepository.delete(existRefreshToken);
 		addRefreshTokenToCookie(null, response);
-		log.info("[Logout] 로그아웃 완료");
+		log.info("[User] 로그아웃 완료");
 	}
 
 	private void addRefreshTokenToCookie(String refreshToken, HttpServletResponse response) {
@@ -89,11 +123,10 @@ public class AuthService {
 		ZonedDateTime seoulTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 		ZonedDateTime expirationTime = seoulTime.plusSeconds(Long.parseLong(refreshTokenExpiresAt));
 		cookie.setMaxAge((int)(expirationTime.toEpochSecond() - seoulTime.toEpochSecond()));
-		cookie.setSecure(true);
+		//cookie.setSecure(true);
 		cookie.setHttpOnly(true);
 		response.addCookie(cookie);
 		log.info("[Token] RefreshToken 생성 완료: {}", cookie.getValue());
 	}
 
 }
-

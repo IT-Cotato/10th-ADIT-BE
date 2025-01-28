@@ -36,6 +36,14 @@ public record OAuth2UserInfo(
 			.build();
 	}
 
+	public static OAuth2UserInfo from(String name, String email, String profile) {
+		return OAuth2UserInfo.builder()
+			.name(name)
+			.email(email)
+			.profile(profile)
+			.build();
+	}
+
 	public User toEntity() {
 		return User.builder()
 			.name(name)
@@ -43,7 +51,7 @@ public record OAuth2UserInfo(
 			.nickname(Role.GUEST.getKey())
 			.profile(profile)
 			.socialType(SocialType.KAKAO)
-			.role(Role.USER)
+			.role(Role.GUEST)
 			.build();
 	}
 }

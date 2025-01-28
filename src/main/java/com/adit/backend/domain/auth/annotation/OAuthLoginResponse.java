@@ -1,4 +1,4 @@
-package com.adit.backend.domain.user.annotation;
+package com.adit.backend.domain.auth.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,29 +14,25 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
-@Target(ElementType.METHOD)
+// 토큰 재발급 성공 응답
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Operation(summary = "닉네임 변경", description = "사용자 로그인 정보를 이용하여 요청된 값으로 닉네임을 변경합니다.")
-@ApiResponse(responseCode = "200", description = "닉네임 변경 성공",
+@ApiResponse(responseCode = "200", description = "로그인 성공",
 	content = @Content(mediaType = "application/json",
 		examples = @ExampleObject(
-			name = "SuccessResponse",
 			value = """
 				{
 				  "success": true,
 				  "data": {
-					"Id": 1,
-					"email": "example@google.com",
-					"name": "이름",
-					"nickname": "새로운 닉네임",
-					"role": "USER"
+				    "Role": "Guest"
 				  },
 				  "error": null
 				}
 				"""
 		),
 		schema = @Schema(implementation = ApiResponse.class)))
-@UnauthorizedResponse
+@Operation(summary = "사용자 로그인", description = "카카오에서 받은 인가 코드를 기반으로 토큰과 Role을 반환합니다.")
 @ForbiddenResponse
-public @interface ChangeNicknameApiSpec {
+@UnauthorizedResponse
+public @interface OAuthLoginResponse {
 }

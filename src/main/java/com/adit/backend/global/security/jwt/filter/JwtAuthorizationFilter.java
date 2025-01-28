@@ -49,6 +49,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 		String accessToken = tokenProvider.extractAccessTokenFromHeader(request).get();
+		log.info("[Token] JwtAuthorizationFilter 토큰 검증 accessToken : {}", accessToken);
 		tokenProvider.isAccessTokenValid(accessToken);
 		setAuthentication(accessToken);
 		filterChain.doFilter(request, response);

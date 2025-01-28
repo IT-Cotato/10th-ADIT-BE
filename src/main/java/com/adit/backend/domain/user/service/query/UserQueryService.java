@@ -22,14 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 public class UserQueryService {
 
 	private final UserRepository userRepository;
-	public static final String DEFAULT_NICKNAME = "GUEST";
 
 	public User findUserByEmail(String email) {
 		return userRepository.findByEmail(email)
 			.orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
 	}
 
-	public User findUserByOAuthInfo(OAuth2UserInfo oAuth2UserInfo) {
+	public User findOrGetUserByOAuthInfo(OAuth2UserInfo oAuth2UserInfo) {
 		return userRepository.findByEmail(oAuth2UserInfo.email())
 			.orElseGet(oAuth2UserInfo::toEntity);
 	}

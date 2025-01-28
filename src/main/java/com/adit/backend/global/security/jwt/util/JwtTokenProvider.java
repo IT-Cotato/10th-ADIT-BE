@@ -8,20 +8,19 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.adit.backend.domain.user.entity.User;
+import com.adit.backend.domain.user.enums.Role;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.domain.user.principal.PrincipalDetailsService;
 import com.adit.backend.domain.user.repository.UserRepository;
@@ -86,28 +85,23 @@ public class JwtTokenProvider {
 		secretKey = Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	private String generateToken(Authentication authentication, long expireTime) {
+	private String generateToken(Long userId, String role, long expireTime) {
 		Date now = new Date(System.currentTimeMillis());
 		Date expiredDate = new Date(System.currentTimeMillis() + expireTime);
 
-		String authorities = authentication.getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority)
-			.collect(Collectors.joining());
-
-		String subject = String.valueOf(getUserDetails(authentication).getUser().getId());
-
 		return Jwts.builder()
-			.subject(subject)
-			.claim(KEY_ROLE, authorities)
+			.subject(String.valueOf(userId))
+			.claim(KEY_ROLE, role)
 			.issuedAt(now)
 			.expiration(expiredDate)
 			.signWith(secretKey, Jwts.SIG.HS256)
 			.compact();
 	}
 
-	public Token createToken(Authentication authentication) {
-		String accessToken = generateToken(authentication, accessTokenExpirationAt);
-		String refreshToken = generateToken(authentication, refreshTokenExpirationAt);
+	public Token createToken(Long userId, Role role) {
+		String accessToken = generateToken(userId, role.getKey(), accessTokenExpirationAt);
+		String refreshToken = generateToken(userId, role.getKey(), refreshTokenExpirationAt);
+		log.info("[Token] 토큰 발급 완료");
 		return Token.builder()
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
