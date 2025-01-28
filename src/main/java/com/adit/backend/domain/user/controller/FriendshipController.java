@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.adit.backend.domain.user.dto.request.FriendRequestDto;
 import com.adit.backend.domain.user.dto.response.FriendshipResponseDto;
 import com.adit.backend.domain.user.dto.response.UserResponse;
+import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.domain.user.service.command.FriendCommandService;
 import com.adit.backend.domain.user.service.query.FriendQueryService;
@@ -88,8 +89,9 @@ public class FriendshipController {
 	//친구 목록 확인 API
 	@Operation(summary = "친구 목록 조회", description = "userId에 해당하는 사용자의 친구 조회")
 	@GetMapping("/{userId}")
-	public ResponseEntity<ApiResponse<List<UserResponse.InfoDto>>> findFriends(@PathVariable Long userId){
-		List<UserResponse.InfoDto> friendList = friendQueryService.findFriends(userId);
+	public ResponseEntity<ApiResponse<List<UserResponse.InfoDto>>> findFriends(@AuthenticationPrincipal
+		(expression = "user") User user){
+		List<UserResponse.InfoDto> friendList = friendQueryService.findFriends(user.getId());
 		return ResponseEntity.ok(ApiResponse.success(friendList));
 	}
 

@@ -25,13 +25,13 @@ public class Friendship extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	//JSON 직렬화 문제로 인해 즉시 로딩으로 변경
-	@ManyToOne(fetch = FetchType.EAGER)
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "from_user_id", nullable = false)
 	private User fromUser;
 
-	//JSON 직렬화 문제로 인해 즉시 로딩으로 변경
-	@ManyToOne(fetch = FetchType.EAGER)
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "to_user_id", nullable = false)
 	private User toUser;
 

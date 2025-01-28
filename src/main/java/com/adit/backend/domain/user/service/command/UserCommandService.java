@@ -21,19 +21,20 @@ import lombok.extern.slf4j.Slf4j;
 public class UserCommandService {
 	private final UserRepository userRepository;
 	private final UserQueryService userQueryService;
+	private final UserConverter userConverter;
 
 	public UserResponse.InfoDto changeNickname(User user, String nickname) {
 		userQueryService.validateDuplicateNicknames(nickname);
 		user.changeNickName(nickname);
 		user.updateRole();
 		userRepository.save(user);
-		return UserConverter.InfoDto(user);
+		return userConverter.InfoDto(user);
 	}
 
 	public UserResponse.InfoDto createOrUpdateUser(OAuth2UserInfo oAuth2UserInfo) {
 		User user = userQueryService.findOrGetUserByOAuthInfo(oAuth2UserInfo);
 		userRepository.save(user);
 		log.info("[User] 유저 저장 완료 email : {}", user.getEmail());
-		return UserConverter.InfoDto(user);
+		return userConverter.InfoDto(user);
 	}
 }

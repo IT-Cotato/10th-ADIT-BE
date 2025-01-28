@@ -55,19 +55,19 @@ public class User extends BaseEntity {
 	@Enumerated(value = EnumType.STRING)
 	private Role role;
 
-	@JsonBackReference
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Event> events = new ArrayList<>();
 
-	@JsonBackReference
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<UserPlace> userPlaces = new ArrayList<>();
 
-	@JsonBackReference
+
 	@OneToMany(mappedBy = "fromUser", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Friendship> sentFriendRequests = new ArrayList<>();
 
-	@JsonBackReference
+
 	@OneToMany(mappedBy = "toUser", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Friendship> receivedFriendRequests = new ArrayList<>();
 
