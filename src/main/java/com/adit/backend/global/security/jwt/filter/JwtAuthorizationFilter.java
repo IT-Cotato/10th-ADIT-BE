@@ -48,10 +48,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
-		String accessToken = tokenProvider.extractAccessTokenFromHeader(request).get();
-		log.info("[Token] JwtAuthorizationFilter 토큰 검증 accessToken : {}", accessToken);
-		tokenProvider.isAccessTokenValid(accessToken);
-		setAuthentication(accessToken);
+		String accessToken = tokenProvider.extractAccessTokenFromHeader(request);
+		if (accessToken != null) {
+			log.info("[Token] JwtAuthorizationFilter 토큰 검증 accessToken : {}", accessToken);
+			tokenProvider.isAccessTokenValid(accessToken);
+			setAuthentication(accessToken);
+		} else {
+			throw new TokenException(GlobalErrorCode.NULL_POINT_ERROR);
+		}
 		filterChain.doFilter(request, response);
 	}
 

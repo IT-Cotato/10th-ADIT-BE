@@ -136,10 +136,11 @@ public class JwtTokenProvider {
 		}
 	}
 
-	public Optional<String> extractAccessTokenFromHeader(HttpServletRequest request) {
+	public String extractAccessTokenFromHeader(HttpServletRequest request) {
 		return Optional.ofNullable(request.getHeader(accessTokenHeader))
 			.filter(token -> token.startsWith(BEARER))
-			.map(token -> token.replace(BEARER, ""));
+			.map(token -> token.replace(BEARER, ""))
+			.orElseThrow(() -> new TokenException(NULL_POINT_ERROR));
 	}
 
 	public Optional<String> extractRefreshTokenFromCookie(HttpServletRequest request) {

@@ -24,37 +24,49 @@ public class WebContentCrawlingService {
 	private static final String INSTAGRAM_URL = "instagram.com";
 	private final List<WebCrawlingStrategy> crawlingStrategies;
 	private final InstagramCrawlingStrategy instagramCrawlingStrategy;
+
 	/**
 	 * 크롤링 비동기 처리
 	 */
 	@Async("crawlingTaskExecutor")
 	public CompletableFuture<CrawlCompletionResponse> crawlAsync(String url) {
 		try {
+			log.debug("[Crawl] 크롤링 작업 시작: {}", url);  // 전체 작업 시작 로그
 			WebCrawlingStrategy strategy = findStrategy(url);
 			CrawlCompletionResponse contents;
+
 			if (url.contains(INSTAGRAM_URL)) {
 				contents = strategy.extractContentsUsingApify(url);
-				log.info("[Instagram 크롤링 완료] : {}", url);
+				// Instagram 관련 로그는 InstagramCrawlingStrategy에서 처리하므로 여기서는 제거
 			} else {
 				Document document = strategy.getDocument(url);
 				contents = strategy.extractContents(document);
-				log.info("[플랫폼 크롤링 완료] : {}", url);
 			}
 			return CompletableFuture.completedFuture(contents);
+		} catch (CrawlingException e) {
+			log.error("[Crawl] 크롤링 실패: {}, 원인: {}", url, e.getMessage());
+			return CompletableFuture.failedFuture(e);
 		} catch (Exception e) {
-			log.error("[크롤링 실패] : {}, 오류 메시지: {}", url, e.getMessage(), e);
+			log.error("[Crawl] 예상치 못한 오류: {}, 원인: {}", url, e.getMessage());
 			return CompletableFuture.failedFuture(new CrawlingException(GlobalErrorCode.CRAWLING_FAILED));
 		}
 	}
-
 
 	/**
 	 * 플랫폼 구별
 	 */
 	private WebCrawlingStrategy findStrategy(String url) {
+		if (url == null || url.isEmpty()) {
+			log.error("[Crawl] URL이 비어있음");
+			throw new CrawlingException(GlobalErrorCode.INVALID_URL);
+		}
+
 		return crawlingStrategies.stream()
 			.filter(strategy -> strategy.supports(url))
 			.findFirst()
-			.orElseThrow(() -> new CrawlingException(GlobalErrorCode.PLATFORM_NOT_SUPPORTED));
+			.orElseThrow(() -> {
+				log.error("[Crawl] 지원하지 않는 플랫폼: {}", url);
+				return new CrawlingException(GlobalErrorCode.PLATFORM_NOT_SUPPORTED);
+			});
 	}
 }

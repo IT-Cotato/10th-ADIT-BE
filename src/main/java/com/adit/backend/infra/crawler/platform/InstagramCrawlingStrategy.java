@@ -24,7 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class InstagramCrawlingStrategy extends AbstractWebCrawlingStrategy {
@@ -47,6 +49,10 @@ public class InstagramCrawlingStrategy extends AbstractWebCrawlingStrategy {
 
 	@Override
 	public boolean supports(String url) {
+		if (url == null || url.isEmpty()) {
+			log.warn("[Crawl] Instagram URL이 비어있음");
+			return false;
+		}
 		return url.contains(INSTAGRAM_URL);
 	}
 
@@ -59,6 +65,8 @@ public class InstagramCrawlingStrategy extends AbstractWebCrawlingStrategy {
 	@Cacheable(value = "contentCache", key = "caption")
 	public CrawlCompletionResponse extractContentsUsingApify(String targetUrl) {
 		try {
+			log.debug("[Crawl] Instagram API 크롤링 시작: {}", targetUrl);
+
 			// Apify 작업 실행 URL 생성 및 요청 데이터 준비
 			String startTaskUrl = createStartTaskUrl();
 			HttpEntity<String> entity = createHttpEntity(createRequestBody(targetUrl));
@@ -78,10 +86,11 @@ public class InstagramCrawlingStrategy extends AbstractWebCrawlingStrategy {
 			//Output 데이터에서 images 필드 추출
 			List<String> imageUrls = getImageUrlsFromOutput(outputResponse);
 
-			// caption 반환
+			log.debug("[Crawl] Instagram API 크롤링 완료");
 			return CrawlCompletionResponse.of(caption, imageUrls);
 		} catch (Exception e) {
-			throw new CrawlingException(SCRAPER_API_FAILED);
+			log.error("[Crawl] Instagram API 크롤링 실패: {}", e.getMessage());
+			throw new CrawlingException(INSTAGRAM_API_CONNECTION_FAILED);
 		}
 	}
 
@@ -104,53 +113,66 @@ public class InstagramCrawlingStrategy extends AbstractWebCrawlingStrategy {
 	}
 
 	private String getDefaultDatasetId(String startTaskUrl, HttpEntity<String> entity) throws Exception {
-		ResponseEntity<String> response = restTemplate.exchange(startTaskUrl, HttpMethod.POST, entity, String.class);
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode responseJson = objectMapper.readTree(response.getBody());
-		JsonNode dataNode = responseJson.path("data");
-		if (dataNode.isMissingNode() || !dataNode.has("defaultDatasetId")) {
-			throw new CrawlingException(FIELD_NOT_FOUND);
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(startTaskUrl, HttpMethod.POST, entity, String.class);
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode responseJson = objectMapper.readTree(response.getBody());
+			JsonNode dataNode = responseJson.path("data");
+			if (dataNode.isMissingNode() || !dataNode.has("defaultDatasetId")) {
+				log.error("[Crawl] Instagram 데이터셋 ID를 찾을 수 없음");
+				throw new CrawlingException(INSTAGRAM_DATASET_NOT_FOUND);
+			}
+			String datasetId = dataNode.get("defaultDatasetId").asText();
+			log.debug("[Crawl] Instagram 데이터셋 ID 추출 완료: {}", datasetId);
+			return datasetId;
+		} catch (Exception e) {
+			log.error("[Crawl] Instagram 데이터셋 ID 추출 실패: {}", e.getMessage());
+			throw new CrawlingException(INSTAGRAM_PARSING_FAILED);
 		}
-
-		return dataNode.get("defaultDatasetId").asText();
 	}
 
 	private JsonNode waitForOutputData(String outputUrl) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
 		JsonNode outputResponse = objectMapper.createObjectNode();
 		boolean isReady = false;
+		int attempts = 0;
 		while (!isReady) {
 			ResponseEntity<String> response = restTemplate.getForEntity(outputUrl, String.class);
 			outputResponse = objectMapper.readTree(response.getBody());
 			if (outputResponse.isArray() && outputResponse.size() > 0) {
+				log.debug("[Crawl] Instagram 데이터 추출 완료");
 				isReady = true;
 			} else {
+				attempts++;
+				log.debug("[Crawl] Instagram 데이터 대기 중... (시도: {})", attempts);
 				Thread.sleep(pollInterval);
 			}
 		}
-
 		return outputResponse;
 	}
 
 	private String getCaptionFromOutput(JsonNode outputResponse) {
 		JsonNode firstPost = outputResponse.get(0);
 		if (!firstPost.has("caption")) {
-			throw new CrawlingException(FIELD_NOT_FOUND);
+			log.error("[Crawl] Instagram 캡션을 찾을 수 없음");
+			throw new CrawlingException(INSTAGRAM_CONTENT_EMPTY);
 		}
-
-		return firstPost.get("caption").asText();
+		String caption = firstPost.get("caption").asText();
+		log.debug("[Crawl] Instagram 캡션 추출 완료");
+		return caption;
 	}
 
 	private List<String> getImageUrlsFromOutput(JsonNode outputResponse) {
 		JsonNode firstPost = outputResponse.get(0);
 		if (!firstPost.has("images")) {
-			throw new CrawlingException(FIELD_NOT_FOUND);
+			log.error("[Crawl] Instagram 이미지를 찾을 수 없음");
+			throw new CrawlingException(INSTAGRAM_IMAGE_NOT_FOUND);
 		}
 		List<String> imageUrls = new ArrayList<>();
 		for (JsonNode imageNode : firstPost.get("images")) {
 			imageUrls.add(imageNode.asText());
 		}
+		log.debug("[Crawl] Instagram 이미지 URL 추출 완료: {} 개", imageUrls.size());
 		return imageUrls;
 	}
-
 }

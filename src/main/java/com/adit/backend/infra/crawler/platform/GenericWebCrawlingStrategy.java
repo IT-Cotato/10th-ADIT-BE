@@ -13,7 +13,6 @@ import com.adit.backend.infra.crawler.exception.CrawlingException;
 
 import lombok.extern.slf4j.Slf4j;
 
-
 /**
  * 지원하지 않는 플랫폼 크롤링 전략
  */
@@ -34,6 +33,10 @@ public class GenericWebCrawlingStrategy extends AbstractWebCrawlingStrategy {
 
 	@Override
 	public boolean supports(String url) {
+		if (url == null || url.isEmpty()) {
+			log.warn("[Crawl] URL이 비어있음");
+			return false;
+		}
 		return !url.contains(TISTORY_URL)
 			&& !url.contains(NAVER_BLOG_URL)
 			&& !url.contains(BRUNCH_URL)
@@ -45,15 +48,17 @@ public class GenericWebCrawlingStrategy extends AbstractWebCrawlingStrategy {
 	public CrawlCompletionResponse extractContents(Document document) {
 		StringBuilder contentBuilder = new StringBuilder();
 		try {
+			log.debug("[Crawl] 일반 웹 크롤링 시작: {}", document.location());
 			WebContentCrawler.extractTitle(document, TITLE_TAG, contentBuilder);
 			Element bodyElement = document.selectFirst(BODY_TAG);
 			WebContentCrawler.extractBodyText(bodyElement, TEXT_TAG, MINIMUM_RECOGNIZED_CHARACTER, contentBuilder);
 			String content = WebContentCrawler.preprocessText(contentBuilder.toString());
 			String placeInfo = WebContentCrawler.extractPlaceInfo(document);
 			String combined = content + PLACE_SEPARATOR + placeInfo;
+			log.debug("[Crawl] 일반 웹 크롤링 완료");
 			return WebContentCrawler.getCrawlCompletionResponse(document.select(CONTENT_TAG), combined);
 		} catch (Exception e) {
-			log.error("[본문 추출 중 오류 발생] : {}", e.getMessage());
+			log.error("[Crawl] 본문 추출 중 오류 발생: {}", e.getMessage());
 			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
 		}
 	}

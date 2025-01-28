@@ -16,7 +16,6 @@ import com.adit.backend.infra.crawler.exception.CrawlingException;
 
 import lombok.extern.slf4j.Slf4j;
 
-
 /**
  * 티스토리 플랫폼 크롤링 전략
  */
@@ -61,14 +60,14 @@ public class TistoryCrawlingStrategy extends AbstractWebCrawlingStrategy {
 			Elements contentElements = selectContentElements(document);
 			if (!contentElements.isEmpty()) {
 				Element mainContent = contentElements.first();
-				log.info("[본문 요소 추출] : {}", mainContent.cssSelector());
+				log.debug("[Crawl] 본문 요소 추출 완료: {}", mainContent.cssSelector());
 				WebContentCrawler.extractBodyText(mainContent, TEXT_TAG, MINIMUM_RECOGNIZED_CHARACTER, contentBuilder);
 			}
 			String content = WebContentCrawler.preprocessText(contentBuilder.toString());
 			return WebContentCrawler.getCrawlCompletionResponse(contentElements, content);
 		} catch (Exception e) {
-			log.error("[본문 추출 중 오류 발생] : {}", e.getMessage());
-			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
+			log.error("[Crawl] 본문 추출 중 오류 발생: {}", e.getMessage());
+			throw new CrawlingException(GlobalErrorCode.BODY_EXTRACTION_FAILED);
 		}
 	}
 
@@ -76,11 +75,11 @@ public class TistoryCrawlingStrategy extends AbstractWebCrawlingStrategy {
 		for (Map.Entry<String, String> entry : SKIN_TAGS.entrySet()) {
 			Elements elements = document.select(entry.getValue());
 			if (!elements.isEmpty()) {
-				log.info("[스킨 선택자 추출 완료] : {}", entry.getValue());
+				log.debug("[Crawl] 스킨 선택자 매칭 완료: {}", entry.getValue());
 				return elements;
 			}
 		}
-		log.info("[기본 선택자 추출 완료]");
+		log.debug("[Crawl] 기본 선택자 사용");
 		return document.select(DEFAULT_CONTENT_TAG);
 	}
 }
