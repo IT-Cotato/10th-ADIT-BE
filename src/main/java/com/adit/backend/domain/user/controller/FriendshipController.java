@@ -70,10 +70,9 @@ public class FriendshipController {
 	@Operation(summary = "친구 삭제", description = "friendId에 해당하는 친구를 삭제")
 	@DeleteMapping("/{friendId}")
 	public ResponseEntity<ApiResponse<String>> removeFriend(@PathVariable Long friendId,
-	@AuthenticationPrincipal PrincipalDetails principalDetails ) {
+	@AuthenticationPrincipal (expression = "user") User user) {
 		// 친구 관계를 삭제
-		Long userId = principalDetails.getUserId();
-		friendCommandService.removeFriend(userId, friendId);
+		friendCommandService.removeFriend(user.getId(), friendId);
 		return ResponseEntity.ok(ApiResponse.success("Friend removed"));
 	}
 
@@ -81,8 +80,8 @@ public class FriendshipController {
 	@Operation(summary = "친구 요청 목록 조회", description = "userId에 해당하는 사용자가 보내거나 받은 친구 요청 조회")
 	@GetMapping("/{userId}/check")
 	public ResponseEntity<ApiResponse<Map<String, List<FriendshipResponseDto>>>> checkRequest(
-		@PathVariable Long userId) {
-		Map<String, List<FriendshipResponseDto>> requests = friendQueryService.checkRequest(userId);
+		@AuthenticationPrincipal (expression = "user") User user) {
+		Map<String, List<FriendshipResponseDto>> requests = friendQueryService.checkRequest(user.getId());
 		return ResponseEntity.ok(ApiResponse.success(requests));
 	}
 
@@ -99,9 +98,8 @@ public class FriendshipController {
 	@Operation(summary = "사용자 검색", description = "해당 NickName 에 해당하는 사용자 조회")
 	@GetMapping("/search")
 	public ResponseEntity<ApiResponse<Map<String, UserResponse.InfoDto>>> findUser(@RequestParam String NickName,
-		@AuthenticationPrincipal PrincipalDetails principalDetails) {
-		Long userId = principalDetails.getUserId();
-		Map<String, UserResponse.InfoDto> searchedUser = friendQueryService.findUser(NickName, userId);
+		@AuthenticationPrincipal (expression = "user") User user) {
+		Map<String, UserResponse.InfoDto> searchedUser = friendQueryService.findUser(NickName, user.getId());
 		return ResponseEntity.ok(ApiResponse.success(searchedUser));
 	}
 }
