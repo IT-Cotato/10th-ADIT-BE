@@ -1,5 +1,7 @@
 package com.adit.backend.domain.place.service;
 
+import static com.adit.backend.global.error.GlobalErrorCode.*;
+
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
@@ -10,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.adit.backend.domain.place.converter.PlaceConverter;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
-import com.adit.backend.domain.place.exception.CommonPlaceNotFoundException;
-import com.adit.backend.domain.place.exception.NotValidException;
+import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
+import com.adit.backend.global.error.exception.BusinessException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +28,7 @@ public class CommonPlaceQueryService {
 
 	private static final int DEFAULT_PAGE_NUMBER = 0;
 	private static final int DEFAULT_PAGE_SIZE = 5;
+
 	//인기 기반으로 장소 찾기
 	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByPopular() {
@@ -34,10 +37,8 @@ public class CommonPlaceQueryService {
 		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable);
 		List<CommonPlace> commonPlaces = commonPlacesId.stream()
 			.map(id -> commonPlaceRepository.findById(id)
-				.orElseThrow(() -> new CommonPlaceNotFoundException("CommonPlace not found"))
-			)
-			.toList();
-
+				.orElseThrow(() -> new PlaceException(COMMON_PLACE_NOT_FOUND))
+			).toList();
 
 		return commonPlaces.stream().map(placeConverter::commonPlaceToResponse).toList();
 
@@ -46,11 +47,11 @@ public class CommonPlaceQueryService {
 	//특정 장소 상세정보 찾기
 	@Transactional(readOnly = true)
 	public PlaceResponseDto getDetailedPlace(String placeName) {
-		if (placeName.isBlank()){
-			throw new NotValidException("PlaceName not valid");
+		if (placeName.isBlank()) {
+			throw new BusinessException(NOT_VALID_ERROR);
 		}
 		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(placeName)
-			.orElseThrow(() -> new CommonPlaceNotFoundException("CommonPlace not found"));
+			.orElseThrow(() -> new PlaceException(COMMON_PLACE_NOT_FOUND));
 		return placeConverter.commonPlaceToResponse(commonPlace);
 
 	}

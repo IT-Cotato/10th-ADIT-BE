@@ -18,10 +18,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import com.adit.backend.domain.ai.exception.AiException;
 import com.adit.backend.domain.event.exception.EventAlreadyExistsException;
 import com.adit.backend.domain.event.exception.EventNotFoundException;
-import com.adit.backend.domain.place.exception.CommonPlaceNotFoundException;
-import com.adit.backend.domain.place.exception.FriendNotFoundException;
-import com.adit.backend.domain.place.exception.NotValidException;
-import com.adit.backend.domain.place.exception.UserPlaceNotFoundException;
 import com.adit.backend.domain.user.exception.FriendShipException;
 import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.global.common.ApiResponse;
@@ -237,102 +233,6 @@ public class GlobalExceptionHandler {
 		);
 
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
-	}
-
-	/**
-	 * [Exception] CommonPlaceNotFoundException
-	 *
-	 * @param ex      CommonPlaceNotFoundException
-	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
-	 */
-	@ExceptionHandler(CommonPlaceNotFoundException.class)
-	protected ResponseEntity<ApiResponse<ErrorResponse>> handleCommonPlaceNotFoundException(
-		CommonPlaceNotFoundException ex, HttpServletRequest request) {
-
-		log.error("[Error] CommonPlaceNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
-		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
-
-		ErrorResponse errorResponse = ErrorResponse.of(
-			GlobalErrorCode.COMMON_PLACE_NOT_FOUND,
-			ex.getMessage(),
-			request.getRequestURI()
-		);
-
-		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HTTP_STATUS_OK);
-	}
-
-	/**
-	 * [Exception] UserPlaceNotFoundException
-	 *
-	 * @param ex      UserPlaceNotFoundException
-	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
-	 */
-	@ExceptionHandler(UserPlaceNotFoundException.class)
-	protected ResponseEntity<ApiResponse<ErrorResponse>> handleUserPlaceNotFoundException(
-		UserPlaceNotFoundException ex, HttpServletRequest request) {
-
-		log.error("[Error] UserPlaceNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
-		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
-
-		ErrorResponse errorResponse = ErrorResponse.of(
-			GlobalErrorCode.USER_PLACE_NOT_FOUND,
-			ex.getMessage(),
-			request.getRequestURI()
-		);
-
-		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HTTP_STATUS_OK);
-	}
-
-	/**
-	 * [Exception] FriendNotFoundException
-	 *
-	 * @param ex      FriendNotFoundException
-	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
-	 */
-	@ExceptionHandler(FriendNotFoundException.class)
-	protected ResponseEntity<ApiResponse<ErrorResponse>> handleFriendNotFoundException(
-		FriendNotFoundException ex, HttpServletRequest request) {
-
-		log.error("[Error] FriendNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
-		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
-
-		ErrorResponse errorResponse = ErrorResponse.of(
-			GlobalErrorCode.FRIEND_NOT_FOUND,
-			ex.getMessage(),
-			request.getRequestURI()
-		);
-
-		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HTTP_STATUS_OK);
-	}
-
-	/**
-	 * [Exception] 잘못된 요청 인자 (NotValidException)
-	 *
-	 * @param ex      NotValidException
-	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
-	 */
-	@ExceptionHandler(NotValidException.class)
-	protected ResponseEntity<ApiResponse<ErrorResponse>> handleNotValidException(
-		NotValidException ex, HttpServletRequest request) {
-
-		log.error("[Error] NotValidException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
-		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
-
-		ErrorResponse errorResponse = ErrorResponse.of(
-			GlobalErrorCode.NOT_VALID,
-			ex.getMessage(),
-			request.getRequestURI()
-		);
-
-		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HTTP_STATUS_OK);
 	}
 
 	/**

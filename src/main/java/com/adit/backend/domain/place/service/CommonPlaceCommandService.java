@@ -7,8 +7,9 @@ import com.adit.backend.domain.place.converter.PlaceConverter;
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
-import com.adit.backend.domain.place.exception.CommonPlaceNotFoundException;
+import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
+import com.adit.backend.global.error.GlobalErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +32,7 @@ public class CommonPlaceCommandService {
 
 	public PlaceResponseDto updatePlace(Long placeId, CommonPlaceRequestDto requestDto) {
 		CommonPlace place = commonPlaceRepository.findById(placeId)
-			.orElseThrow(() -> new CommonPlaceNotFoundException("CommonPlace not found"));
+			.orElseThrow(() -> new PlaceException(GlobalErrorCode.COMMON_PLACE_NOT_FOUND));
 		place.updatePlace(
 			requestDto.placeName(),
 			requestDto.latitude(),
