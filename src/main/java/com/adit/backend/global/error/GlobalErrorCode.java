@@ -43,6 +43,12 @@ public enum GlobalErrorCode implements ErrorCode {
 	REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH-007", "리프레쉬 토큰이 만료되었습니다."),
 	TOKEN_UNSURPPORTED(HttpStatus.UNAUTHORIZED, "AUTH-008", "지원되지 않는 토큰입니다."),
 	TOKEN_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH-009", "토큰 삭제를 실패했습니다."),
+	LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH-010", "로그인에 실패했습니다."),
+	TOKEN_REISSUE_FAILED(HttpStatus.UNAUTHORIZED, "AUTH-011", "토큰 재발급에 실패했습니다."),
+	LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH-012", "로그아웃에 실패했습니다."),
+	KAKAO_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH-013", "카카오 로그인에 실패했습니다."),
+	REFRESH_TOKEN_BLACKLISTED(HttpStatus.UNAUTHORIZED, "AUTH-014", "블랙리스트에 등록된 리프레시 토큰입니다."),
+	REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH-015", "리프레시 토큰이 일치하지 않습니다."),
 
 	/********************************** User Domain **********************************/
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USR-001", "사용자를 찾지 못했습니다."),
@@ -52,7 +58,7 @@ public enum GlobalErrorCode implements ErrorCode {
 	KAKAO_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-001", "카카오 서버에 에러가 발생했습니다."),
 	KAKAO_SERVER_CONNECTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-002", "카카오 서버에 연결을 실패했습니다."),
 	API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-003", "API 호출을 실패했습니다."),
-	LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-004", "로그아웃에 실패했습니다."),
+	KAKAO_LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-004", "로그아웃에 실패했습니다."),
 	FAIL_CONVERT_RESPONSE(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-005", "응답 변환에 실패했습니다."),
 
 	/********************************** Crawling Domain **********************************/
@@ -86,6 +92,11 @@ public enum GlobalErrorCode implements ErrorCode {
 	FRIEND_NOT_FOUND(HttpStatus.NOT_FOUND, "PLC-003", "등록된 친구가 없습니다"),
 	NOT_VALID(HttpStatus.BAD_REQUEST, "PLC-004", "요청인자가 유효하지 않습니다"),
 	ID_NOT_FOUND_ERROR(HttpStatus.NOT_FOUND, "PLC-005", "해당 ID를 찾지 못했습니다"),
+
+	/********************************** AI Domain **********************************/
+	// Event Domain 앞에 추가
+	AI_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-001", "AI 처리에 실패했습니다."),
+	AI_RESPONSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-002", "AI 응답 변환에 실패했습니다."),
 
 	/********************************** Event Domain **********************************/
 	EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "EVN-001", "이벤트를 찾을 수 없습니다."),

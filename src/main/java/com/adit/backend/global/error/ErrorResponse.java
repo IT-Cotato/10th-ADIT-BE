@@ -23,11 +23,11 @@ public class ErrorResponse {
 	private List<FieldError> errors;    // 상세 에러 메시지 (필요한 경우)
 
 	@Builder
-	protected ErrorResponse(final GlobalErrorCode code, final String path) {
+	protected ErrorResponse(final GlobalErrorCode code, final String message, final String path) {
 		this.timestamp = LocalDateTime.now();
 		this.status = code.getHttpStatus();
 		this.error = HttpStatus.valueOf(code.getHttpStatus()).getReasonPhrase();
-		this.message = code.getMessage();
+		this.message = message;
 		this.path = path;
 		this.errors = new ArrayList<>();
 	}
@@ -42,8 +42,8 @@ public class ErrorResponse {
 		this.errors = errors;
 	}
 
-	public static ErrorResponse of(final GlobalErrorCode code, final String path) {
-		return new ErrorResponse(code, path);
+	public static ErrorResponse of(final GlobalErrorCode code, final String message, final String path) {
+		return new ErrorResponse(code, message, path);
 	}
 
 	public static ErrorResponse of(final GlobalErrorCode code, final String path, final BindingResult bindingResult) {

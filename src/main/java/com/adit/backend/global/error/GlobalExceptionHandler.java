@@ -47,7 +47,8 @@ public class GlobalExceptionHandler {
 		MethodArgumentNotValidException ex, HttpServletRequest request) {
 
 		log.error("[Error] handleMethodArgumentNotValidException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		BindingResult bindingResult = ex.getBindingResult();
 		StringBuilder stringBuilder = new StringBuilder();
@@ -57,7 +58,8 @@ public class GlobalExceptionHandler {
 			stringBuilder.append(", ");
 		}
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.NOT_VALID_ERROR, String.valueOf(stringBuilder));
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.NOT_VALID_ERROR, request.getRequestURI(),
+			String.valueOf(stringBuilder));
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
@@ -69,9 +71,11 @@ public class GlobalExceptionHandler {
 		MissingRequestHeaderException ex, HttpServletRequest request) {
 
 		log.error("[Error] MissingRequestHeaderException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
@@ -83,9 +87,11 @@ public class GlobalExceptionHandler {
 		HttpMessageNotReadableException ex, HttpServletRequest request) {
 
 		log.error("[Error] HttpMessageNotReadableException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_BAD_REQUEST);
 	}
 
@@ -97,9 +103,11 @@ public class GlobalExceptionHandler {
 		MissingServletRequestParameterException ex, HttpServletRequest request) {
 
 		log.error("[Error] MissingServletRequestParameterException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.MISSING_REQUEST_PARAMETER_ERROR, ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.MISSING_REQUEST_PARAMETER_ERROR, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_BAD_REQUEST);
 	}
 
@@ -111,9 +119,11 @@ public class GlobalExceptionHandler {
 		HttpClientErrorException.BadRequest ex, HttpServletRequest request) {
 
 		log.error("[Error] HttpClientErrorException.BadRequest: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.BAD_REQUEST_ERROR, ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.BAD_REQUEST_ERROR, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
@@ -125,9 +135,11 @@ public class GlobalExceptionHandler {
 		NoHandlerFoundException ex, HttpServletRequest request) {
 
 		log.error("[Error] NoHandlerFoundException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.NOT_FOUND_ERROR, ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.NOT_FOUND_ERROR, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
@@ -139,9 +151,11 @@ public class GlobalExceptionHandler {
 		NullPointerException ex, HttpServletRequest request) {
 
 		log.error("[Error] NullPointerException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.NULL_POINT_ERROR, ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.NULL_POINT_ERROR, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
@@ -153,9 +167,10 @@ public class GlobalExceptionHandler {
 		HttpServletRequest request) {
 
 		log.error("[Error] IOException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.IO_ERROR, ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.IO_ERROR, ex.getMessage(), request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
@@ -167,9 +182,11 @@ public class GlobalExceptionHandler {
 		CommonPlaceNotFoundException ex, HttpServletRequest request) {
 
 		log.error("[Error] CommonPlaceNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.COMMON_PLACE_NOT_FOUND, ex.getMessage());
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.COMMON_PLACE_NOT_FOUND, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HTTP_STATUS_OK);
 	}
 
@@ -181,9 +198,11 @@ public class GlobalExceptionHandler {
 		HttpServletRequest request) {
 
 		log.error("[Error] UserPlaceNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.USER_PLACE_NOT_FOUND, ex.getMessage());
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.USER_PLACE_NOT_FOUND, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HTTP_STATUS_OK);
 	}
 
@@ -195,9 +214,11 @@ public class GlobalExceptionHandler {
 		FriendNotFoundException ex, HttpServletRequest request) {
 
 		log.error("[Error] FriendNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.FRIEND_NOT_FOUND, ex.getMessage());
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.FRIEND_NOT_FOUND, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HTTP_STATUS_OK);
 	}
 
@@ -209,9 +230,11 @@ public class GlobalExceptionHandler {
 		NotValidException ex, HttpServletRequest request) {
 
 		log.error("[Error] NotValidException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.NOT_VALID, ex.getMessage());
+		ErrorResponse errorResponse = ErrorResponse.of(GlobalErrorCode.NOT_VALID, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(errorResponse), HTTP_STATUS_OK);
 	}
 
@@ -223,9 +246,11 @@ public class GlobalExceptionHandler {
 		EventNotFoundException ex, HttpServletRequest request) {
 
 		log.error("[Error] EventNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_NOT_FOUND, ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_NOT_FOUND, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
@@ -237,9 +262,11 @@ public class GlobalExceptionHandler {
 		EventAlreadyExistsException ex, HttpServletRequest request) {
 
 		log.error("[Error] EventAlreadyExistsException: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_ALREADY_EXISTS, ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.EVENT_ALREADY_EXISTS, ex.getMessage(),
+			request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
@@ -251,12 +278,12 @@ public class GlobalExceptionHandler {
 		HttpServletRequest request) {
 
 		log.error("[Error] 크롤링 예외 발생: {}", ex.getErrorCode().getMessage());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), request.getRequestURI());
+		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), ex.getMessage(), request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
-
 
 	/**
 	 * [Exception] UserException 처리
@@ -266,9 +293,10 @@ public class GlobalExceptionHandler {
 		HttpServletRequest request) {
 
 		log.error("[Error] 유저 예외 발생: {}", ex.getMessage());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), request.getRequestURI());
+		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), ex.getMessage(), request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
@@ -283,7 +311,7 @@ public class GlobalExceptionHandler {
 		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), request.getRequestURI());
+		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), ex.getMessage(), request.getRequestURI());
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 }
