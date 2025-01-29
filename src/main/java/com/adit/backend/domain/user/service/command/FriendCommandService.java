@@ -31,11 +31,6 @@ public class FriendCommandService {
 
 	//친구 요청 보내기
 	public FriendshipResponseDto sendFriendRequest(FriendRequestDto requestDto) {
-		User fromUser = userRepository.findById(requestDto.fromUser().getId())
-			.orElseThrow(() -> new UserNotFoundException("User not found"));
-		User toUser = userRepository.findById(requestDto.toUser().getId())
-			.orElseThrow(() -> new UserNotFoundException("User not found"));
-
 		Friendship forwardRequest = friendConverter.toForwardEntity(requestDto);
 
 		Friendship reverseRequest = friendConverter.toReverseEntity(requestDto);

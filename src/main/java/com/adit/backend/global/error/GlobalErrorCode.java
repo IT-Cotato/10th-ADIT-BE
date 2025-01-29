@@ -53,6 +53,7 @@ public enum GlobalErrorCode implements ErrorCode {
 	/********************************** User Domain **********************************/
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USR-001", "사용자를 찾지 못했습니다."),
 	NICKNAME_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USR-002", "이미 존재하는 닉네임입니다."),
+	NICKNAME_NULL(HttpStatus.NOT_FOUND, "USR-003", "닉네임이 비어있습니다."),
 
 	/********************************** Kakao Domain **********************************/
 	KAKAO_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-001", "카카오 서버에 에러가 발생했습니다."),
@@ -60,6 +61,9 @@ public enum GlobalErrorCode implements ErrorCode {
 	API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-003", "API 호출을 실패했습니다."),
 	KAKAO_LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-004", "로그아웃에 실패했습니다."),
 	FAIL_CONVERT_RESPONSE(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-005", "응답 변환에 실패했습니다."),
+
+	/********************************** Friend Domain **********************************/
+	FRIEND_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "FRD-001", "친구 요청을 찾지 못했습니다."),
 
 	/********************************** Crawling Domain **********************************/
 	INVALID_URL(HttpStatus.BAD_REQUEST, "CRW-001", "유효하지 않은 URL입니다."),
@@ -94,7 +98,6 @@ public enum GlobalErrorCode implements ErrorCode {
 	ID_NOT_FOUND_ERROR(HttpStatus.NOT_FOUND, "PLC-005", "해당 ID를 찾지 못했습니다"),
 
 	/********************************** AI Domain **********************************/
-	// Event Domain 앞에 추가
 	AI_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-001", "AI 처리에 실패했습니다."),
 	AI_RESPONSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-002", "AI 응답 변환에 실패했습니다."),
 

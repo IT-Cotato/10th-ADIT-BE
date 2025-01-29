@@ -17,7 +17,7 @@ import com.adit.backend.domain.auth.dto.response.KakaoResponse;
 import com.adit.backend.domain.auth.dto.response.LoginResponse;
 import com.adit.backend.domain.auth.dto.response.ReissueResponse;
 import com.adit.backend.domain.user.dto.response.UserResponse;
-import com.adit.backend.domain.user.exception.UserException;
+import com.adit.backend.domain.user.exception.user.UserException;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.domain.user.service.command.UserCommandService;
 import com.adit.backend.global.security.jwt.entity.RefreshToken;
@@ -34,6 +34,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Service
 @Transactional
