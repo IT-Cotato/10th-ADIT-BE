@@ -14,7 +14,7 @@ spring:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
-            redirect-uri: ${FRONT_LOCAL_URL}/login/kakao
+            redirect-uri: ${redirect.url}
             client-authentication-method: client_secret_post # kakao는 인증 토큰 발급 요청 메서드가 post이다. (최근 버전에는 작성 방법이 이렇게 바뀌었다.)
             authorization-grant-type: authorization_code
             scope: # kakao 개인 정보 동의 항목 설정의 ID 값
