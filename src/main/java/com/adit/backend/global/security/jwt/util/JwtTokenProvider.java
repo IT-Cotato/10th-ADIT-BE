@@ -152,7 +152,7 @@ public class JwtTokenProvider {
 			.map(token -> token.replace(BEARER, ""))
 			.orElseThrow(() -> {
 				log.warn("[Token] 헤더에서 액세스 토큰을 찾을 수 없음");
-				return new TokenException(NULL_POINT_ERROR);
+				throw new TokenException(TOKEN_NOT_FOUND);
 			});
 	}
 

@@ -5,8 +5,6 @@ import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -162,34 +160,6 @@ public class GlobalExceptionHandler {
 	}
 
 	/**
-	 * [Exception] UserException 처리
-	 */
-	@ExceptionHandler(UserException.class)
-	protected ResponseEntity<ApiResponse<ErrorResponse>> handleUserException(UserException ex,
-		HttpServletRequest request) {
-
-		log.error("[Error] 유저 예외 발생: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
-
-		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), request.getRequestURI());
-		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
-	}
-
-	/**
-	 * [Exception] TokenException 처리
-	 */
-	@ExceptionHandler(TokenException.class)
-	protected ResponseEntity<ApiResponse<ErrorResponse>> handleTokenException(TokenException ex,
-		HttpServletRequest request) {
-
-		log.error("[Error] 토큰 예외 발생: {}", ex.getErrorCode().getMessage());
-		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
-
-		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), request.getRequestURI());
-		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
-	}
-
-	/**
 	 * [Exception] CommonPlace를 찾지 못한 경우
 	 */
 	@ExceptionHandler(CommonPlaceNotFoundException.class)
@@ -287,31 +257,33 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
+
 	/**
-	 * [Exception] AccessDeniedException 처리
+	 * [Exception] UserException 처리
 	 */
-	@ExceptionHandler(AccessDeniedException.class)
-	protected ResponseEntity<ApiResponse<ErrorResponse>> handleAccessDeniedException(
-		AccessDeniedException ex, HttpServletRequest request) {
+	@ExceptionHandler(UserException.class)
+	protected ResponseEntity<ApiResponse<ErrorResponse>> handleUserException(UserException ex,
+		HttpServletRequest request) {
 
-		log.error("[Error] 접근 권한 예외 발생: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 유저 예외 발생: {}", ex.getMessage());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.FORBIDDEN_ERROR, request.getRequestURI());
-		return new ResponseEntity<>(ApiResponse.failure(response), HttpStatus.OK);
+		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), request.getRequestURI());
+		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
 	/**
-	 * [Exception] AuthenticationException 처리
+	 * [Exception] TokenException 처리
 	 */
-	@ExceptionHandler(AuthenticationException.class)
-	protected ResponseEntity<ApiResponse<ErrorResponse>> handleAuthenticationException(
-		AuthenticationException ex, HttpServletRequest request) {
+	@ExceptionHandler(TokenException.class)
+	protected ResponseEntity<ApiResponse<ErrorResponse>> handleTokenException(TokenException ex,
+		HttpServletRequest request) {
 
-		log.error("[Error] 인증 예외 발생: {}", ex.getMessage());
-		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+		log.error("[Error] 토큰 예외 발생: {}", ex.getErrorCode().getMessage());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse response = ErrorResponse.of(GlobalErrorCode.UNAUTHORIZED_ERROR, request.getRequestURI());
-		return new ResponseEntity<>(ApiResponse.failure(response), HttpStatus.OK);
+		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), request.getRequestURI());
+		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 }
