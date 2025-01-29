@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.adit.backend.domain.ai.exception.AiException;
 import com.adit.backend.domain.event.exception.EventAlreadyExistsException;
 import com.adit.backend.domain.event.exception.EventNotFoundException;
 import com.adit.backend.domain.place.exception.CommonPlaceNotFoundException;
@@ -308,6 +309,16 @@ public class GlobalExceptionHandler {
 		HttpServletRequest request) {
 
 		log.error("[Error] 토큰 예외 발생: {}", ex.getErrorCode().getMessage());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
+
+		ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), ex.getMessage(), request.getRequestURI());
+		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
+	}
+
+	@ExceptionHandler(AiException.class)
+	protected ResponseEntity<ApiResponse<ErrorResponse>> handleAiException(AiException ex, HttpServletRequest request) {
+		log.error("[Error] AI 예외 발생: {}", ex.getErrorCode().getMessage());
 		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
