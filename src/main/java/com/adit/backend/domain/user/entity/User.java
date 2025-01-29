@@ -8,6 +8,7 @@ import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.user.enums.Role;
 import com.adit.backend.domain.user.enums.SocialType;
 import com.adit.backend.global.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,14 +55,18 @@ public class User extends BaseEntity {
 	@Enumerated(value = EnumType.STRING)
 	private Role role;
 
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Event> events = new ArrayList<>();
+
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<UserPlace> userPlaces = new ArrayList<>();
 
+
 	@OneToMany(mappedBy = "fromUser", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Friendship> sentFriendRequests = new ArrayList<>();
+
 
 	@OneToMany(mappedBy = "toUser", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Friendship> receivedFriendRequests = new ArrayList<>();

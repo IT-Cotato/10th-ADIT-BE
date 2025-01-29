@@ -10,6 +10,7 @@ import com.adit.backend.domain.notification.entity.Notification;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

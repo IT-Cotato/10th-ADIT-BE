@@ -2,7 +2,6 @@ package com.adit.backend.domain.user.entity;
 
 import com.adit.backend.global.entity.BaseEntity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -26,22 +25,27 @@ public class Friendship extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "from_user_id", nullable = false)
 	private User fromUser;
+
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "to_user_id", nullable = false)
 	private User toUser;
 
-	@Column(nullable = false)
-	private String status;
+	private Boolean status;
 
 	@Builder
-	public Friendship(Long id, User fromUser, User toUser, String status) {
+	public Friendship(Long id, User fromUser, User toUser, Boolean status) {
 		this.id = id;
 		this.fromUser = fromUser;
 		this.toUser = toUser;
 		this.status = status;
+	}
+
+	public void acceptRequest(){
+		this.status = true;
 	}
 }

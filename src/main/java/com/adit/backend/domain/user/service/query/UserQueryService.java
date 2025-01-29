@@ -7,14 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.exception.UserException;
+import com.adit.backend.domain.user.exception.user.NickNameNullException;
+import com.adit.backend.domain.user.exception.user.NickNameValidateException;
 import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.global.error.exception.BusinessException;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -35,9 +35,9 @@ public class UserQueryService {
 
 	public void validateDuplicateNicknames(String nickname) {
 		if (nickname == null || nickname.trim().isEmpty()) {
-			throw new UserException(NULL_POINT_ERROR);
+			throw new NickNameNullException("Nickname is null");
 		} else if (userRepository.existsByNickname(nickname)) {
-			throw new UserException(NICKNAME_ALREADY_EXIST);
+			throw new NickNameValidateException("NickName is already exist");
 		}
 	}
 }
