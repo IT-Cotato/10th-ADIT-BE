@@ -80,3 +80,7 @@ cloud:
       bucket: ${S3_BUCKET_NAME}   # 버킷 이름
     stack:
       auto: false
+
+springdoc:
+  swagger-ui:
+    path: /
