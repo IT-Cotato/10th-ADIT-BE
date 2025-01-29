@@ -22,11 +22,8 @@ import com.adit.backend.domain.place.exception.CommonPlaceNotFoundException;
 import com.adit.backend.domain.place.exception.FriendNotFoundException;
 import com.adit.backend.domain.place.exception.NotValidException;
 import com.adit.backend.domain.place.exception.UserPlaceNotFoundException;
-import com.adit.backend.domain.user.exception.friend.FriendRequestNotFoundException;
-import com.adit.backend.domain.user.exception.user.NickNameNullException;
-import com.adit.backend.domain.user.exception.user.NickNameValidateException;
-import com.adit.backend.domain.user.exception.user.UserException;
-import com.adit.backend.domain.user.exception.user.UserNotFoundException;
+import com.adit.backend.domain.user.exception.FriendShipException;
+import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.global.common.ApiResponse;
 import com.adit.backend.global.security.jwt.exception.TokenException;
 import com.adit.backend.infra.crawler.exception.CrawlingException;
@@ -50,14 +47,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      MethodArgumentNotValidException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleMethodArgumentNotValidException(
 		MethodArgumentNotValidException ex, HttpServletRequest request) {
 
 		log.error("[Error] handleMethodArgumentNotValidException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		BindingResult bindingResult = ex.getBindingResult();
@@ -80,14 +77,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      MissingRequestHeaderException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(MissingRequestHeaderException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleMissingRequestHeaderException(
 		MissingRequestHeaderException ex, HttpServletRequest request) {
 
 		log.error("[Error] MissingRequestHeaderException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -104,14 +101,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      HttpMessageNotReadableException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleHttpMessageNotReadableException(
 		HttpMessageNotReadableException ex, HttpServletRequest request) {
 
 		log.error("[Error] HttpMessageNotReadableException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -128,14 +125,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      MissingServletRequestParameterException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleMissingRequestHeaderExceptionException(
 		MissingServletRequestParameterException ex, HttpServletRequest request) {
 
 		log.error("[Error] MissingServletRequestParameterException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -152,14 +149,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      HttpClientErrorException.BadRequest
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(HttpClientErrorException.BadRequest.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleBadRequestException(
 		HttpClientErrorException.BadRequest ex, HttpServletRequest request) {
 
 		log.error("[Error] HttpClientErrorException.BadRequest: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -176,14 +173,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      NoHandlerFoundException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(NoHandlerFoundException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleNoHandlerFoundExceptionException(
 		NoHandlerFoundException ex, HttpServletRequest request) {
 
 		log.error("[Error] NoHandlerFoundException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -200,14 +197,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      NullPointerException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(NullPointerException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleNullPointerException(
 		NullPointerException ex, HttpServletRequest request) {
 
 		log.error("[Error] NullPointerException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -224,13 +221,13 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      IOException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(IOException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleIOException(IOException ex, HttpServletRequest request) {
 
 		log.error("[Error] IOException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -247,14 +244,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      CommonPlaceNotFoundException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(CommonPlaceNotFoundException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleCommonPlaceNotFoundException(
 		CommonPlaceNotFoundException ex, HttpServletRequest request) {
 
 		log.error("[Error] CommonPlaceNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse errorResponse = ErrorResponse.of(
@@ -271,14 +268,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      UserPlaceNotFoundException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(UserPlaceNotFoundException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleUserPlaceNotFoundException(
 		UserPlaceNotFoundException ex, HttpServletRequest request) {
 
 		log.error("[Error] UserPlaceNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse errorResponse = ErrorResponse.of(
@@ -295,14 +292,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      FriendNotFoundException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(FriendNotFoundException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleFriendNotFoundException(
 		FriendNotFoundException ex, HttpServletRequest request) {
 
 		log.error("[Error] FriendNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse errorResponse = ErrorResponse.of(
@@ -319,14 +316,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      NotValidException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(NotValidException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleNotValidException(
 		NotValidException ex, HttpServletRequest request) {
 
 		log.error("[Error] NotValidException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse errorResponse = ErrorResponse.of(
@@ -343,14 +340,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      EventNotFoundException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(EventNotFoundException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleEventNotFoundException(
 		EventNotFoundException ex, HttpServletRequest request) {
 
 		log.error("[Error] EventNotFoundException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -367,14 +364,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      EventAlreadyExistsException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(EventAlreadyExistsException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleEventAlreadyExistsException(
 		EventAlreadyExistsException ex, HttpServletRequest request) {
 
 		log.error("[Error] EventAlreadyExistsException: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -391,14 +388,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      CrawlingException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(CrawlingException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleCrawlingException(
 		CrawlingException ex, HttpServletRequest request) {
 
 		log.error("[Error] 크롤링 예외 발생: {}", ex.getErrorCode().getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -415,14 +412,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      UserException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(UserException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleUserException(
 		UserException ex, HttpServletRequest request) {
 
 		log.error("[Error] 유저 예외 발생: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -439,14 +436,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      TokenException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(TokenException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleTokenException(
 		TokenException ex, HttpServletRequest request) {
 
 		log.error("[Error] 토큰 예외 발생: {}", ex.getErrorCode().getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -463,14 +460,14 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      AiException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
 	 */
 	@ExceptionHandler(AiException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleAiException(
 		AiException ex, HttpServletRequest request) {
 
 		log.error("[Error] AI 예외 발생: {}", ex.getErrorCode().getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
 		ErrorResponse response = ErrorResponse.of(
@@ -482,100 +479,20 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
 	}
 
-	/**
-	 * [Exception] 친구 요청을 찾지 못한 경우 (FriendRequestNotFoundException)
-	 *
-	 * @param ex      FriendRequestNotFoundException
-	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ErrorResponse>
-	 */
-	@ExceptionHandler(FriendRequestNotFoundException.class)
-	protected final ResponseEntity<ErrorResponse> handleFriendRequestNotFoundException(
-		FriendRequestNotFoundException ex, HttpServletRequest request) {
+	@ExceptionHandler(FriendShipException.class)
+	protected ResponseEntity<ApiResponse<ErrorResponse>> handleFriendShipException(
+		FriendShipException ex, HttpServletRequest request) {
 
-		log.error("[Error] 친구 요청 예외 발생: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
+		log.error("[Error] FriendShip 예외 발생: {}", ex.getErrorCode().getMessage());
+		log.error("[Error] 발생 이유: {} :", (Object)ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
 
-		ErrorResponse errorResponse = ErrorResponse.of(
-			GlobalErrorCode.FRIEND_REQUEST_NOT_FOUND,
+		ErrorResponse response = ErrorResponse.of(
+			ex.getErrorCode(),
 			ex.getMessage(),
 			request.getRequestURI()
 		);
-
-		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
-	}
-
-	/**
-	 * [Exception] 닉네임이 null인 경우 (NickNameNullException)
-	 *
-	 * @param ex      NickNameNullException
-	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ErrorResponse>
-	 */
-	@ExceptionHandler(NickNameNullException.class)
-	protected final ResponseEntity<ErrorResponse> handleNickNameNullException(
-		NickNameNullException ex, HttpServletRequest request) {
-
-		log.error("[Error] 닉네임 null 예외 발생: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
-		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
-
-		ErrorResponse errorResponse = ErrorResponse.of(
-			GlobalErrorCode.NICKNAME_NULL,
-			ex.getMessage(),
-			request.getRequestURI()
-		);
-
-		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
-	}
-
-	/**
-	 * [Exception] 닉네임 중복 (NickNameValidateException)
-	 *
-	 * @param ex      NickNameValidateException
-	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ErrorResponse>
-	 */
-	@ExceptionHandler(NickNameValidateException.class)
-	protected final ResponseEntity<ErrorResponse> handleNickNameValidateException(
-		NickNameValidateException ex, HttpServletRequest request) {
-
-		log.error("[Error] NickName 중복 예외 발생: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
-		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
-
-		ErrorResponse errorResponse = ErrorResponse.of(
-			GlobalErrorCode.NICKNAME_ALREADY_EXIST,
-			ex.getMessage(),
-			request.getRequestURI()
-		);
-
-		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
-	}
-
-	/**
-	 * [Exception] 유저를 찾지 못한 경우 (UserNotFoundException)
-	 *
-	 * @param ex      UserNotFoundException
-	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ErrorResponse>
-	 */
-	@ExceptionHandler(UserNotFoundException.class)
-	protected final ResponseEntity<ErrorResponse> handleUserNotFoundException(
-		UserNotFoundException ex, HttpServletRequest request) {
-
-		log.error("[Error] 유저 없음 예외 발생: {}", ex.getMessage());
-		log.error("[Error] 발생 이유: {} :", (Object) ex.getStackTrace());
-		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
-
-		ErrorResponse errorResponse = ErrorResponse.of(
-			GlobalErrorCode.USER_NOT_FOUND,
-			ex.getMessage(),
-			request.getRequestURI()
-		);
-
-		return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+		return new ResponseEntity<>(ApiResponse.failure(response), HttpStatus.OK);
 	}
 
 }
