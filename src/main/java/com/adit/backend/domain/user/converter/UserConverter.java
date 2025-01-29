@@ -7,7 +7,7 @@ import com.adit.backend.domain.user.entity.User;
 
 @Component
 public class UserConverter {
-	public static UserResponse.InfoDto InfoDto(User user) {
+	public UserResponse.InfoDto InfoDto(User user) {
 		return UserResponse.InfoDto.builder()
 			.Id(user.getId())
 			.email(user.getEmail())

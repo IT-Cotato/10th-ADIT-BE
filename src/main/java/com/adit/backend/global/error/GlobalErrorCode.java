@@ -100,6 +100,8 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	NICKNAME_ALREADY_EXIST(BAD_REQUEST, "2002", "이미 존재하는 닉네임입니다."),
 
+	NICKNAME_NULL(NOT_FOUND,"2003", "닉네임이 비어있습니다."),
+
 	//Auth
 	KAKAO_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "3001", "카카오 서버에 에러가 발생했습니다."),
 
@@ -144,7 +146,10 @@ public enum GlobalErrorCode implements ErrorCode {
 
 	EVENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "5004", "이벤트 업데이트에 실패했습니다."),
 
-	EVENT_DELETION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "5005", "이벤트 삭제에 실패했습니다.");
+	EVENT_DELETION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "5005", "이벤트 삭제에 실패했습니다."),
+
+	//friend
+	FRIEND_REQUEST_NOT_FOUND(NOT_FOUND,"6001", "친구 요청을 찾지 못했습니다");
 
 	// 에러 코드의 '코드 상태'을 반환한다.
 	private final HttpStatus httpStatus;
