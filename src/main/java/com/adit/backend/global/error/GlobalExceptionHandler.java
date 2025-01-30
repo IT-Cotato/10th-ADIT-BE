@@ -16,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.adit.backend.domain.ai.exception.AiException;
+import com.adit.backend.domain.event.exception.EventException;
 import com.adit.backend.domain.image.exception.ImageException;
 import com.adit.backend.domain.notification.exception.NotificationException;
 import com.adit.backend.domain.user.exception.FriendShipException;
@@ -399,4 +400,22 @@ public class GlobalExceptionHandler {
 		);
 		return new ResponseEntity<>(ApiResponse.failure(response), HttpStatus.OK);
 	}
+
+	@ExceptionHandler(EventException.class)
+	protected ResponseEntity<ApiResponse<ErrorResponse>> handleEventException(
+		EventException ex, HttpServletRequest request) {
+
+		log.error("[Error] 이벤트 에러 발생: {}", ex.getErrorCode().getMessage());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+
+		ErrorResponse response = ErrorResponse.of(
+			ex.getErrorCode(),
+			ex.getMessage(),
+			request.getRequestURI()
+		);
+
+		return new ResponseEntity<>(ApiResponse.failure(response), HttpStatus.OK);
+	}
+
 }
