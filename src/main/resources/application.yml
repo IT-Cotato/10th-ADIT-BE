@@ -1,7 +1,7 @@
 # 로컬|서버 환경의 공통 설정입니다. application.yml
 spring:
   application:
-    name: Adit
+    name: Odit
 
   # 로컬|서버 환경 전환시 active: local|dev
   profiles:

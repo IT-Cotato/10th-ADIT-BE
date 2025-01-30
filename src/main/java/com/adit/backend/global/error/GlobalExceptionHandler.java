@@ -401,6 +401,13 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(ApiResponse.failure(response), HttpStatus.OK);
 	}
 
+	/**
+	 * [Exception] 이벤트 관련 오류 (EventException)
+	 *
+	 * @param ex      EventException
+	 * @param request HttpServletRequest
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 */
 	@ExceptionHandler(EventException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleEventException(
 		EventException ex, HttpServletRequest request) {
