@@ -75,7 +75,7 @@ public class CommonPlace extends BaseEntity {
 	//연관관계 메서드
 	public void addUserPlace(UserPlace userPlace) {
 		this.userPlaces.add(userPlace);
-		userPlace.setCommonPlace(this);
+		userPlace.assignedCommonPlace(this);
 	}
 
 	public void addImage(Image image) {

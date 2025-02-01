@@ -84,7 +84,7 @@ public class User extends BaseEntity {
 
 	public void addUserPlace(UserPlace userPlace) {
 		this.userPlaces.add(userPlace);
-		userPlace.setUser(this);
+		userPlace.assignedUser(this);
 	}
 
 	public void addFriendRequest(Friendship friendship) {

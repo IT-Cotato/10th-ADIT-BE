@@ -67,4 +67,11 @@ public class UserPlace extends BaseEntity {
 		image.assignUserPlace(this);
 	}
 
+	public void assignedCommonPlace(CommonPlace commonPlace) {
+		this.commonPlace = commonPlace;
+	}
+
+	public void assignedUser(User user) {
+		this.user = user;
+	}
 }
