@@ -36,6 +36,10 @@ public class BrunchCrawlingStrategy extends AbstractWebCrawlingStrategy {
 
 	@Override
 	public boolean supports(String url) {
+		if (url == null || url.isEmpty()) {
+			log.warn("[Crawl] URL이 비어있음");
+			return false;
+		}
 		return url.contains(BRUNCH_URL);
 	}
 
@@ -45,6 +49,7 @@ public class BrunchCrawlingStrategy extends AbstractWebCrawlingStrategy {
 		StringBuilder contentBuilder = new StringBuilder();
 
 		try {
+			log.debug("[Crawl] 브런치 크롤링 시작: {}", document.location());
 			WebContentCrawler.extractTitle(document, TITLE_TAG, contentBuilder);
 			Elements contentElements = selectContentElements(document);
 			if (!contentElements.isEmpty()) {
@@ -54,9 +59,10 @@ public class BrunchCrawlingStrategy extends AbstractWebCrawlingStrategy {
 			String content = WebContentCrawler.preprocessText(contentBuilder.toString());
 			String placeInfo = WebContentCrawler.extractPlaceInfo(document);
 			String combined = content + PLACE_SEPARATOR + placeInfo;
+			log.debug("[Crawl] 브런치 크롤링 완료");
 			return WebContentCrawler.getCrawlCompletionResponse(contentElements, combined);
 		} catch (Exception e) {
-			log.error("[본문 추출 중 오류 발생] : {}", e.getMessage());
+			log.error("[Crawl] 브런치 크롤링 실패: {}", e.getMessage());
 			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
 		}
 	}
@@ -65,11 +71,11 @@ public class BrunchCrawlingStrategy extends AbstractWebCrawlingStrategy {
 		for (Map.Entry<String, String> entry : BRUNCH_CONTENT_TAGS.entrySet()) {
 			Elements elements = document.select(entry.getValue());
 			if (!elements.isEmpty()) {
-				log.info("[스킨 선택자 추출 완료] : {}", entry.getValue());
+				log.debug("[Crawl] 브런치 스킨 선택자 매칭 완료: {}", entry.getValue());
 				return elements;
 			}
 		}
-		log.info("[기본 선택자 추출 완료]");
+		log.debug("[Crawl] 브런치 기본 선택자 사용");
 		return document.select(DEFAULT_CONTENT_TAG);
 	}
 }

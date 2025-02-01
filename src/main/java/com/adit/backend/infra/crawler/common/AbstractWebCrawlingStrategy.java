@@ -6,6 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
+import com.adit.backend.global.error.GlobalErrorCode;
+import com.adit.backend.infra.crawler.exception.CrawlingException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,14 +21,20 @@ public abstract class AbstractWebCrawlingStrategy implements WebCrawlingStrategy
 
 	@Override
 	public Document getDocument(String url) throws IOException {
-		return Jsoup.connect(url)
-			.userAgent(USER_AGENT)
-			.timeout(TIMEOUT_SECONDS * 1000)
-			.get();
+		try {
+			return Jsoup.connect(url)
+				.userAgent(USER_AGENT)
+				.timeout(TIMEOUT_SECONDS * 1000)
+				.get();
+		} catch (IOException e) {
+			log.error("[Crawl] 문서 추출 실패: {}, 에러: {}", url, e.getMessage());
+			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
+		}
 	}
 
 	@Override
 	public CrawlCompletionResponse extractContentsUsingApify(String url) {
+		log.warn("[Crawl] Apify API 지원하지 않는 전략: {}", url);
 		throw new UnsupportedOperationException("This strategy does not support Apify API");
 	}
 }

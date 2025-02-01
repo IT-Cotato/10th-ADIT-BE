@@ -24,8 +24,8 @@ import com.adit.backend.domain.user.enums.Role;
 import com.adit.backend.domain.user.principal.PrincipalDetails;
 import com.adit.backend.domain.user.principal.PrincipalDetailsService;
 import com.adit.backend.domain.user.repository.UserRepository;
-import com.adit.backend.global.error.exception.TokenException;
 import com.adit.backend.global.security.jwt.entity.Token;
+import com.adit.backend.global.security.jwt.exception.TokenException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -64,17 +64,20 @@ public class JwtTokenProvider {
 	private String refreshCookieName;
 
 	private static Claims parseClaims(String token) {
-		log.info("[Token] 토큰 유효성 검증:, {}", token);
+		log.debug("[Token] 토큰 파싱 시작: {}", token);
 		if (!StringUtils.hasText(token)) {
 			throw new TokenException(INVALID_TOKEN);
 		}
 		try {
 			return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
 		} catch (ExpiredJwtException e) {
+			log.warn("[Token] 만료된 토큰: {}", token);
 			return e.getClaims();
 		} catch (MalformedJwtException e) {
+			log.error("[Token] 잘못된 형식의 토큰: {}", token);
 			throw new TokenException(INVALID_TOKEN);
 		} catch (SecurityException e) {
+			log.error("[Token] 유효하지 않은 서명: {}", token);
 			throw new TokenException(INVALID_JWT_SIGNATURE);
 		}
 	}
@@ -83,6 +86,7 @@ public class JwtTokenProvider {
 	private void setSecretKey() {
 		byte[] keyBytes = Base64.getDecoder().decode(key);
 		secretKey = Keys.hmacShaKeyFor(keyBytes);
+		log.debug("[Token] Secret Key 초기화 완료");
 	}
 
 	private String generateToken(Long userId, String role, long expireTime) {
@@ -101,7 +105,7 @@ public class JwtTokenProvider {
 	public Token createToken(Long userId, Role role) {
 		String accessToken = generateToken(userId, role.getKey(), accessTokenExpirationAt);
 		String refreshToken = generateToken(userId, role.getKey(), refreshTokenExpirationAt);
-		log.info("[Token] 토큰 발급 완료");
+		log.debug("[Token] 토큰 생성 완료 - userId: {}", userId);
 		return Token.builder()
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
@@ -113,8 +117,10 @@ public class JwtTokenProvider {
 			Claims claims = parseClaims(refreshToken);
 			return claims.getExpiration().after(new Date());
 		} catch (ExpiredJwtException e) {
-			throw new TokenException(REFRESH_TOKEN_EXPIRED);  // 리프레시 토큰 만료 시 재로그인 요구
+			log.warn("[Token] 리프레시 토큰 만료");
+			throw new TokenException(REFRESH_TOKEN_EXPIRED);
 		} catch (Exception e) {
+			log.error("[Token] 리프레시 토큰 검증 실패", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -123,31 +129,43 @@ public class JwtTokenProvider {
 	public void isAccessTokenValid(String accessToken) {
 		try {
 			if (!StringUtils.hasText(accessToken)) {
+				log.warn("[Token] 액세스 토큰 없음");
 				throw new TokenException(TOKEN_NOT_FOUND);
 			}
 			Claims claims = parseClaims(accessToken);
 			claims.getExpiration();
 		} catch (SecurityException | MalformedJwtException e) {
+			log.error("[Token] 유효하지 않은 JWT 서명");
 			throw new TokenException(INVALID_JWT_SIGNATURE);
 		} catch (ExpiredJwtException e) {
+			log.warn("[Token] 만료된 액세스 토큰");
 			throw new TokenException(ACCESS_TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
+			log.error("[Token] 지원되지 않는 JWT 토큰");
 			throw new TokenException(TOKEN_UNSURPPORTED);
 		}
 	}
 
-	public Optional<String> extractAccessTokenFromHeader(HttpServletRequest request) {
+	public String extractAccessTokenFromHeader(HttpServletRequest request) {
 		return Optional.ofNullable(request.getHeader(accessTokenHeader))
 			.filter(token -> token.startsWith(BEARER))
-			.map(token -> token.replace(BEARER, ""));
+			.map(token -> token.replace(BEARER, ""))
+			.orElseThrow(() -> {
+				log.warn("[Token] 헤더에서 액세스 토큰을 찾을 수 없음");
+				throw new TokenException(TOKEN_NOT_FOUND);
+			});
 	}
 
 	public Optional<String> extractRefreshTokenFromCookie(HttpServletRequest request) {
-		return Optional.ofNullable(request.getCookies())
+		Optional<String> token = Optional.ofNullable(request.getCookies())
 			.flatMap(cookies -> Arrays.stream(cookies)
 				.filter(cookie -> cookie.getName().equals(refreshCookieName))
 				.map(Cookie::getValue)
 				.findFirst());
+		if (token.isEmpty()) {
+			log.warn("[Token] 쿠키에서 리프레시 토큰을 찾을 수 없음");
+		}
+		return token;
 	}
 
 	private Authentication createAuthentication(Claims claims, String token) {
@@ -161,10 +179,10 @@ public class JwtTokenProvider {
 		try {
 			Claims claims = parseClaims(token);
 			Authentication auth = createAuthentication(claims, token);
-			log.info("[Authentication] 사용자 인증 생성: {}", claims.getSubject());
+			log.debug("[Authentication] 인증 객체 생성 완료 - userId: {}", claims.getSubject());
 			return auth;
 		} catch (Exception e) {
-			log.info("[Authentication] 사용자 인증 생성 실패", e.getCause());
+			log.error("[Authentication] 인증 객체 생성 실패", e);
 			throw new TokenException(ACCESS_TOKEN_EXPIRED);
 		}
 	}
@@ -187,5 +205,4 @@ public class JwtTokenProvider {
 	public PrincipalDetails getUserDetails(Authentication authentication) {
 		return (PrincipalDetails)authentication.getPrincipal();
 	}
-
 }

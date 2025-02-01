@@ -1,5 +1,6 @@
 package com.adit.backend.global.error;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,94 +12,44 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * Global Exception Handler에서 발생한 에러에 대한 응답 처리를 관리
- */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ErrorResponse {
-	private HttpStatus status;                 // 에러 상태 코드
-	private String code;        // 에러 구분 코드
-	private String resultMsg;           // 에러 메시지
-	private List<FieldError> errors;    // 상세 에러 메시지
-	private String reason;              // 에러 이유
+	private LocalDateTime timestamp;    // 에러 발생 시간
+	private int status;                 // 에러 상태 코드
+	private String error;               // HTTP 상태 메시지
+	private String message;             // 에러 메시지
+	private String path;                // 에러 발생 경로
+	private List<FieldError> errors;    // 상세 에러 메시지 (필요한 경우)
 
-	/**
-	 * ErrorResponse 생성자-1
-	 *
-	 * @param code GlobalErrorCode
-	 */
 	@Builder
-	protected ErrorResponse(final GlobalErrorCode code) {
-		this.resultMsg = code.getMessage();
+	protected ErrorResponse(final GlobalErrorCode code, final String message, final String path) {
+		this.timestamp = LocalDateTime.now();
 		this.status = code.getHttpStatus();
-		this.code = code.getCode();
+		this.error = HttpStatus.valueOf(code.getHttpStatus()).getReasonPhrase();
+		this.message = message;
+		this.path = path;
 		this.errors = new ArrayList<>();
 	}
 
-	/**
-	 * ErrorResponse 생성자-2
-	 *
-	 * @param code   GlobalErrorCode
-	 * @param reason String
-	 */
 	@Builder
-	protected ErrorResponse(final GlobalErrorCode code, final String reason) {
-		this.resultMsg = code.getMessage();
+	protected ErrorResponse(final GlobalErrorCode code, final String path, final List<FieldError> errors) {
+		this.timestamp = LocalDateTime.now();
 		this.status = code.getHttpStatus();
-		this.code = code.getCode();
-		this.reason = reason;
-	}
-
-	/**
-	 * ErrorResponse 생성자-3
-	 *
-	 * @param code   GlobalErrorCode
-	 * @param errors List<FieldError>
-	 */
-	@Builder
-	protected ErrorResponse(final GlobalErrorCode code, final List<FieldError> errors) {
-		this.resultMsg = code.getMessage();
-		this.status = code.getHttpStatus();
+		this.error = HttpStatus.valueOf(code.getHttpStatus()).getReasonPhrase();
+		this.message = code.getMessage();
+		this.path = path;
 		this.errors = errors;
-		this.code = code.getCode();
 	}
 
-	/**
-	 * Global Exception 전송 타입-1
-	 *
-	 * @param code          GlobalErrorCode
-	 * @param bindingResult BindingResult
-	 * @return ErrorResponse
-	 */
-	public static ErrorResponse of(final GlobalErrorCode code, final BindingResult bindingResult) {
-		return new ErrorResponse(code, FieldError.of(bindingResult));
+	public static ErrorResponse of(final GlobalErrorCode code, final String message, final String path) {
+		return new ErrorResponse(code, message, path);
 	}
 
-	/**
-	 * Global Exception 전송 타입-2
-	 *
-	 * @param code GlobalErrorCode
-	 * @return ErrorResponse
-	 */
-	public static ErrorResponse of(final GlobalErrorCode code) {
-		return new ErrorResponse(code);
+	public static ErrorResponse of(final GlobalErrorCode code, final String path, final BindingResult bindingResult) {
+		return new ErrorResponse(code, path, FieldError.of(bindingResult));
 	}
 
-	/**
-	 * Global Exception 전송 타입-3
-	 *
-	 * @param code   GlobalErrorCode
-	 * @param reason String
-	 * @return ErrorResponse
-	 */
-	public static ErrorResponse of(final GlobalErrorCode code, final String reason) {
-		return new ErrorResponse(code, reason);
-	}
-
-	/**
-	 * 에러를 e.getBindingResult() 형태로 전달 받는 경우 해당 내용을 상세 내용으로 변경하는 기능을 수행한다.
-	 */
 	@Getter
 	public static class FieldError {
 		private final String field;
@@ -110,12 +61,6 @@ public class ErrorResponse {
 			this.field = field;
 			this.value = value;
 			this.reason = reason;
-		}
-
-		public static List<FieldError> of(final String field, final String value, final String reason) {
-			List<FieldError> fieldErrors = new ArrayList<>();
-			fieldErrors.add(new FieldError(field, value, reason));
-			return fieldErrors;
 		}
 
 		private static List<FieldError> of(final BindingResult bindingResult) {

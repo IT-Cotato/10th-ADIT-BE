@@ -54,7 +54,7 @@ public class NaverCrawlingStrategy extends AbstractWebCrawlingStrategy {
 
 		} catch (IOException e) {
 			log.error("[iframe 추출 중 오류] : {}", e.getMessage());
-			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
+			throw new CrawlingException(GlobalErrorCode.IFRAME_CRAWLING_FAILED);
 		} catch (Exception e) {
 			log.error("[본문 추출 중 오류 발생] : {}", e.getMessage());
 			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);

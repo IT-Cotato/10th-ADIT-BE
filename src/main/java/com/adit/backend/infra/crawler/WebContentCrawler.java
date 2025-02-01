@@ -25,10 +25,6 @@ public class WebContentCrawler {
 		+ "div.another_category, dic.category, div.recommend_list, div.profile, div#postListBottom, div.wrap_postcomment, "
 		+ "div.item_type_opengraph, div.lnb,div.search, div.search-tab-all div.inner50";
 
-
-	/**
-	 * 텍스트 전처리: HTML 태그, URL, 특수문자 등을 제거
-	 */
 	public static String preprocessText(String text) {
 		if (text == null || text.isEmpty()) {
 			return "";
@@ -55,43 +51,39 @@ public class WebContentCrawler {
 			.trim();
 	}
 
-	/**
-	 * 불필요한 태그 제거
-	 */
 	public static void removeUnnecessaryElements(Element mainContent) {
 		try {
 			mainContent.select(UNNECESSARY_TAGS).remove();
-			log.info("[불필요 태그 제거 완료]");
+			log.debug("[Crawl] 불필요 태그 제거 완료");
 		} catch (Exception e) {
-			log.error("[불필요 태그 제거 실패]: {}", e.getMessage(), e);
+			log.error("[Crawl] 불필요 태그 제거 실패: {}", e.getMessage(), e);
+			throw new CrawlingException(GlobalErrorCode.TEXT_PREPROCESSING_FAILED);
 		}
 	}
 
-	/**
-	 * 본문을 일정한 문장 단위(CHUNK_SIZE)로 분리
-	 */
 	public static List<String> splitIntoChunks(String text) {
-		List<String> chunks = new ArrayList<>();
-		String[] sentences = text.split("(?<=[.!?]\\s)");
-		StringBuilder currentChunk = new StringBuilder();
-		for (String sentence : sentences) {
-			if (currentChunk.length() + sentence.length() > CHUNK_SIZE && !currentChunk.isEmpty()) {
+		try {
+			List<String> chunks = new ArrayList<>();
+			String[] sentences = text.split("(?<=[.!?]\\s)");
+			StringBuilder currentChunk = new StringBuilder();
+			for (String sentence : sentences) {
+				if (currentChunk.length() + sentence.length() > CHUNK_SIZE && !currentChunk.isEmpty()) {
 					chunks.add(currentChunk.toString().trim());
 					currentChunk.setLength(0);
 				}
-
-			currentChunk.append(sentence).append(" ");
+				currentChunk.append(sentence).append(" ");
+			}
+			if (!currentChunk.isEmpty()) {
+				chunks.add(currentChunk.toString().trim());
+			}
+			log.debug("[Crawl] 본문 청크 분할 완료. 총 {}개", chunks.size());
+			return chunks;
+		} catch (Exception e) {
+			log.error("[Crawl] 청크 처리 실패: {}", e.getMessage());
+			throw new CrawlingException(GlobalErrorCode.CHUNK_PROCESSING_FAILED);
 		}
-		if (!currentChunk.isEmpty()) {
-			chunks.add(currentChunk.toString().trim());
-		}
-		log.info("[본문을 청크로 분할] 개수: {}", chunks.size());
-		return chunks;
 	}
 
-	/**
-	 * 나눈 청크를 일정 개수(BATCH_SIZE)씩 묶어서 합침
-	 */
 	public static List<String> processBatchChunks(List<String> chunks) {
 		List<String> results = new ArrayList<>();
 		for (int i = 0; i < chunks.size(); i += BATCH_SIZE) {
@@ -104,36 +96,36 @@ public class WebContentCrawler {
 		return results;
 	}
 
-	/**
-	 * 이미지 주소(src) 리스트 추출
-	 */
 	public static List<String> extractImageSrcList(Elements elements) {
 		if (elements == null) {
-			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
+			log.error("[Crawl] 이미지 추출을 위한 요소가 null");
+			throw new CrawlingException(GlobalErrorCode.IMAGE_EXTRACTION_FAILED);
 		}
-		List<String> imageSrcList = new ArrayList<>();
-		Elements imgElements = elements.select("img");
-		for (Element img : imgElements) {
-			String highResUrl = img.attr("data-lazy-src");
-			if (highResUrl.isEmpty()) {
-				highResUrl = img.attr("data-origin");
+		try {
+			List<String> imageSrcList = new ArrayList<>();
+			Elements imgElements = elements.select("img");
+			for (Element img : imgElements) {
+				String highResUrl = img.attr("data-lazy-src");
+				if (highResUrl.isEmpty()) {
+					highResUrl = img.attr("data-origin");
+				}
+				if (highResUrl.isEmpty()) {
+					highResUrl = img.attr("src");
+				}
+				if (highResUrl.contains("?type=")) {
+					highResUrl = highResUrl.split("\\?type=")[0];
+				}
+				if (!highResUrl.isEmpty()) {
+					imageSrcList.add(highResUrl + "?type=w966");
+				}
 			}
-			if (highResUrl.isEmpty()) {
-				highResUrl = img.attr("src");
-			}
-			if (highResUrl.contains("?type=")) {
-				highResUrl = highResUrl.split("\\?type=")[0];
-			}
-			if (!highResUrl.isEmpty()) {
-				imageSrcList.add(highResUrl + "?type=w966");
-			}
+			return imageSrcList;
+		} catch (Exception e) {
+			log.error("[Crawl] 이미지 URL 추출 실패: {}", e.getMessage());
+			throw new CrawlingException(GlobalErrorCode.IMAGE_EXTRACTION_FAILED);
 		}
-		return imageSrcList;
 	}
 
-	/**
-	 * 장소 정보 추출
-	 */
 	public static String extractPlaceInfo(Document document) {
 		StringBuilder placeBuilder = new StringBuilder();
 		try {
@@ -145,21 +137,19 @@ public class WebContentCrawler {
 				}
 			}
 		} catch (Exception e) {
-			log.error("[장소 추출 중 오류 발생] : {}", e.getMessage());
-			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
+			log.error("[Crawl] 장소 정보 추출 실패: {}", e.getMessage());
+			throw new CrawlingException(GlobalErrorCode.PLACE_EXTRACTION_FAILED);
 		}
-		log.info("[장소 추출 완료]");
+		log.debug("[Crawl] 장소 정보 추출 완료");
 		return placeBuilder.toString().trim();
 	}
 
-	/**
-	 * 크롤링 결과(CrawlCompletionResponse)를 생성
-	 */
 	public static CrawlCompletionResponse getCrawlCompletionResponse(Elements elements, String contents) {
 		if (contents.isEmpty()) {
-			throw new CrawlingException(GlobalErrorCode.CRAWLING_FAILED);
+			log.error("[Crawl] 크롤링 컨텐츠 없음");
+			throw new CrawlingException(GlobalErrorCode.CONTENT_EMPTY);
 		}
-		log.debug("추출된 원본 컨텐츠 (전체 길이: {}자): {}", contents.length(), contents);
+		log.debug("[Crawl] 원본 컨텐츠 추출 완료 ({}자): {}", contents.length(), contents);
 		List<String> chunks = splitIntoChunks(contents);
 		List<String> imageSrcList = extractImageSrcList(elements);
 		return CrawlCompletionResponse.of(
@@ -168,55 +158,61 @@ public class WebContentCrawler {
 		);
 	}
 
-	/**
-	 * iframe이 있는 블로그(네이버 등) 내부의 문서를 가져오기
-	 */
 	public static Document getIframeDocument(Document outerDoc, String iframeTag, String baseUrl) throws IOException {
-		Element iframe = outerDoc.selectFirst(iframeTag);
-		if (iframe == null) {
-			log.warn("[iframe 추출 중 오류] : iframe을 찾지 못했습니다");
-			return outerDoc;
+		try {
+			Element iframe = outerDoc.selectFirst(iframeTag);
+			if (iframe == null) {
+				log.warn("[Crawl] iframe 요소 없음");
+				return outerDoc;
+			}
+			String src = iframe.attr("src");
+			if (src.isBlank()) {
+				log.warn("[Crawl] iframe src 속성 없음");
+				return outerDoc;
+			}
+			String iframeUrl = src.startsWith("http") ? src : baseUrl + src;
+			log.debug("[Crawl] iframe URL 추출 완료: {}", iframeUrl);
+			return Jsoup.connect(iframeUrl).userAgent("Mozilla/5.0").get();
+		} catch (Exception e) {
+			log.error("[Crawl] iframe 처리 실패: {}", e.getMessage());
+			throw new CrawlingException(GlobalErrorCode.IFRAME_CRAWLING_FAILED);
 		}
-		String src = iframe.attr("src");
-		if (src.isBlank()) {
-			log.warn("[iframe 추출 중 오류] : iframe src가 비어 있습니다");
-			return outerDoc;
-		}
-		String iframeUrl = src.startsWith("http") ? src : baseUrl + src;
-		log.info("[iframe URL 추출 완료] : {}", iframeUrl);
-		return Jsoup.connect(iframeUrl).userAgent("Mozilla/5.0").get();
 	}
 
-	/**
-	 * 공통 제목 추출
-	 */
 	public static void extractTitle(Document document, String titleTag, StringBuilder contentBuilder) {
-		String title = document.select(titleTag).text();
-		if (!title.isEmpty()) {
-			contentBuilder.append("제목: ").append(title).append("\n\n");
-			log.info("[제목 추출 완료] : {}", title);
-		} else {
-			log.warn("[제목 추출 실패] : {}", document.location());
+		try {
+			String title = document.select(titleTag).text();
+			if (!title.isEmpty()) {
+				contentBuilder.append("제목: ").append(title).append("\n\n");
+				log.debug("[Crawl] 제목 추출 완료: {}", title);
+			} else {
+				log.warn("[Crawl] 제목 추출 실패: {}", document.location());
+				throw new CrawlingException(GlobalErrorCode.TITLE_EXTRACTION_FAILED);
+			}
+		} catch (Exception e) {
+			log.error("[Crawl] 제목 추출 중 오류 발생: {}", e.getMessage());
+			throw new CrawlingException(GlobalErrorCode.TITLE_EXTRACTION_FAILED);
 		}
 	}
 
-	/**
-	 * 공통 본문 추출
-	 */
-	public static void extractBodyText(Element mainContent,
-		String textTag,
-		int minRecognizedChar,
+	public static void extractBodyText(Element mainContent, String textTag, int minRecognizedChar,
 		StringBuilder contentBuilder) {
 		if (mainContent == null) {
-			return;
+			log.error("[Crawl] 본문 요소가 null");
+			throw new CrawlingException(GlobalErrorCode.BODY_EXTRACTION_FAILED);
 		}
-		removeUnnecessaryElements(mainContent);
-		Elements textElements = mainContent.select(textTag);
-		for (Element element : textElements) {
-			String text = element.text().trim();
-			if (text.length() > minRecognizedChar) {
-				contentBuilder.append(text).append("\n");
+		try {
+			removeUnnecessaryElements(mainContent);
+			Elements textElements = mainContent.select(textTag);
+			for (Element element : textElements) {
+				String text = element.text().trim();
+				if (text.length() > minRecognizedChar) {
+					contentBuilder.append(text).append("\n");
+				}
 			}
+		} catch (Exception e) {
+			log.error("[Crawl] 본문 추출 실패: {}", e.getMessage());
+			throw new CrawlingException(GlobalErrorCode.BODY_EXTRACTION_FAILED);
 		}
 	}
 }
