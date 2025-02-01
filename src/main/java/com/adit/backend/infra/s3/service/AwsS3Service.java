@@ -1,4 +1,7 @@
-package com.adit.backend.infra.s3;
+// AwsS3Service.java (일부 발췌)
+package com.adit.backend.infra.s3.service;
+
+import static com.adit.backend.global.util.ImageUtil.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,12 +10,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.adit.backend.domain.user.entity.User;
+import com.adit.backend.global.error.GlobalErrorCode;
+import com.adit.backend.infra.s3.exception.S3Exception;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
@@ -24,15 +27,16 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AwsS3Service {
+
 	private final AmazonS3 amazonS3;
+
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
-	public List<String> uploadFile(List<MultipartFile> multipartFiles, User user) {
+	public List<String> uploadFile(List<String> imageUrlList, User user) {
 		List<String> fileNameList = new ArrayList<>();
-
-		// forEach 구문을 통해 multipartFiles 리스트로 넘어온 파일들을 순차적으로 fileNameList 에 추가
-		multipartFiles.forEach(file -> {
+		imageUrlList.forEach(imageurl -> {
+			MultipartFile file = convertUrlToMultipartFile(imageurl);
 			String fileName = createFileName(file.getOriginalFilename(), user.getId());
 			ObjectMetadata objectMetadata = new ObjectMetadata();
 			objectMetadata.setContentLength(file.getSize());
@@ -42,26 +46,24 @@ public class AwsS3Service {
 				amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
 					.withCannedAcl(CannedAccessControlList.PublicRead));
 			} catch (IOException e) {
-				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+				throw new S3Exception(GlobalErrorCode.S3_UPLOAD_FAILED);
 			}
 			fileNameList.add(fileName);
-
 		});
-
 		return fileNameList;
 	}
 
-	// 파일명을 난수화하기 위해 UUID 를 활용하여 난수를 돌린다.
+	// 파일명을 난수화하기 위해 UUID를 활용
 	public String createFileName(String fileName, Long dirName) {
 		return dirName + "/" + UUID.randomUUID().toString().concat(getFileExtension(fileName));
 	}
 
-	//  "."의 존재 유무만 판단
+	// "."의 존재 유무만 판단 (잘못된 형식이면 S3Exception 발생)
 	private String getFileExtension(String fileName) {
 		try {
 			return fileName.substring(fileName.lastIndexOf("."));
 		} catch (StringIndexOutOfBoundsException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일" + fileName + ") 입니다.");
+			throw new S3Exception(GlobalErrorCode.S3_INVALID_FILE);
 		}
 	}
 
