@@ -1,4 +1,4 @@
-package com.adit.backend.domain.place.service;
+package com.adit.backend.domain.place.service.command;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 

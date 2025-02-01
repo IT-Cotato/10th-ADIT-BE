@@ -1,4 +1,4 @@
-package com.adit.backend.domain.place.service;
+package com.adit.backend.domain.place.service.command;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

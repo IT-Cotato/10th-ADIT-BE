@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
-import com.adit.backend.domain.place.service.CommonPlaceCommandService;
-import com.adit.backend.domain.place.service.CommonPlaceQueryService;
-import com.adit.backend.domain.place.service.UserPlaceCommandService;
-import com.adit.backend.domain.place.service.UserPlaceQueryService;
+import com.adit.backend.domain.place.service.command.CommonPlaceCommandService;
+import com.adit.backend.domain.place.service.command.UserPlaceCommandService;
+import com.adit.backend.domain.place.service.query.CommonPlaceQueryService;
+import com.adit.backend.domain.place.service.query.UserPlaceQueryService;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.common.ApiResponse;
 
