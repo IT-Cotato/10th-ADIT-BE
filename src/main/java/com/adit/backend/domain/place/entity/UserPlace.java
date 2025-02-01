@@ -1,9 +1,12 @@
 package com.adit.backend.domain.place.entity;
 
+import java.util.List;
+
+import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.entity.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +39,9 @@ public class UserPlace extends BaseEntity {
 	@JoinColumn(name = "common_place_id", nullable = false)
 	private CommonPlace commonPlace;
 
+	@OneToMany(mappedBy = "userPlace", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Image> images;
+
 	private String memo;
 	private Boolean visited;
 
@@ -52,6 +59,12 @@ public class UserPlace extends BaseEntity {
 
 	public void updatedVisited() {
 		this.visited = true;
+	}
+
+	//연관관계 메서드
+	public void addImage(Image image) {
+		this.images.add(image);
+		image.assignCommonPlace(this);
 	}
 
 }

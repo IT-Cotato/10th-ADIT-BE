@@ -42,7 +42,7 @@ public class CommonPlace extends BaseEntity {
 
 	private String url;
 
-	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "commonPlace", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Image> images = new ArrayList<>();
 
 	@OneToMany(mappedBy = "commonPlace", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -72,9 +72,15 @@ public class CommonPlace extends BaseEntity {
 		this.url = url;
 	}
 
+	//연관관계 메서드
 	public void addUserPlace(UserPlace userPlace) {
 		this.userPlaces.add(userPlace);
 		userPlace.setCommonPlace(this);
+	}
+
+	public void addImage(Image image) {
+		this.images.add(image);
+		image.assignUserPlace(this);
 	}
 
 }

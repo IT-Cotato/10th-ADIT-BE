@@ -53,4 +53,17 @@ public class Image extends BaseEntity {
 		this.event = event;
 		this.url = url;
 	}
+
+	//연관관계 메서드
+	public void assignEvent(Event event) {
+		this.event = event;
+	}
+
+	public void assignCommonPlace(CommonPlace commonPlace) {
+		this.commonPlace = commonPlace;
+	}
+
+	public void assignUserPlace(UserPlace userPlace) {
+		this.userPlace = userPlace;
+	}
 }
