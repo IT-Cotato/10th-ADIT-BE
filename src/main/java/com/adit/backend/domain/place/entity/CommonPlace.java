@@ -80,7 +80,7 @@ public class CommonPlace extends BaseEntity {
 
 	public void addImage(Image image) {
 		this.images.add(image);
-		image.assignUserPlace(this);
+		image.assignCommonPlace(this);
 	}
 
 }

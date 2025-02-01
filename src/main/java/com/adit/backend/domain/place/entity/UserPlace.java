@@ -64,7 +64,7 @@ public class UserPlace extends BaseEntity {
 	//연관관계 메서드
 	public void addImage(Image image) {
 		this.images.add(image);
-		image.assignCommonPlace(this);
+		image.assignUserPlace(this);
 	}
 
 }
