@@ -13,26 +13,29 @@ import org.springframework.web.bind.annotation.RestController;
 import com.adit.backend.domain.image.dto.request.ImageRequestDto;
 import com.adit.backend.domain.image.dto.response.ImageResponseDto;
 import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.image.service.ImageService;
+import com.adit.backend.domain.image.service.command.ImageCommandService;
+import com.adit.backend.domain.image.service.query.ImageQueryService;
 import com.adit.backend.global.common.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+
 @Hidden
 @RestController
 @RequestMapping("/api/images")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ImageController {
 
-	private final ImageService imageService;
+	private final ImageQueryService imageQueryService;
+	private final ImageCommandService imageCommandService;
 
 	// 이미지 업로드 API
 	@PostMapping
 	public ResponseEntity<ApiResponse<ImageResponseDto>> uploadImage(@Valid @RequestBody ImageRequestDto requestDto) {
 		// 이미지 정보를 받아서 저장
-		Image image = imageService.uploadImage(requestDto);
+		Image image = imageCommandService.uploadImage(requestDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(ImageResponseDto.from(image)));
 	}
 
@@ -40,7 +43,7 @@ public class ImageController {
 	@GetMapping("/{imageId}")
 	public ResponseEntity<ApiResponse<ImageResponseDto>> getImage(@PathVariable Long imageId) {
 		// 이미지 ID로 조회
-		Image image = imageService.getImageById(imageId);
+		Image image = imageQueryService.getImageById(imageId);
 		return ResponseEntity.ok(ApiResponse.success(ImageResponseDto.from(image)));
 	}
 
@@ -48,7 +51,7 @@ public class ImageController {
 	@DeleteMapping("/{imageId}")
 	public ResponseEntity<ApiResponse<String>> deleteImage(@PathVariable Long imageId) {
 		// 이미지 ID로 삭제
-		imageService.deleteImage(imageId);
+		imageCommandService.deleteImage(imageId);
 		return ResponseEntity.ok(ApiResponse.success("Image deleted successfully"));
 	}
 }

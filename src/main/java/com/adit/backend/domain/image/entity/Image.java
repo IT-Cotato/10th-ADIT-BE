@@ -1,7 +1,10 @@
 package com.adit.backend.domain.image.entity;
 
+import org.hibernate.annotations.Check;
+
 import com.adit.backend.domain.event.entity.Event;
 import com.adit.backend.domain.place.entity.CommonPlace;
+import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.global.entity.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -16,12 +19,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Check(constraints = "((CASE WHEN common_place_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN user_place_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN event_id IS NOT NULL THEN 1 ELSE 0 END)) = 1")
 public class Image extends BaseEntity {
 
 	@Id
@@ -29,8 +31,12 @@ public class Image extends BaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "place_id")
-	private CommonPlace place;
+	@JoinColumn(name = "common_place_id")
+	private CommonPlace commonPlace;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_place_id")
+	private UserPlace userPlace;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "event_id")
@@ -39,16 +45,12 @@ public class Image extends BaseEntity {
 	@Column(nullable = false)
 	private String url;
 
-	private String fileName;
-	private String folderName;
-
 	@Builder
-	public Image(Long id, CommonPlace place, Event event, String url, String fileName, String folderName) {
+	public Image(Long id, CommonPlace commonPlace, UserPlace userPlace, Event event, String url) {
 		this.id = id;
-		this.place = place;
+		this.commonPlace = commonPlace;
+		this.userPlace = userPlace;
 		this.event = event;
 		this.url = url;
-		this.fileName = fileName;
-		this.folderName = folderName;
 	}
 }
