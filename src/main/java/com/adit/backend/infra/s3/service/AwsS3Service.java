@@ -1,8 +1,6 @@
 // AwsS3Service.java (일부 발췌)
 package com.adit.backend.infra.s3.service;
 
-import static com.adit.backend.global.util.ImageUtil.*;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.error.GlobalErrorCode;
+import com.adit.backend.global.util.ImageUtil;
 import com.adit.backend.infra.s3.exception.S3Exception;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -36,7 +35,7 @@ public class AwsS3Service {
 	public List<String> uploadFile(List<String> imageUrlList, User user) {
 		List<String> fileNameList = new ArrayList<>();
 		imageUrlList.forEach(imageurl -> {
-			MultipartFile file = convertUrlToMultipartFile(imageurl);
+			MultipartFile file = ImageUtil.convertUrlToMultipartFile(imageurl);
 			String fileName = createFileName(file.getOriginalFilename(), user.getId());
 			ObjectMetadata objectMetadata = new ObjectMetadata();
 			objectMetadata.setContentLength(file.getSize());
