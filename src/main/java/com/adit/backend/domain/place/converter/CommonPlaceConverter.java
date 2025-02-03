@@ -5,14 +5,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.place.dto.request.PlaceRequest;
+import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 
 @Component
 public class CommonPlaceConverter {
-	public CommonPlace toEntity(PlaceRequest requestDto, Long placeId) {
+	public CommonPlace toEntity(PlaceRequestDto requestDto, Long placeId) {
 		return CommonPlace.builder()
 			.id(placeId)
 			.placeName(requestDto.placeName())

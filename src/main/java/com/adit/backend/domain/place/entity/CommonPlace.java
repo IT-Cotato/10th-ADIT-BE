@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.place.dto.request.PlaceRequest;
+import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.global.entity.BaseEntity;
 
 import jakarta.persistence.CascadeType;
@@ -51,7 +51,7 @@ public class CommonPlace extends BaseEntity {
 	@OneToMany(mappedBy = "commonPlace", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<UserPlace> userPlaces = new ArrayList<>();
 
-	public void updatePlace(PlaceRequest requestDto) {
+	public void updatePlace(PlaceRequestDto requestDto) {
 		this.placeName = requestDto.placeName();
 		this.addressName = requestDto.addressName();
 		this.latitude = requestDto.latitude();

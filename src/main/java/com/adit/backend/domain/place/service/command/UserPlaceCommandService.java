@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.adit.backend.domain.image.service.command.ImageCommandService;
 import com.adit.backend.domain.place.converter.CommonPlaceConverter;
 import com.adit.backend.domain.place.converter.UserPlaceConverter;
-import com.adit.backend.domain.place.dto.request.PlaceRequest;
+import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
@@ -33,7 +33,7 @@ public class UserPlaceCommandService {
 	private final ImageCommandService imageCommandService;
 
 	// 장소 저장
-	public PlaceResponseDto createUserPlace(Long userId, PlaceRequest request) {
+	public PlaceResponseDto createUserPlace(Long userId, PlaceRequestDto request) {
 		User user = userQueryService.findUserById(userId);
 		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request, user);
 		UserPlace userPlace = userPlaceConverter.toEntity(request);

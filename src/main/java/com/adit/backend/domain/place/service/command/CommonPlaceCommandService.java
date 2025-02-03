@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.image.service.command.ImageCommandService;
 import com.adit.backend.domain.place.converter.CommonPlaceConverter;
-import com.adit.backend.domain.place.dto.request.PlaceRequest;
+import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
@@ -28,7 +28,7 @@ public class CommonPlaceCommandService {
 	private final CommonPlaceConverter commonPlaceConverter;
 
 	// 카카오맵 url -> 기존 공통 장소 반환 or 새로운 공통 장소 생성
-	public CommonPlace saveOrFindCommonPlace(PlaceRequest request, User user) {
+	public CommonPlace saveOrFindCommonPlace(PlaceRequestDto request, User user) {
 		Long commonPlaceId = extractTrailingDigits(request.url());
 		return commonPlaceRepository.findById(commonPlaceId).orElseGet(() -> {
 			CommonPlace commonPlace = commonPlaceConverter.toEntity(request, commonPlaceId);
@@ -37,7 +37,7 @@ public class CommonPlaceCommandService {
 		});
 	}
 
-	public PlaceResponseDto updatePlace(Long placeId, PlaceRequest requestDto) {
+	public PlaceResponseDto updatePlace(Long placeId, PlaceRequestDto requestDto) {
 		CommonPlace place = commonPlaceQueryService.getCommonPlaceById(placeId);
 		place.updatePlace(requestDto);
 		return commonPlaceConverter.commonPlaceToResponse(place);

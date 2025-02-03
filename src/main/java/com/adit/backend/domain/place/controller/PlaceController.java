@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.adit.backend.domain.place.dto.request.PlaceRequest;
+import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.service.command.CommonPlaceCommandService;
 import com.adit.backend.domain.place.service.command.UserPlaceCommandService;
@@ -50,7 +50,7 @@ public class PlaceController {
 	@Operation(summary = "장소 생성", description = "카카오 맵 키워드 검색 후 CommonPlace, UserPlace 에 장소를 저장합니다")
 	@PostMapping("/create")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> createPlace(
-		@Valid @RequestBody PlaceRequest requestDto, @AuthenticationPrincipal(expression = "user") User user) {
+		@Valid @RequestBody PlaceRequestDto requestDto, @AuthenticationPrincipal(expression = "user") User user) {
 		PlaceResponseDto userPlace = userPlaceCommandService.createUserPlace(user.getId(), requestDto);
 		// 생성된 장소를 응답으로 반환
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(userPlace));
@@ -60,7 +60,7 @@ public class PlaceController {
 	@Operation(summary = "장소 수정", description = "Commonplace 의 장소를 수정합니다")
 	@PutMapping("/{placeId}")
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> updatePlace(@PathVariable @Min(1) Long placeId,
-		@Valid @RequestBody PlaceRequest requestDto) {
+		@Valid @RequestBody PlaceRequestDto requestDto) {
 		// ID로 기존 장소를 찾아 수정
 		PlaceResponseDto commonPlace = commonPlaceCommandService.updatePlace(placeId, requestDto);
 		// 수정된 장소를 응답으로 반환

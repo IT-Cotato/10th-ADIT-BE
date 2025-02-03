@@ -5,14 +5,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.place.dto.request.PlaceRequest;
+import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.UserPlace;
 
 @Component
 public class UserPlaceConverter {
 
-	public UserPlace toEntity(PlaceRequest request) {
+	public UserPlace toEntity(PlaceRequestDto request) {
 		return UserPlace.builder()
 			.memo(request.memo())
 			.visited(false)
