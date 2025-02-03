@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.util.ImageUtil;
 import com.adit.backend.infra.s3.exception.S3Exception;
 import com.amazonaws.services.s3.AmazonS3;
@@ -38,12 +37,12 @@ public class AwsS3Service {
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
-	public List<Image> uploadFile(List<String> imageUrlList, User user) {
+	public List<Image> uploadFile(List<String> imageUrlList, String dirName) {
 		List<Image> imageList = new ArrayList<>();
 		imageUrlList.forEach(imageurl -> {
 			MultipartFile file = ImageUtil.convertUrlToMultipartFile(imageurl);
 			String originalFilename = file.getOriginalFilename();
-			String fileName = createFileName(originalFilename, user.getId());
+			String fileName = createFileName(originalFilename, dirName);
 
 			ObjectMetadata objectMetadata = new ObjectMetadata();
 			objectMetadata.setContentLength(file.getSize());
@@ -54,7 +53,7 @@ public class AwsS3Service {
 					.withCannedAcl(CannedAccessControlList.PublicRead));
 				log.info("[S3] 파일 업로드 성공: 파일명 = {}", fileName);
 			} catch (IOException e) {
-				log.error("[S3] 파일 업로드 실패: 원본 파일명 = {}, userId = {}", originalFilename, user.getId());
+				log.error("[S3] 파일 업로드 실패: 원본 파일명 = {}, dirName = {}", originalFilename, dirName);
 				throw new S3Exception(S3_UPLOAD_FAILED);
 			}
 			String imageUrl = getUrlFromBucket(fileName);
@@ -65,7 +64,7 @@ public class AwsS3Service {
 	}
 
 	// 파일명을 난수화하기 위해 UUID를 활용
-	private String createFileName(String fileName, Long dirName) {
+	private String createFileName(String fileName, String dirName) {
 		return dirName + "/" + UUID.randomUUID().toString().concat(getFileExtension(fileName));
 	}
 

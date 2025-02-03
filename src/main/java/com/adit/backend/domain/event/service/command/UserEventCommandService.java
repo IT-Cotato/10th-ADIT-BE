@@ -33,7 +33,7 @@ public class UserEventCommandService {
 
 	public EventResponseDto createUserEvent(EventRequestDto request, Long userId) {
 		User user = userQueryService.findUserById(userId);
-		CommonEvent commonEvent = commonEventCommandService.saveOrFindCommonEvent(request, user);
+		CommonEvent commonEvent = commonEventCommandService.saveOrFindCommonEvent(request);
 		UserEvent userEvent = userEventConverter.toEntity(request);
 		saveUserEventRelation(commonEvent, userEvent, user);
 		imageCommandService.addImageToUserEvent(request, user, userEvent);

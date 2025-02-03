@@ -13,7 +13,6 @@ import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
 import com.adit.backend.domain.place.service.query.CommonPlaceQueryService;
-import com.adit.backend.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,11 +27,11 @@ public class CommonPlaceCommandService {
 	private final CommonPlaceConverter commonPlaceConverter;
 
 	// 카카오맵 url -> 기존 공통 장소 반환 or 새로운 공통 장소 생성
-	public CommonPlace saveOrFindCommonPlace(PlaceRequestDto request, User user) {
+	public CommonPlace saveOrFindCommonPlace(PlaceRequestDto request) {
 		Long commonPlaceId = extractTrailingDigits(request.url());
 		return commonPlaceRepository.findById(commonPlaceId).orElseGet(() -> {
 			CommonPlace commonPlace = commonPlaceConverter.toEntity(request, commonPlaceId);
-			imageCommandService.addImageToCommonPlace(request, user, commonPlace);
+			imageCommandService.addImageToCommonPlace(request, commonPlace);
 			return commonPlaceRepository.save(commonPlace);
 		});
 	}

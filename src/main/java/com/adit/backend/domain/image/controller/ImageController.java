@@ -31,6 +31,7 @@ public class ImageController {
 	private final ImageQueryService imageQueryService;
 	private final ImageCommandService imageCommandService;
 
+	@Hidden
 	// 이미지 업로드 API
 	@PostMapping
 	public ResponseEntity<ApiResponse<ImageResponseDto>> uploadImage(@Valid @RequestBody ImageRequestDto requestDto) {

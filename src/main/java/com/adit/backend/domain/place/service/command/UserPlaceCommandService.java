@@ -35,7 +35,7 @@ public class UserPlaceCommandService {
 	// 장소 저장
 	public PlaceResponseDto createUserPlace(Long userId, PlaceRequestDto request) {
 		User user = userQueryService.findUserById(userId);
-		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request, user);
+		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request);
 		UserPlace userPlace = userPlaceConverter.toEntity(request);
 		saveUserPlaceRelation(user, commonPlace, userPlace);
 		imageCommandService.addImageToUserPlace(request, user, userPlace);
