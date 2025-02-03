@@ -17,6 +17,7 @@ import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.util.ImageUtil;
 import com.adit.backend.infra.s3.exception.S3Exception;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -31,6 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AwsS3Service {
 
 	private final AmazonS3 amazonS3;
+
+	private final AmazonS3Client s3Client;
 
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
@@ -49,7 +52,8 @@ public class AwsS3Service {
 			} catch (IOException e) {
 				throw new S3Exception(GlobalErrorCode.S3_UPLOAD_FAILED);
 			}
-			Image image = Image.builder().url(fileName).build();
+			String imageUrl = getUrlFromBucket(fileName);
+			Image image = Image.builder().url(imageUrl).build();
 			log.info(image.getUrl());
 			imageList.add(image);
 		});
@@ -57,7 +61,7 @@ public class AwsS3Service {
 	}
 
 	// 파일명을 난수화하기 위해 UUID를 활용
-	public String createFileName(String fileName, Long dirName) {
+	private String createFileName(String fileName, Long dirName) {
 		return dirName + "/" + UUID.randomUUID().toString().concat(getFileExtension(fileName));
 	}
 
@@ -68,6 +72,10 @@ public class AwsS3Service {
 		} catch (StringIndexOutOfBoundsException e) {
 			throw new S3Exception(GlobalErrorCode.S3_INVALID_FILE);
 		}
+	}
+
+	private String getUrlFromBucket(String fileName) {
+		return s3Client.getUrl(bucket, fileName).toString();
 	}
 
 	public void deleteFile(String fileName) {
