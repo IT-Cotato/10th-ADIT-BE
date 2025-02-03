@@ -1,7 +1,5 @@
 package com.adit.backend.domain.image.entity;
 
-import org.hibernate.annotations.Check;
-
 import com.adit.backend.domain.event.entity.Event;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
@@ -23,7 +21,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Check(constraints = "((CASE WHEN common_place_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN user_place_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN event_id IS NOT NULL THEN 1 ELSE 0 END)) = 1")
 public class Image extends BaseEntity {
 
 	@Id

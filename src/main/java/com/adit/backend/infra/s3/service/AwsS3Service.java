@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.error.GlobalErrorCode;
 import com.adit.backend.global.util.ImageUtil;
@@ -22,7 +23,9 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AwsS3Service {
@@ -32,24 +35,25 @@ public class AwsS3Service {
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
-	public List<String> uploadFile(List<String> imageUrlList, User user) {
-		List<String> fileNameList = new ArrayList<>();
+	public List<Image> uploadFile(List<String> imageUrlList, User user) {
+		List<Image> imageList = new ArrayList<>();
 		imageUrlList.forEach(imageurl -> {
 			MultipartFile file = ImageUtil.convertUrlToMultipartFile(imageurl);
 			String fileName = createFileName(file.getOriginalFilename(), user.getId());
 			ObjectMetadata objectMetadata = new ObjectMetadata();
 			objectMetadata.setContentLength(file.getSize());
 			objectMetadata.setContentType(file.getContentType());
-
 			try (InputStream inputStream = file.getInputStream()) {
 				amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
 					.withCannedAcl(CannedAccessControlList.PublicRead));
 			} catch (IOException e) {
 				throw new S3Exception(GlobalErrorCode.S3_UPLOAD_FAILED);
 			}
-			fileNameList.add(fileName);
+			Image image = Image.builder().url(fileName).build();
+			log.info(image.getUrl());
+			imageList.add(image);
 		});
-		return fileNameList;
+		return imageList;
 	}
 
 	// 파일명을 난수화하기 위해 UUID를 활용

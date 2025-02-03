@@ -12,9 +12,10 @@ import com.adit.backend.domain.place.entity.UserPlace;
 
 @Component
 public class PlaceConverter {
-	public CommonPlace toEntity(CommonPlaceRequestDto requestDto) {
+	public CommonPlace toEntity(CommonPlaceRequestDto requestDto, Long placeId) {
 
 		return CommonPlace.builder()
+			.id(placeId)
 			.placeName(requestDto.placeName())
 			.addressName(requestDto.addressName())
 			.latitude(requestDto.latitude())
@@ -28,6 +29,7 @@ public class PlaceConverter {
 
 	public CommonPlace toEntity(PlaceResponseDto responseDto) {
 		return CommonPlace.builder()
+			.id(responseDto.commonPlaceId())
 			.placeName(responseDto.placeName())
 			.addressName(responseDto.AddressName())
 			.latitude(responseDto.latitude())

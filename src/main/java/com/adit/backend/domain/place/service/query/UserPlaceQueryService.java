@@ -1,6 +1,7 @@
 package com.adit.backend.domain.place.service.query;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
+import static com.adit.backend.global.util.MapUtil.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,7 +21,7 @@ import com.adit.backend.domain.user.repository.FriendshipRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserPlaceQueryService {
 
@@ -28,7 +29,6 @@ public class UserPlaceQueryService {
 	private final FriendshipRepository friendshipRepository;
 	private final PlaceConverter placeConverter;
 
-	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByCategory(List<String> subCategory, Long userId) {
 		// 기존: throw new NotValidException("RequestParam not valid");
 		if (subCategory.stream().anyMatch(String::isBlank)) {
@@ -50,7 +50,6 @@ public class UserPlaceQueryService {
 		return userPlaces.stream().map(placeConverter::userPlaceToResponse).toList();
 	}
 
-	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getSavedPlace(Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
 		if (userPlaces.isEmpty()) {
@@ -59,7 +58,6 @@ public class UserPlaceQueryService {
 		return userPlaces.stream().map(placeConverter::userPlaceToResponse).toList();
 	}
 
-	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByLocation(double userLatitude, double userLongitude, Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
 		if (userPlaces.isEmpty()) {
@@ -87,19 +85,6 @@ public class UserPlaceQueryService {
 		return placeByLocation.stream().map(placeConverter::userPlaceToResponse).toList();
 	}
 
-	public double getDistance(double lat1, double lon1, double lat2, double lon2) {
-		final int R = 6371;
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLon = Math.toRadians(lon2 - lon1);
-		double a =
-			Math.sin(dLat / 2) * Math.sin(dLat / 2)
-				+ Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-				* Math.sin(dLon / 2) * Math.sin(dLon / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		return R * c;
-	}
-
-	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByAddress(List<String> address, Long userId) {
 		if (address.stream().anyMatch(String::isBlank)) {
 			throw new PlaceException(NOT_VALID);

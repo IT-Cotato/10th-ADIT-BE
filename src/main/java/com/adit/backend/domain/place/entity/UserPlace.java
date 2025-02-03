@@ -1,5 +1,6 @@
 package com.adit.backend.domain.place.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.adit.backend.domain.image.entity.Image;
@@ -40,7 +41,7 @@ public class UserPlace extends BaseEntity {
 	private CommonPlace commonPlace;
 
 	@OneToMany(mappedBy = "userPlace", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Image> images;
+	private List<Image> images = new ArrayList<>();
 
 	private String memo;
 	private Boolean visited;

@@ -5,14 +5,13 @@ import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * DTO for {@link Image}
  */
-public record ImageRequestDto(@NotNull(message = "Place ID must not be null") CommonPlace commonPlace,
+public record ImageRequestDto(CommonPlace commonPlace,
 							  UserPlace userPlace,
 							  Event event,
-							  String url,
-							  String fileName, String folderName) {
+							  @NotBlank(message = "이미지 경로는 공백일 수 없습니다.") String url) {
 }

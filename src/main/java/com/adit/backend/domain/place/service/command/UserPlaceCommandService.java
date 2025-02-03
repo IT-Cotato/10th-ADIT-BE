@@ -5,16 +5,20 @@ import static com.adit.backend.global.error.GlobalErrorCode.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.adit.backend.domain.image.entity.Image;
+import com.adit.backend.domain.image.repository.ImageRepository;
 import com.adit.backend.domain.place.converter.PlaceConverter;
+import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.domain.user.repository.UserRepository;
+import com.adit.backend.domain.user.service.query.UserQueryService;
 import com.adit.backend.global.error.exception.BusinessException;
+import com.adit.backend.infra.s3.service.AwsS3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,23 +29,28 @@ public class UserPlaceCommandService {
 
 	private final UserRepository userRepository;
 	private final UserPlaceRepository userPlaceRepository;
+	private final ImageRepository imageRepository;
 	private final PlaceConverter placeConverter;
+	private final UserQueryService userQueryService;
+	private final CommonPlaceCommandService commonPlaceCommandService;
+	private final AwsS3Service s3Service;
 
-	public PlaceResponseDto createUserPlace(Long userId, PlaceResponseDto responseDto, String memo) {
-		if (memo.isBlank()) {
-			throw new BusinessException(NOT_VALID_ERROR);
-		}
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(USER_NOT_FOUND));
+	public PlaceResponseDto createUserPlace(Long userId, CommonPlaceRequestDto request) {
+		User user = userQueryService.findUserById(userId);
+		Image image = s3Service.uploadFile(request.imageUrlList(), user).get(0);
+		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request, image);
 		UserPlace userPlace = UserPlace.builder()
 			.user(user)
-			.memo(memo)
+			.memo(request.memo())
 			.visited(false)
 			.build();
-		CommonPlace commonPlace = placeConverter.toEntity(responseDto);
 		commonPlace.addUserPlace(userPlace);
-		UserPlace savePlace = userPlaceRepository.save(userPlace);
-		return placeConverter.userPlaceToResponse(savePlace);
+		userPlaceRepository.save(userPlace);
+
+		Image userPlaceImage = Image.builder().url(image.getUrl()).build();
+		userPlace.addImage(userPlaceImage);
+		imageRepository.save(userPlaceImage);
+		return placeConverter.userPlaceToResponse(userPlace);
 	}
 
 	// 장소 삭제
