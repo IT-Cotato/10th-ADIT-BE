@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.image.repository.ImageRepository;
-import com.adit.backend.domain.place.converter.PlaceConverter;
+import com.adit.backend.domain.place.converter.CommonPlaceConverter;
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
@@ -30,7 +30,7 @@ public class UserPlaceCommandService {
 	private final UserRepository userRepository;
 	private final UserPlaceRepository userPlaceRepository;
 	private final ImageRepository imageRepository;
-	private final PlaceConverter placeConverter;
+	private final CommonPlaceConverter commonPlaceConverter;
 	private final UserQueryService userQueryService;
 	private final CommonPlaceCommandService commonPlaceCommandService;
 	private final AwsS3Service s3Service;
@@ -50,7 +50,7 @@ public class UserPlaceCommandService {
 		Image userPlaceImage = Image.builder().url(image.getUrl()).build();
 		userPlace.addImage(userPlaceImage);
 		imageRepository.save(userPlaceImage);
-		return placeConverter.userPlaceToResponse(userPlace);
+		return commonPlaceConverter.userPlaceToResponse(userPlace);
 	}
 
 	// 장소 삭제
@@ -69,7 +69,7 @@ public class UserPlaceCommandService {
 			throw new BusinessException(NOT_VALID_ERROR);
 		}
 		place.updatedMemo(memo);
-		return placeConverter.userPlaceToResponse(place);
+		return commonPlaceConverter.userPlaceToResponse(place);
 	}
 
 	//장소 방문 여부 표시

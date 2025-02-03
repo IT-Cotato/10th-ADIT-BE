@@ -11,7 +11,7 @@ import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 
 @Component
-public class PlaceConverter {
+public class CommonPlaceConverter {
 	public CommonPlace toEntity(CommonPlaceRequestDto requestDto, Long placeId) {
 
 		return CommonPlace.builder()

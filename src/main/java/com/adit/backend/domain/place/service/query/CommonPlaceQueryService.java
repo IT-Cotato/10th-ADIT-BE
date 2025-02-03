@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.adit.backend.domain.place.converter.PlaceConverter;
+import com.adit.backend.domain.place.converter.CommonPlaceConverter;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.exception.PlaceException;
@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class CommonPlaceQueryService {
 
 	private final CommonPlaceRepository commonPlaceRepository;
-	private final PlaceConverter placeConverter;
+	private final CommonPlaceConverter commonPlaceConverter;
 
 	private static final int DEFAULT_PAGE_NUMBER = 0;
 	private static final int DEFAULT_PAGE_SIZE = 5;
@@ -41,7 +41,7 @@ public class CommonPlaceQueryService {
 		List<Long> commonPlacesId = commonPlaceRepository.findByPopular(pageable);
 		List<CommonPlace> commonPlaces = commonPlacesId.stream()
 			.map(this::getCommonPlaceById).toList();
-		return commonPlaces.stream().map(placeConverter::commonPlaceToResponse).toList();
+		return commonPlaces.stream().map(commonPlaceConverter::commonPlaceToResponse).toList();
 	}
 
 	//특정 장소 상세정보 찾기
@@ -51,7 +51,7 @@ public class CommonPlaceQueryService {
 		}
 		CommonPlace commonPlace = commonPlaceRepository.findByBusinessName(placeName)
 			.orElseThrow(() -> new PlaceException(COMMON_PLACE_NOT_FOUND));
-		return placeConverter.commonPlaceToResponse(commonPlace);
+		return commonPlaceConverter.commonPlaceToResponse(commonPlace);
 
 	}
 }

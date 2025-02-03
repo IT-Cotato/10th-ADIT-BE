@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.image.repository.ImageRepository;
-import com.adit.backend.domain.place.converter.PlaceConverter;
+import com.adit.backend.domain.place.converter.CommonPlaceConverter;
 import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
@@ -24,14 +24,14 @@ public class CommonPlaceCommandService {
 
 	private final CommonPlaceRepository commonPlaceRepository;
 	private final CommonPlaceQueryService commonPlaceQueryService;
-	private final PlaceConverter placeConverter;
+	private final CommonPlaceConverter commonPlaceConverter;
 	private final ImageRepository imageRepository;
 
 	// 새로운 장소 생성
 	public CommonPlace saveOrFindCommonPlace(CommonPlaceRequestDto requestDto, Image image) {
 		Long commonPlaceId = extractTrailingDigits(requestDto.url());
 		return commonPlaceRepository.findById(commonPlaceId).orElseGet(() -> {
-			CommonPlace commonPlace = placeConverter.toEntity(requestDto, commonPlaceId);
+			CommonPlace commonPlace = commonPlaceConverter.toEntity(requestDto, commonPlaceId);
 			imageRepository.save(image);
 			commonPlace.addImage(image);
 			return commonPlaceRepository.save(commonPlace);
@@ -41,7 +41,7 @@ public class CommonPlaceCommandService {
 	public PlaceResponseDto updatePlace(Long placeId, CommonPlaceRequestDto requestDto) {
 		CommonPlace place = commonPlaceQueryService.getCommonPlaceById(placeId);
 		place.updatePlace(requestDto);
-		return placeConverter.commonPlaceToResponse(place);
+		return commonPlaceConverter.commonPlaceToResponse(place);
 	}
 
 	public long extractTrailingDigits(String url) {
