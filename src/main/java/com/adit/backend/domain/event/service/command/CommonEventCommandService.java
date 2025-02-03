@@ -7,8 +7,8 @@ import com.adit.backend.domain.event.converter.CommonEventConverter;
 import com.adit.backend.domain.event.dto.request.EventRequestDto;
 import com.adit.backend.domain.event.entity.CommonEvent;
 import com.adit.backend.domain.event.repository.CommonEventRepository;
-import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.image.repository.ImageRepository;
+import com.adit.backend.domain.image.service.command.ImageCommandService;
+import com.adit.backend.domain.user.entity.User;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 public class CommonEventCommandService {
 	private final CommonEventRepository commonEventRepository;
 	private final CommonEventConverter commonEventConverter;
-	private final ImageRepository imageRepository;
+	private final ImageCommandService imageCommandService;
 
-	public CommonEvent saveOrFindCommonEvent(EventRequestDto request, Image image) {
+	public CommonEvent saveOrFindCommonEvent(EventRequestDto request, User user) {
 		return commonEventRepository.findByName(request.name()).orElseGet(() -> {
 			CommonEvent commonEvent = commonEventConverter.toEntity(request);
-			imageRepository.save(image);
-			commonEvent.addImage(image);
+			imageCommandService.addImageToCommonEvent(request, user, commonEvent);
 			return commonEventRepository.save(commonEvent);
 		});
 	}

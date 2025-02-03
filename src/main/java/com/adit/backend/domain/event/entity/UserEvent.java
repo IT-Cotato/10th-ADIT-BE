@@ -7,7 +7,6 @@ import java.util.List;
 import com.adit.backend.domain.event.dto.request.EventUpdateRequestDto;
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.notification.entity.Notification;
-import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.entity.BaseEntity;
 
@@ -41,10 +40,6 @@ public class UserEvent extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "common_place_id")
-	private CommonPlace commonPlace;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "common_event_id")

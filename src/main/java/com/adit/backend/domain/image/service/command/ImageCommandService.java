@@ -5,13 +5,15 @@ import static com.adit.backend.global.error.GlobalErrorCode.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.adit.backend.domain.event.dto.request.EventRequestDto;
+import com.adit.backend.domain.event.entity.CommonEvent;
 import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.event.repository.UserEventRepository;
 import com.adit.backend.domain.image.dto.request.ImageRequestDto;
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.image.exception.ImageException;
 import com.adit.backend.domain.image.repository.ImageRepository;
-import com.adit.backend.domain.place.dto.request.PlaceRequest;
+import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
@@ -59,17 +61,31 @@ public class ImageCommandService {
 	}
 
 	// UserPlace에 이미지 연관관계 추가 후 저장
-	public void addImageToUserPlace(PlaceRequest request, User user, UserPlace userPlace) {
+	public void addImageToUserPlace(PlaceRequestDto request, User user, UserPlace userPlace) {
 		Image userPlaceImage = s3Service.uploadFile(request.imageUrlList(), user).get(0);
 		userPlace.addImage(userPlaceImage);
 		imageRepository.save(userPlaceImage);
 	}
 
 	// CommonPlace에 이미지 연관관계 추가 후 저장
-	public void addImageToCommonPlace(PlaceRequest request, User user, CommonPlace commonPlace) {
+	public void addImageToCommonPlace(PlaceRequestDto request, User user, CommonPlace commonPlace) {
 		Image commonPlaceImage = s3Service.uploadFile(request.imageUrlList(), user).get(0);
-		imageRepository.save(commonPlaceImage);
 		commonPlace.addImage(commonPlaceImage);
+		imageRepository.save(commonPlaceImage);
+	}
+
+	// CommonEvent에 이미지 연관관계 추가 후 저장
+	public void addImageToCommonEvent(EventRequestDto request, User user, CommonEvent commonEvent) {
+		Image image = s3Service.uploadFile(request.imageUrlList(), user).get(0);
+		commonEvent.addImage(image);
+		imageRepository.save(image);
+	}
+
+	// UserEvent에 이미지 연관관계 추가 후 저장
+	public void addImageToUserEvent(EventRequestDto request, User user, UserEvent userEvent) {
+		Image image = s3Service.uploadFile(request.imageUrlList(), user).get(0);
+		userEvent.addImage(image);
+		imageRepository.save(image);
 	}
 
 }

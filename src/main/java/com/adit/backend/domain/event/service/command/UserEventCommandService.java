@@ -13,11 +13,9 @@ import com.adit.backend.domain.event.entity.CommonEvent;
 import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.event.exception.EventException;
 import com.adit.backend.domain.event.repository.UserEventRepository;
-import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.image.repository.ImageRepository;
+import com.adit.backend.domain.image.service.command.ImageCommandService;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.service.query.UserQueryService;
-import com.adit.backend.infra.s3.service.AwsS3Service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,24 +27,17 @@ public class UserEventCommandService {
 
 	private final UserEventRepository userEventRepository;
 	private final UserEventConverter userEventConverter;
-	private final AwsS3Service s3Service;
 	private final UserQueryService userQueryService;
 	private final CommonEventCommandService commonEventCommandService;
-	private final ImageRepository imageRepository;
+	private final ImageCommandService imageCommandService;
 
 	public EventResponseDto createUserEvent(EventRequestDto request, Long userId) {
 		User user = userQueryService.findUserById(userId);
-		Image image = s3Service.uploadFile(request.imageUrlList(), user).get(0);
-		CommonEvent commonEvent = commonEventCommandService.saveOrFindCommonEvent(request, image);
+		CommonEvent commonEvent = commonEventCommandService.saveOrFindCommonEvent(request, user);
 		UserEvent userEvent = userEventConverter.toEntity(request);
-		commonEvent.addUserEvent(userEvent);
-		user.addUserEvent(userEvent);
-		UserEvent savedUserEvent = userEventRepository.save(userEvent);
-
-		Image userEventImage = Image.builder().url(image.getUrl()).build();
-		userEvent.addImage(userEventImage);
-		imageRepository.save(userEventImage);
-		return userEventConverter.toResponse(savedUserEvent);
+		saveUserEventRelation(commonEvent, userEvent, user);
+		imageCommandService.addImageToUserEvent(request, user, userEvent);
+		return userEventConverter.toResponse(userEvent);
 	}
 
 	public EventResponseDto updateEvent(Long id, EventUpdateRequestDto request) {
@@ -55,5 +46,11 @@ public class UserEventCommandService {
 		userEventConverter.updateEntity(userEvent, request);
 		UserEvent updatedUserEvent = userEventRepository.save(userEvent);
 		return userEventConverter.toResponse(updatedUserEvent);
+	}
+
+	private void saveUserEventRelation(CommonEvent commonEvent, UserEvent userEvent, User user) {
+		commonEvent.addUserEvent(userEvent);
+		user.addUserEvent(userEvent);
+		userEventRepository.save(userEvent);
 	}
 }
