@@ -30,7 +30,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Event extends BaseEntity {
+public class UserEvent extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,29 +56,29 @@ public class Event extends BaseEntity {
 	private String memo;
 	private Boolean visited;
 
-	@OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "userEvent", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Notification> notifications = new ArrayList<>();
 
-	@OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "userEvent", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Image> images = new ArrayList<>();
 
 	// 팩토리 메서드
-	public static Event createEvent(String name, String category, LocalDateTime startDate, LocalDateTime endDate,
+	public static UserEvent createEvent(String name, String category, LocalDateTime startDate, LocalDateTime endDate,
 		String memo, Boolean visited) {
-		Event event = new Event();
-		event.setName(name);
-		event.setCategory(category);
-		event.setStartDate(startDate);
-		event.setEndDate(endDate);
-		event.setMemo(memo);
-		event.setVisited(visited);
-		return event;
+		UserEvent userEvent = new UserEvent();
+		userEvent.name = name;
+		userEvent.category = category;
+		userEvent.startDate = startDate;
+		userEvent.endDate = endDate;
+		userEvent.memo = memo;
+		userEvent.visited = visited;
+		return userEvent;
 	}
 
 	// 연관관계 메서드
 	public void addNotification(Notification notification) {
 		this.notifications.add(notification);
-		notification.setEvent(this);
+		notification.setUserEvent(this);
 	}
 
 	public void addImage(Image image) {

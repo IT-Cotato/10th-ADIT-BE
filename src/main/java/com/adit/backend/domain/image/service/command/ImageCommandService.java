@@ -5,7 +5,7 @@ import static com.adit.backend.global.error.GlobalErrorCode.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.event.repository.EventRepository;
 import com.adit.backend.domain.image.dto.request.ImageRequestDto;
 import com.adit.backend.domain.image.entity.Image;
@@ -32,12 +32,12 @@ public class ImageCommandService {
 		CommonPlace place = commonPlaceRepository.findById(requestDto.commonPlace().getId())
 			.orElseThrow(() -> new BusinessException("Place not found", NOT_FOUND_ERROR));
 
-		Event event = requestDto.event().getId() != null ? eventRepository.findById(requestDto.event().getId())
+		UserEvent userEvent = requestDto.userEvent().getId() != null ? eventRepository.findById(requestDto.userEvent().getId())
 			.orElseThrow(() -> new BusinessException("Event not found", NOT_FOUND_ERROR)) : null;
 
 		Image image = Image.builder()
 			.commonPlace(place)
-			.event(event)
+			.userEvent(userEvent)
 			.url(requestDto.url())
 			.build();
 

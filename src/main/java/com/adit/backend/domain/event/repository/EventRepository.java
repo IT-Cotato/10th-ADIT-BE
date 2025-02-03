@@ -8,17 +8,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.UserEvent;
 
 @Repository
-public interface EventRepository extends JpaRepository<Event, Long> {
+public interface EventRepository extends JpaRepository<UserEvent, Long> {
 
-    @Query("SELECT e FROM Event e WHERE DATE(e.startDate) = :date")
-    List<Event> findByDate(@Param("date") LocalDate date);
+    @Query("SELECT e FROM UserEvent e WHERE DATE(e.startDate) = :date")
+    List<UserEvent> findByDate(@Param("date") LocalDate date);
 
-    @Query("SELECT e FROM Event e WHERE e.startDate IS NULL AND e.endDate IS NULL")
-    List<Event> findNoDateEvents();
+    @Query("SELECT e FROM UserEvent e WHERE e.startDate IS NULL AND e.endDate IS NULL")
+    List<UserEvent> findNoDateEvents();
 
-    @Query("SELECT e FROM Event e ORDER BY e.visited DESC")
-    List<Event> findPopularEvents();
+    @Query("SELECT e FROM UserEvent e ORDER BY e.visited DESC")
+    List<UserEvent> findPopularEvents();
 }

@@ -8,9 +8,11 @@ import com.adit.backend.domain.event.converter.EventConverter;
 import com.adit.backend.domain.event.dto.request.EventRequestDto;
 import com.adit.backend.domain.event.dto.request.EventUpdateRequestDto;
 import com.adit.backend.domain.event.dto.response.EventResponseDto;
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.event.exception.EventException;
 import com.adit.backend.domain.event.repository.EventRepository;
+import com.adit.backend.domain.user.entity.User;
+import com.adit.backend.infra.s3.service.AwsS3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,18 +22,19 @@ public class EventCommandService {
 
 	private final EventRepository eventRepository;
 	private final EventConverter eventConverter;
+	private final AwsS3Service s3Service;
 
-	public EventResponseDto createEvent(EventRequestDto request) {
-		Event event = eventConverter.toEntity(request);
-		Event savedEvent = eventRepository.save(event);
-		return eventConverter.toResponse(savedEvent);
+	public EventResponseDto createEvent(EventRequestDto request, User user) {
+		UserEvent userEvent = eventConverter.toEntity(request);
+		UserEvent savedUserEvent = eventRepository.save(userEvent);
+		return eventConverter.toResponse(savedUserEvent);
 	}
 
 	public EventResponseDto updateEvent(Long id, EventUpdateRequestDto request) {
-		Event event = eventRepository.findById(id)
+		UserEvent userEvent = eventRepository.findById(id)
 			.orElseThrow(() -> new EventException(EVENT_NOT_FOUND));
-		eventConverter.updateEntity(event, request);
-		Event updatedEvent = eventRepository.save(event);
-		return eventConverter.toResponse(updatedEvent);
+		eventConverter.updateEntity(userEvent, request);
+		UserEvent updatedUserEvent = eventRepository.save(userEvent);
+		return eventConverter.toResponse(updatedUserEvent);
 	}
 }

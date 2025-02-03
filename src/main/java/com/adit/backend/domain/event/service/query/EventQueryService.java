@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.adit.backend.domain.event.converter.EventConverter;
 import com.adit.backend.domain.event.dto.response.EventResponseDto;
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.event.exception.EventException;
 import com.adit.backend.domain.event.repository.EventRepository;
 
@@ -30,9 +30,9 @@ public class EventQueryService {
 	}
 
 	public EventResponseDto getEventById(Long id) {
-		Event event = eventRepository.findById(id)
+		UserEvent userEvent = eventRepository.findById(id)
 			.orElseThrow(() -> new EventException(EVENT_NOT_FOUND));
-		return eventConverter.toResponse(event);
+		return eventConverter.toResponse(userEvent);
 	}
 
 	public List<EventResponseDto> getEventsByDate(LocalDate date) {

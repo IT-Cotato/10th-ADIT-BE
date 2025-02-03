@@ -5,35 +5,35 @@ import org.springframework.stereotype.Component;
 import com.adit.backend.domain.event.dto.request.EventRequestDto;
 import com.adit.backend.domain.event.dto.request.EventUpdateRequestDto;
 import com.adit.backend.domain.event.dto.response.EventResponseDto;
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.UserEvent;
 
 @Component
 public class EventConverter {
 
-    public Event toEntity(EventRequestDto request) {
-        return Event.createEvent(
-            request.getName(),
-            request.getCategory(),
-            request.getStartDate(),
-            request.getEndDate(),
-            request.getMemo(),
-            request.getVisited()
-        );
-    }
+	public UserEvent toEntity(EventRequestDto request) {
+		return UserEvent.createEvent(
+			request.name(),
+			request.category(),
+			request.startDate(),
+			request.endDate(),
+			request.memo(),
+			request.visited()
+		);
+	}
 
-    public EventResponseDto toResponse(Event event) {
-        return EventResponseDto.builder()
-                .id(event.getId())
-                .name(event.getName())
-                .category(event.getCategory())
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .memo(event.getMemo())
-                .visited(event.getVisited())
-                .build();
-    }
+	public EventResponseDto toResponse(UserEvent userEvent) {
+		return EventResponseDto.builder()
+			.id(userEvent.getId())
+			.name(userEvent.getName())
+			.category(userEvent.getCategory())
+			.startDate(userEvent.getStartDate())
+			.endDate(userEvent.getEndDate())
+			.memo(userEvent.getMemo())
+			.visited(userEvent.getVisited())
+			.build();
+	}
 
-    public void updateEntity(Event event, EventUpdateRequestDto updateRequest) {
-        event.updateEvent(updateRequest);  // Event 엔터티의 update 메서드 호출
-    }
+	public void updateEntity(UserEvent userEvent, EventUpdateRequestDto updateRequest) {
+		userEvent.updateEvent(updateRequest);  // Event 엔터티의 update 메서드 호출
+	}
 }

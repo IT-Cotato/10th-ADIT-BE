@@ -3,7 +3,7 @@ package com.adit.backend.domain.user.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.user.enums.Role;
 import com.adit.backend.domain.user.enums.SocialType;
@@ -55,7 +55,7 @@ public class User extends BaseEntity {
 	private Role role;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Event> events = new ArrayList<>();
+	private List<UserEvent> userEvents = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<UserPlace> userPlaces = new ArrayList<>();
@@ -77,9 +77,9 @@ public class User extends BaseEntity {
 	}
 
 	// 연관관계 메서드
-	public void addEvent(Event event) {
-		this.events.add(event);
-		event.setUser(this);
+	public void addEvent(UserEvent userEvent) {
+		this.userEvents.add(userEvent);
+		userEvent.setUser(this);
 	}
 
 	public void addUserPlace(UserPlace userPlace) {
