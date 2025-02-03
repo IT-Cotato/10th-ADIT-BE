@@ -5,15 +5,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
+import com.adit.backend.domain.place.dto.request.PlaceRequest;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 
 @Component
 public class CommonPlaceConverter {
-	public CommonPlace toEntity(CommonPlaceRequestDto requestDto, Long placeId) {
-
+	public CommonPlace toEntity(PlaceRequest requestDto, Long placeId) {
 		return CommonPlace.builder()
 			.id(placeId)
 			.placeName(requestDto.placeName())
@@ -25,19 +24,6 @@ public class CommonPlaceConverter {
 			.url(requestDto.url())
 			.build();
 
-	}
-
-	public CommonPlace toEntity(PlaceResponseDto responseDto) {
-		return CommonPlace.builder()
-			.id(responseDto.commonPlaceId())
-			.placeName(responseDto.placeName())
-			.addressName(responseDto.AddressName())
-			.latitude(responseDto.latitude())
-			.longitude(responseDto.longitude())
-			.roadAddressName(responseDto.RoadAddressName())
-			.subCategory(responseDto.subCategory())
-			.url(responseDto.url())
-			.build();
 	}
 
 	public PlaceResponseDto commonPlaceToResponse(CommonPlace commonPlace) {

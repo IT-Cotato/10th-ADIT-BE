@@ -11,9 +11,9 @@ import jakarta.validation.constraints.NotNull;
 /**
  * DTO for {@link CommonPlace}
  */
-public record CommonPlaceRequestDto(@NotNull(message = "Place name must not be null") String placeName,
-									BigDecimal latitude, BigDecimal longitude, String addressName,
-									String roadAddressName, String subCategory, String url,
-									String memo, List<String> imageUrlList)
+public record PlaceRequest(@NotNull(message = "Place name must not be null") String placeName,
+						   BigDecimal latitude, BigDecimal longitude, String addressName,
+						   String roadAddressName, String subCategory, String url,
+						   String memo, List<String> imageUrlList)
 	implements Serializable {
 }

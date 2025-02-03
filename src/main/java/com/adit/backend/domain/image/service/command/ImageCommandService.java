@@ -11,9 +11,13 @@ import com.adit.backend.domain.image.dto.request.ImageRequestDto;
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.image.exception.ImageException;
 import com.adit.backend.domain.image.repository.ImageRepository;
+import com.adit.backend.domain.place.dto.request.PlaceRequest;
 import com.adit.backend.domain.place.entity.CommonPlace;
+import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
+import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.error.exception.BusinessException;
+import com.adit.backend.infra.s3.service.AwsS3Service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,13 +31,15 @@ public class ImageCommandService {
 	private final CommonPlaceRepository commonPlaceRepository;
 	private final ImageRepository imageRepository;
 	private final UserEventRepository userEventRepository;
+	private final AwsS3Service s3Service;
 
 	public Image uploadImage(ImageRequestDto requestDto) {
 		CommonPlace place = commonPlaceRepository.findById(requestDto.commonPlace().getId())
 			.orElseThrow(() -> new BusinessException("Place not found", NOT_FOUND_ERROR));
 
-		UserEvent userEvent = requestDto.userEvent().getId() != null ? userEventRepository.findById(requestDto.userEvent().getId())
-			.orElseThrow(() -> new BusinessException("Event not found", NOT_FOUND_ERROR)) : null;
+		UserEvent userEvent =
+			requestDto.userEvent().getId() != null ? userEventRepository.findById(requestDto.userEvent().getId())
+				.orElseThrow(() -> new BusinessException("Event not found", NOT_FOUND_ERROR)) : null;
 
 		Image image = Image.builder()
 			.commonPlace(place)
@@ -51,4 +57,19 @@ public class ImageCommandService {
 		}
 		imageRepository.deleteById(imageId);
 	}
+
+	// UserPlace에 이미지 연관관계 추가 후 저장
+	public void addImageToUserPlace(PlaceRequest request, User user, UserPlace userPlace) {
+		Image userPlaceImage = s3Service.uploadFile(request.imageUrlList(), user).get(0);
+		userPlace.addImage(userPlaceImage);
+		imageRepository.save(userPlaceImage);
+	}
+
+	// CommonPlace에 이미지 연관관계 추가 후 저장
+	public void addImageToCommonPlace(PlaceRequest request, User user, CommonPlace commonPlace) {
+		Image commonPlaceImage = s3Service.uploadFile(request.imageUrlList(), user).get(0);
+		imageRepository.save(commonPlaceImage);
+		commonPlace.addImage(commonPlaceImage);
+	}
+
 }

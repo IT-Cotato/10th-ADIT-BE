@@ -6,14 +6,14 @@ import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.image.repository.ImageRepository;
+import com.adit.backend.domain.image.service.command.ImageCommandService;
 import com.adit.backend.domain.place.converter.CommonPlaceConverter;
-import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
+import com.adit.backend.domain.place.dto.request.PlaceRequest;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
 import com.adit.backend.domain.place.service.query.CommonPlaceQueryService;
+import com.adit.backend.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,21 +24,20 @@ public class CommonPlaceCommandService {
 
 	private final CommonPlaceRepository commonPlaceRepository;
 	private final CommonPlaceQueryService commonPlaceQueryService;
+	private final ImageCommandService imageCommandService;
 	private final CommonPlaceConverter commonPlaceConverter;
-	private final ImageRepository imageRepository;
 
-	// 새로운 장소 생성
-	public CommonPlace saveOrFindCommonPlace(CommonPlaceRequestDto requestDto, Image image) {
-		Long commonPlaceId = extractTrailingDigits(requestDto.url());
+	// 카카오맵 url -> 기존 공통 장소 반환 or 새로운 공통 장소 생성
+	public CommonPlace saveOrFindCommonPlace(PlaceRequest request, User user) {
+		Long commonPlaceId = extractTrailingDigits(request.url());
 		return commonPlaceRepository.findById(commonPlaceId).orElseGet(() -> {
-			CommonPlace commonPlace = commonPlaceConverter.toEntity(requestDto, commonPlaceId);
-			imageRepository.save(image);
-			commonPlace.addImage(image);
+			CommonPlace commonPlace = commonPlaceConverter.toEntity(request, commonPlaceId);
+			imageCommandService.addImageToCommonPlace(request, user, commonPlace);
 			return commonPlaceRepository.save(commonPlace);
 		});
 	}
 
-	public PlaceResponseDto updatePlace(Long placeId, CommonPlaceRequestDto requestDto) {
+	public PlaceResponseDto updatePlace(Long placeId, PlaceRequest requestDto) {
 		CommonPlace place = commonPlaceQueryService.getCommonPlaceById(placeId);
 		place.updatePlace(requestDto);
 		return commonPlaceConverter.commonPlaceToResponse(place);

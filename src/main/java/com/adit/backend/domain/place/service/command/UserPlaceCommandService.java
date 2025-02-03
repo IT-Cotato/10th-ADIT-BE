@@ -5,20 +5,18 @@ import static com.adit.backend.global.error.GlobalErrorCode.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.image.repository.ImageRepository;
+import com.adit.backend.domain.image.service.command.ImageCommandService;
 import com.adit.backend.domain.place.converter.CommonPlaceConverter;
-import com.adit.backend.domain.place.dto.request.CommonPlaceRequestDto;
+import com.adit.backend.domain.place.converter.UserPlaceConverter;
+import com.adit.backend.domain.place.dto.request.PlaceRequest;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.domain.user.service.query.UserQueryService;
 import com.adit.backend.global.error.exception.BusinessException;
-import com.adit.backend.infra.s3.service.AwsS3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,29 +25,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserPlaceCommandService {
 
-	private final UserRepository userRepository;
 	private final UserPlaceRepository userPlaceRepository;
-	private final ImageRepository imageRepository;
 	private final CommonPlaceConverter commonPlaceConverter;
+	private final UserPlaceConverter userPlaceConverter;
 	private final UserQueryService userQueryService;
 	private final CommonPlaceCommandService commonPlaceCommandService;
-	private final AwsS3Service s3Service;
+	private final ImageCommandService imageCommandService;
 
-	public PlaceResponseDto createUserPlace(Long userId, CommonPlaceRequestDto request) {
+	// 장소 저장
+	public PlaceResponseDto createUserPlace(Long userId, PlaceRequest request) {
 		User user = userQueryService.findUserById(userId);
-		Image image = s3Service.uploadFile(request.imageUrlList(), user).get(0);
-		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request, image);
-		UserPlace userPlace = UserPlace.builder()
-			.user(user)
-			.memo(request.memo())
-			.visited(false)
-			.build();
-		commonPlace.addUserPlace(userPlace);
-		userPlaceRepository.save(userPlace);
-
-		Image userPlaceImage = Image.builder().url(image.getUrl()).build();
-		userPlace.addImage(userPlaceImage);
-		imageRepository.save(userPlaceImage);
+		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request, user);
+		UserPlace userPlace = userPlaceConverter.toEntity(request);
+		saveUserPlaceRelation(user, commonPlace, userPlace);
+		imageCommandService.addImageToUserPlace(request, user, userPlace);
 		return commonPlaceConverter.userPlaceToResponse(userPlace);
 	}
 
@@ -78,4 +67,12 @@ public class UserPlaceCommandService {
 			.orElseThrow(() -> new PlaceException(USER_PLACE_NOT_FOUND));
 		place.updatedVisited();
 	}
+
+	// user, commonPlace와 UserPlace 사이의 연관관계 설정 및 저장
+	private void saveUserPlaceRelation(User user, CommonPlace commonPlace, UserPlace userPlace) {
+		user.addUserPlace(userPlace);
+		commonPlace.addUserPlace(userPlace);
+		userPlaceRepository.save(userPlace);
+	}
+
 }
