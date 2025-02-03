@@ -139,7 +139,7 @@ public class PlaceController {
 	//장소 방문 여부 표시 API
 	@Operation(summary = "장소 방문 표시", description = "userPlaceId에 해당하는 장소 방문 표시")
 	@PutMapping("/{userPlaceId}/visit")
-	public ResponseEntity<ApiResponse<String>> checkVisitedPlace(@PathVariable @Min(1) Long userPlaceId) {
+	public ResponseEntity<ApiResponse<String>> checkVisitedPlace(@PathVariable Long userPlaceId) {
 		userPlaceCommandService.checkVisitedPlace(userPlaceId);
 		return ResponseEntity.ok(ApiResponse.success("visit sign successfully"));
 	}
@@ -155,8 +155,8 @@ public class PlaceController {
 
 	//장소 메모 수정 API
 	@Operation(summary = "장소 메모 수정", description = "userPlaceId에 해당하는 장소의 메모를 수정")
-	@PutMapping("/memo")
-	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlace(@PathVariable @Min(1) Long userPlaceId,
+	@PutMapping("/{userPlaceId}/memo")
+	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlace(@PathVariable Long userPlaceId,
 		@RequestParam String memo) {
 
 		PlaceResponseDto updateUserPlace = userPlaceCommandService.updateUserPlace(userPlaceId, memo);
