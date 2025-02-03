@@ -42,7 +42,11 @@ public class UserEvent extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "common_place_id")
-	private CommonPlace place;
+	private CommonPlace commonPlace;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "common_event_id")
+	private CommonEvent commonEvent;
 
 	@Column(nullable = false)
 	private String name;
@@ -61,6 +65,7 @@ public class UserEvent extends BaseEntity {
 
 	@OneToMany(mappedBy = "userEvent", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Image> images = new ArrayList<>();
+
 
 	// 팩토리 메서드
 	public static UserEvent createEvent(String name, String category, LocalDateTime startDate, LocalDateTime endDate,
@@ -84,6 +89,10 @@ public class UserEvent extends BaseEntity {
 	public void addImage(Image image) {
 		this.images.add(image);
 		image.assignEvent(this);
+	}
+
+	public void assignCommonEvent(CommonEvent commonEvent) {
+		this.commonEvent = commonEvent;
 	}
 
 	// 업데이트 메서드

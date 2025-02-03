@@ -1,5 +1,6 @@
 package com.adit.backend.domain.image.entity;
 
+import com.adit.backend.domain.event.entity.CommonEvent;
 import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
@@ -14,12 +15,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image extends BaseEntity {
 
@@ -36,20 +40,15 @@ public class Image extends BaseEntity {
 	private UserPlace userPlace;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "event_id")
+	@JoinColumn(name = "user_event_id")
 	private UserEvent userEvent;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "common_event_id")
+	private CommonEvent commonEvent;
 
 	@Column(nullable = false)
 	private String url;
-
-	@Builder
-	public Image(Long id, CommonPlace commonPlace, UserPlace userPlace, UserEvent userEvent, String url) {
-		this.id = id;
-		this.commonPlace = commonPlace;
-		this.userPlace = userPlace;
-		this.userEvent = userEvent;
-		this.url = url;
-	}
 
 	//연관관계 메서드
 	public void assignEvent(UserEvent userEvent) {
