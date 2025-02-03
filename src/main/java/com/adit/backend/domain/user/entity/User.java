@@ -77,9 +77,9 @@ public class User extends BaseEntity {
 	}
 
 	// 연관관계 메서드
-	public void addEvent(UserEvent userEvent) {
+	public void addUserEvent(UserEvent userEvent) {
 		this.userEvents.add(userEvent);
-		userEvent.setUser(this);
+		userEvent.assignUser(this);
 	}
 
 	public void addUserPlace(UserPlace userPlace) {

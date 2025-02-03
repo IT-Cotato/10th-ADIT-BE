@@ -22,13 +22,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserEvent extends BaseEntity {
 
@@ -66,7 +68,6 @@ public class UserEvent extends BaseEntity {
 	@OneToMany(mappedBy = "userEvent", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Image> images = new ArrayList<>();
 
-
 	// 팩토리 메서드
 	public static UserEvent createEvent(String name, String category, LocalDateTime startDate, LocalDateTime endDate,
 		String memo, Boolean visited) {
@@ -93,6 +94,10 @@ public class UserEvent extends BaseEntity {
 
 	public void assignCommonEvent(CommonEvent commonEvent) {
 		this.commonEvent = commonEvent;
+	}
+
+	public void assignUser(User user) {
+		this.user = user;
 	}
 
 	// 업데이트 메서드

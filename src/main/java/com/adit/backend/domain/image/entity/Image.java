@@ -62,4 +62,8 @@ public class Image extends BaseEntity {
 	public void assignUserPlace(UserPlace userPlace) {
 		this.userPlace = userPlace;
 	}
+
+	public void assignCommonEvent(CommonEvent commonEvent) {
+		this.commonEvent = commonEvent;
+	}
 }

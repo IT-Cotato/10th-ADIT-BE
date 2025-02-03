@@ -110,6 +110,7 @@ public enum GlobalErrorCode implements ErrorCode {
 	EVENT_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EVN-003", "이벤트 생성에 실패했습니다."),
 	EVENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EVN-004", "이벤트 업데이트에 실패했습니다."),
 	EVENT_DELETION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EVN-005", "이벤트 삭제에 실패했습니다."),
+	COMMON_EVENT_NOT_FOUND(NOT_FOUND, "EVN-006", "해당 Common Event 를 찾을 수 없습니다."),
 
 	/********************************** Notification Domain **********************************/
 	NOTIFICATION_NOT_FOUND(NOT_FOUND, "NOT-001", "알림을 찾을 수 없습니다."),
