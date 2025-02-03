@@ -8,7 +8,7 @@ import com.adit.backend.domain.event.dto.response.EventResponseDto;
 import com.adit.backend.domain.event.entity.UserEvent;
 
 @Component
-public class EventConverter {
+public class UserEventConverter {
 
 	public UserEvent toEntity(EventRequestDto request) {
 		return UserEvent.createEvent(
@@ -17,7 +17,7 @@ public class EventConverter {
 			request.startDate(),
 			request.endDate(),
 			request.memo(),
-			request.visited()
+			false
 		);
 	}
 

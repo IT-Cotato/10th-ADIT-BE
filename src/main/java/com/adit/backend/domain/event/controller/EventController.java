@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.adit.backend.domain.event.dto.request.EventRequestDto;
 import com.adit.backend.domain.event.dto.request.EventUpdateRequestDto;
 import com.adit.backend.domain.event.dto.response.EventResponseDto;
-import com.adit.backend.domain.event.service.command.EventCommandService;
-import com.adit.backend.domain.event.service.query.EventQueryService;
+import com.adit.backend.domain.event.service.command.UserEventCommandService;
+import com.adit.backend.domain.event.service.query.UserEventQueryService;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.common.ApiResponse;
 
@@ -33,8 +33,8 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Event API", description = "이벤트 데이터를 생성, 수정, 조회할 수 있는 API입니다.")
 public class EventController {
 
-    private final EventCommandService commandService;
-    private final EventQueryService queryService;
+    private final UserEventCommandService commandService;
+    private final UserEventQueryService queryService;
 
     @Operation(summary = "모든 이벤트 조회", description = "모든 이벤트 목록을 조회합니다.")
     @GetMapping
@@ -82,7 +82,7 @@ public class EventController {
     @PostMapping
     public ResponseEntity<ApiResponse<EventResponseDto>> createEvent(@AuthenticationPrincipal(expression = "user") User user,
         @RequestBody EventRequestDto request) {
-        EventResponseDto event = commandService.createEvent(request, user);
+        EventResponseDto event = commandService.createUserEvent(request, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(event));
     }
 
