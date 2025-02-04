@@ -30,6 +30,7 @@ public class UserEventConverter {
 			.endDate(userEvent.getEndDate())
 			.memo(userEvent.getMemo())
 			.visited(userEvent.getVisited())
+			.url(userEvent.getImages().get(0).getUrl())
 			.build();
 	}
 
