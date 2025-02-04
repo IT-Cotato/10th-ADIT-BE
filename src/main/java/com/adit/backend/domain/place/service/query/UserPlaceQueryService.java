@@ -1,6 +1,7 @@
-package com.adit.backend.domain.place.service;
+package com.adit.backend.domain.place.service.query;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
+import static com.adit.backend.global.util.MapUtil.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,7 +11,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.adit.backend.domain.place.converter.PlaceConverter;
+import com.adit.backend.domain.place.converter.CommonPlaceConverter;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.exception.PlaceException;
@@ -20,15 +21,14 @@ import com.adit.backend.domain.user.repository.FriendshipRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserPlaceQueryService {
 
 	private final UserPlaceRepository userPlaceRepository;
 	private final FriendshipRepository friendshipRepository;
-	private final PlaceConverter placeConverter;
+	private final CommonPlaceConverter commonPlaceConverter;
 
-	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByCategory(List<String> subCategory, Long userId) {
 		// 기존: throw new NotValidException("RequestParam not valid");
 		if (subCategory.stream().anyMatch(String::isBlank)) {
@@ -47,26 +47,24 @@ public class UserPlaceQueryService {
 			throw new PlaceException(USER_PLACE_NOT_FOUND);
 		}
 
-		return userPlaces.stream().map(placeConverter::userPlaceToResponse).toList();
+		return userPlaces.stream().map(commonPlaceConverter::userPlaceToResponse).toList();
 	}
 
-	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getSavedPlace(Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
 		if (userPlaces.isEmpty()) {
 			throw new PlaceException(USER_PLACE_NOT_FOUND);
 		}
-		return userPlaces.stream().map(placeConverter::userPlaceToResponse).toList();
+		return userPlaces.stream().map(commonPlaceConverter::userPlaceToResponse).toList();
 	}
 
-	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByLocation(double userLatitude, double userLongitude, Long userId) {
 		List<UserPlace> userPlaces = userPlaceRepository.findByUserId(userId);
 		if (userPlaces.isEmpty()) {
 			throw new PlaceException(USER_PLACE_NOT_FOUND);
 		}
 		if (userPlaces.size() == 1) {
-			return userPlaces.stream().map(placeConverter::userPlaceToResponse).toList();
+			return userPlaces.stream().map(commonPlaceConverter::userPlaceToResponse).toList();
 		}
 		// 저장한 장소가 2개 이상일 때 정렬
 		List<UserPlace> placeByLocation = userPlaces.stream()
@@ -84,22 +82,9 @@ public class UserPlaceQueryService {
 				return Double.compare(distance1, distance2);
 			})
 			.toList();
-		return placeByLocation.stream().map(placeConverter::userPlaceToResponse).toList();
+		return placeByLocation.stream().map(commonPlaceConverter::userPlaceToResponse).toList();
 	}
 
-	public double getDistance(double lat1, double lon1, double lat2, double lon2) {
-		final int R = 6371;
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLon = Math.toRadians(lon2 - lon1);
-		double a =
-			Math.sin(dLat / 2) * Math.sin(dLat / 2)
-				+ Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-				* Math.sin(dLon / 2) * Math.sin(dLon / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		return R * c;
-	}
-
-	@Transactional(readOnly = true)
 	public List<PlaceResponseDto> getPlaceByAddress(List<String> address, Long userId) {
 		if (address.stream().anyMatch(String::isBlank)) {
 			throw new PlaceException(NOT_VALID);
@@ -113,7 +98,7 @@ public class UserPlaceQueryService {
 		if (userPlaces.isEmpty()) {
 			throw new PlaceException(USER_PLACE_NOT_FOUND);
 		}
-		return userPlaces.stream().map(placeConverter::userPlaceToResponse).toList();
+		return userPlaces.stream().map(commonPlaceConverter::userPlaceToResponse).toList();
 	}
 
 	public List<PlaceResponseDto> getPlaceByFriend(Long userId) {
@@ -128,6 +113,6 @@ public class UserPlaceQueryService {
 			friendsCommonplaceSet.addAll(foundPlaces);
 		});
 		List<UserPlace> friendsCommonplace = new ArrayList<>(friendsCommonplaceSet);
-		return friendsCommonplace.stream().map(placeConverter::friendToResponse).toList();
+		return friendsCommonplace.stream().map(commonPlaceConverter::friendToResponse).toList();
 	}
 }

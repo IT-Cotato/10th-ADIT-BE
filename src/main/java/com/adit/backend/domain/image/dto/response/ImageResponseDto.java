@@ -1,27 +1,23 @@
 package com.adit.backend.domain.image.dto.response;
 
-import java.io.Serializable;
-
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.CommonEvent;
+import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.place.entity.CommonPlace;
+import com.adit.backend.domain.place.entity.UserPlace;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 /**
  * DTO for {@link Image}
  */
-public record ImageResponseDto(@NotNull(message = "Image ID must not be null") Long id, CommonPlace place, Event event,
-							   String url, String fileName, String folderName)
-	implements Serializable {
-	public static ImageResponseDto from(Image image) {
-		return new ImageResponseDto(
-			image.getId(),
-			image.getPlace(),
-			image.getEvent(),
-			image.getUrl(),
-			image.getFileName(),
-			image.getFolderName()
-		);
-	}
+@Builder
+public record ImageResponseDto(@NotNull(message = "이미지 ID는 null일 수 없습니다.") Long id,
+							   CommonPlace commonPlace,
+							   UserPlace userPlace,
+							   UserEvent userEvent,
+							   CommonEvent commonEvent,
+							   @NotBlank(message = "이미지 주소는 공백일 수 없습니다.") String url) {
 }

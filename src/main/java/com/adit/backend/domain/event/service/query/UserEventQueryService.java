@@ -7,38 +7,38 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.adit.backend.domain.event.converter.EventConverter;
+import com.adit.backend.domain.event.converter.UserEventConverter;
 import com.adit.backend.domain.event.dto.response.EventResponseDto;
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.event.exception.EventException;
-import com.adit.backend.domain.event.repository.EventRepository;
+import com.adit.backend.domain.event.repository.UserEventRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class EventQueryService {
+public class UserEventQueryService {
 
-	private final EventRepository eventRepository;
-	private final EventConverter eventConverter;
+	private final UserEventRepository userEventRepository;
+	private final UserEventConverter userEventConverter;
 
 	public List<EventResponseDto> getAllEvents() {
-		return eventRepository.findAll()
+		return userEventRepository.findAll()
 			.stream()
-			.map(eventConverter::toResponse)
+			.map(userEventConverter::toResponse)
 			.toList();
 	}
 
 	public EventResponseDto getEventById(Long id) {
-		Event event = eventRepository.findById(id)
+		UserEvent userEvent = userEventRepository.findById(id)
 			.orElseThrow(() -> new EventException(EVENT_NOT_FOUND));
-		return eventConverter.toResponse(event);
+		return userEventConverter.toResponse(userEvent);
 	}
 
 	public List<EventResponseDto> getEventsByDate(LocalDate date) {
-		return eventRepository.findByDate(date)
+		return userEventRepository.findByDate(date)
 			.stream()
-			.map(eventConverter::toResponse)
+			.map(userEventConverter::toResponse)
 			.toList();
 	}
 
@@ -48,16 +48,16 @@ public class EventQueryService {
 	}
 
 	public List<EventResponseDto> getNoDateEvents() {
-		return eventRepository.findNoDateEvents()
+		return userEventRepository.findNoDateEvents()
 			.stream()
-			.map(eventConverter::toResponse)
+			.map(userEventConverter::toResponse)
 			.toList();
 	}
 
 	public List<EventResponseDto> getPopularEvents() {
-		return eventRepository.findPopularEvents()
+		return userEventRepository.findPopularEvents()
 			.stream()
-			.map(eventConverter::toResponse)
+			.map(userEventConverter::toResponse)
 			.toList();
 	}
 }

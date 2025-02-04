@@ -1,6 +1,6 @@
 package com.adit.backend.domain.notification.entity;
 
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.entity.BaseEntity;
 
@@ -33,7 +33,7 @@ public class Notification extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
-    private Event event;
+    private UserEvent userEvent;
 
     @Column(nullable = false)
     private String content;

@@ -23,8 +23,10 @@ import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.user.exception.FriendShipException;
 import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.global.common.ApiResponse;
+import com.adit.backend.global.error.exception.BusinessException;
 import com.adit.backend.global.security.jwt.exception.TokenException;
 import com.adit.backend.infra.crawler.exception.CrawlingException;
+import com.adit.backend.infra.s3.exception.S3Exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +47,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      MethodArgumentNotValidException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleMethodArgumentNotValidException(
@@ -75,7 +77,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      MissingRequestHeaderException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(MissingRequestHeaderException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleMissingRequestHeaderException(
@@ -99,7 +101,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      HttpMessageNotReadableException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleHttpMessageNotReadableException(
@@ -123,7 +125,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      MissingServletRequestParameterException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleMissingRequestHeaderExceptionException(
@@ -147,7 +149,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      HttpClientErrorException.BadRequest
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(HttpClientErrorException.BadRequest.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleBadRequestException(
@@ -171,7 +173,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      NoHandlerFoundException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(NoHandlerFoundException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleNoHandlerFoundExceptionException(
@@ -195,7 +197,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      NullPointerException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(NullPointerException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleNullPointerException(
@@ -219,7 +221,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      IOException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(IOException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleIOException(IOException ex, HttpServletRequest request) {
@@ -238,11 +240,58 @@ public class GlobalExceptionHandler {
 	}
 
 	/**
+	 * [Exception] IllegalArgumentException
+	 *
+	 * @param ex      IllegalArgumentException
+	 * @param request HttpServletRequest
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 */
+	@ExceptionHandler(IllegalArgumentException.class)
+	protected ResponseEntity<ApiResponse<ErrorResponse>> handleIllegalArgumentException(IOException ex, HttpServletRequest request) {
+
+		log.error("[Error] IllegalArgumentException: {}", ex.getMessage());
+		log.error("[Error] 발생 이유: {} ", (Object)ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점 : {} | {}", request.getMethod(), request.getRequestURI());
+
+		ErrorResponse response = ErrorResponse.of(
+			GlobalErrorCode.ILLEGAL_ARGUMENT_ERROR,
+			ex.getMessage(),
+			request.getRequestURI()
+		);
+
+		return new ResponseEntity<>(ApiResponse.failure(response), HTTP_STATUS_OK);
+	}
+
+	/**
+	 * [Exception] 전역 예외 (BusinessException)
+	 *
+	 * @param ex      BusinessException
+	 * @param request HttpServletRequest
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 */
+	@ExceptionHandler(BusinessException.class)
+	protected ResponseEntity<ApiResponse<ErrorResponse>> handleEventException(
+		BusinessException ex, HttpServletRequest request) {
+
+		log.error("[Error] BusinessException 발생: {}", ex.getErrorCode().getMessage());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+
+		ErrorResponse response = ErrorResponse.of(
+			ex.getErrorCode(),
+			ex.getMessage(),
+			request.getRequestURI()
+		);
+
+		return new ResponseEntity<>(ApiResponse.failure(response), HttpStatus.OK);
+	}
+
+	/**
 	 * [Exception] 크롤링 관련 오류 (CrawlingException)
 	 *
 	 * @param ex      CrawlingException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(CrawlingException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleCrawlingException(
@@ -266,7 +315,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      UserException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(UserException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleUserException(
@@ -290,7 +339,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      TokenException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(TokenException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleTokenException(
@@ -314,7 +363,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      AiException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(AiException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleAiException(
@@ -338,7 +387,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      FriendShipException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(FriendShipException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleFriendShipException(
@@ -361,7 +410,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      NotificationException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(NotificationException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleNotificationException(
@@ -384,7 +433,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      ImageException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(ImageException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleImageException(
@@ -407,7 +456,7 @@ public class GlobalExceptionHandler {
 	 *
 	 * @param ex      EventException
 	 * @param request HttpServletRequest
-	 * @return ResponseEntity<ApiResponse < ErrorResponse>>
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
 	 */
 	@ExceptionHandler(EventException.class)
 	protected ResponseEntity<ApiResponse<ErrorResponse>> handleEventException(
@@ -438,6 +487,30 @@ public class GlobalExceptionHandler {
 		PlaceException ex, HttpServletRequest request) {
 
 		log.error("[Error] 장소 관련 에러 발생: {}", ex.getErrorCode().getMessage());
+		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
+		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
+
+		ErrorResponse response = ErrorResponse.of(
+			ex.getErrorCode(),
+			ex.getMessage(),
+			request.getRequestURI()
+		);
+
+		return new ResponseEntity<>(ApiResponse.failure(response), HttpStatus.OK);
+	}
+
+	/**
+	 * [Exception] S3 관련 오류 (S3Exception)
+	 *
+	 * @param ex      S3Exception
+	 * @param request HttpServletRequest
+	 * @return ResponseEntity<ApiResponse<ErrorResponse>>
+	 */
+	@ExceptionHandler(S3Exception.class)
+	protected ResponseEntity<ApiResponse<ErrorResponse>> handleS3Exception(
+		S3Exception ex, HttpServletRequest request) {
+
+		log.error("[Error] S3 관련 에러 발생: {}", ex.getErrorCode().getMessage());
 		log.error("[Error] 발생 이유: {} :", ex.getStackTrace());
 		log.error("[Error] 예외 발생 지점: {} | {}", request.getMethod(), request.getRequestURI());
 

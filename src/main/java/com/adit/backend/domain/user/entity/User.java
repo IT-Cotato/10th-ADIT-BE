@@ -3,12 +3,11 @@ package com.adit.backend.domain.user.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.adit.backend.domain.event.entity.Event;
+import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.user.enums.Role;
 import com.adit.backend.domain.user.enums.SocialType;
 import com.adit.backend.global.entity.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -55,18 +54,14 @@ public class User extends BaseEntity {
 	@Enumerated(value = EnumType.STRING)
 	private Role role;
 
-
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Event> events = new ArrayList<>();
-
+	private List<UserEvent> userEvents = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<UserPlace> userPlaces = new ArrayList<>();
 
-
 	@OneToMany(mappedBy = "fromUser", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Friendship> sentFriendRequests = new ArrayList<>();
-
 
 	@OneToMany(mappedBy = "toUser", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Friendship> receivedFriendRequests = new ArrayList<>();
@@ -82,14 +77,14 @@ public class User extends BaseEntity {
 	}
 
 	// 연관관계 메서드
-	public void addEvent(Event event) {
-		this.events.add(event);
-		event.setUser(this);
+	public void addUserEvent(UserEvent userEvent) {
+		this.userEvents.add(userEvent);
+		userEvent.assignUser(this);
 	}
 
 	public void addUserPlace(UserPlace userPlace) {
 		this.userPlaces.add(userPlace);
-		userPlace.setUser(this);
+		userPlace.assignedUser(this);
 	}
 
 	public void addFriendRequest(Friendship friendship) {

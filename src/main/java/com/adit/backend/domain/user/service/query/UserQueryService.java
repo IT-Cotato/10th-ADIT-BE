@@ -22,6 +22,11 @@ public class UserQueryService {
 
 	private final UserRepository userRepository;
 
+	public User findUserById(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new UserException(USER_NOT_FOUND));
+	}
+
 	public User findUserByEmail(String email) {
 		return userRepository.findByEmail(email)
 			.orElseThrow(() -> new UserException(USER_NOT_FOUND));

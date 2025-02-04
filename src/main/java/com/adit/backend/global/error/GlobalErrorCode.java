@@ -27,8 +27,9 @@ public enum GlobalErrorCode implements ErrorCode {
 	NULL_POINT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GBL-008", "서버 처리 중 Null Pointer Exception이 발생했습니다."),
 	NOT_VALID_ERROR(BAD_REQUEST, "GBL-009", "유효성 검사에 실패했습니다."),
 	NOT_VALID_HEADER_ERROR(BAD_REQUEST, "GBL-010", "헤더 데이터가 유효하지 않습니다."),
-	SERVLET_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GBL-011", "서블릿 처리 중 오류가 발생했습니다."),
-	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GBL-012", "서버 내부 오류가 발생했습니다."),
+	ILLEGAL_ARGUMENT_ERROR(HttpStatus.BAD_REQUEST, "GBL-011", "인자가 유효하지 않습니다."),
+	SERVLET_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GBL-012", "서블릿 처리 중 오류가 발생했습니다."),
+	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GBL-013", "서버 내부 오류가 발생했습니다."),
 
 	/********************************** Transaction Domain **********************************/
 	INSERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "TRX-001", "Insert Transaction Error Exception"),
@@ -109,12 +110,19 @@ public enum GlobalErrorCode implements ErrorCode {
 	EVENT_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EVN-003", "이벤트 생성에 실패했습니다."),
 	EVENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EVN-004", "이벤트 업데이트에 실패했습니다."),
 	EVENT_DELETION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EVN-005", "이벤트 삭제에 실패했습니다."),
+	COMMON_EVENT_NOT_FOUND(NOT_FOUND, "EVN-006", "해당 Common Event 를 찾을 수 없습니다."),
 
 	/********************************** Notification Domain **********************************/
 	NOTIFICATION_NOT_FOUND(NOT_FOUND, "NOT-001", "알림을 찾을 수 없습니다."),
 
 	/********************************** Image Domain **********************************/
-	IMAGE_NOT_FOUND(NOT_FOUND, "IMG-001", "이미지를 찾을 수 없습니다.");
+	IMAGE_NOT_FOUND(NOT_FOUND, "IMG-001", "이미지를 찾을 수 없습니다."),
+
+	/********************************** S3 **********************************/
+	S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3-001", "S3 파일 업로드에 실패했습니다."),
+	S3_INVALID_FILE(HttpStatus.BAD_REQUEST, "S3-002", "잘못된 형식의 파일입니다."),
+	S3_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3-003", "S3 파일 삭제에 실패했습니다."),
+	S3_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3-004", "이미지 업데이트에 실패했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
