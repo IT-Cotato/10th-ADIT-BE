@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.adit.backend.global.error.exception.BusinessException;
+import com.adit.backend.domain.image.exception.ImageException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,14 +44,27 @@ public class ImageUtil {
 			return new CustomMultipartFile(content, fileName, contentType);
 		} catch (IOException e) {
 			log.error("URL을 MultipartFile로 변환하는 데 실패했습니다.");
-			throw new BusinessException(IO_ERROR);
+			throw new ImageException(IMAGE_EXTRACTION_FAILED);
 		}
 	}
 
-	// URL에서 파일명을 추출 (예: http://example.com/path/file.jpg -> file.jpg)
 	private static String extractFileName(String fileUrl) {
-		String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
-		return fileName.isEmpty() ? "unknown" : fileName;
+		try {
+			URL url = new URL(fileUrl);
+			StringBuilder fileName = new StringBuilder(new File(url.getPath()).getName());
+			String query = url.getQuery();
+			if (query != null) {
+				for (String param : query.split("&")) {
+					if (param.startsWith("type=")) {
+						fileName.append("?").append(param);
+						break;
+					}
+				}
+			}
+			return fileName.isEmpty() ? "unknown" : fileName.toString();
+		} catch (Exception e) {
+			return "unknown";
+		}
 	}
 
 	// MultipartFile 인터페이스를 구현한 커스텀 클래스
