@@ -48,7 +48,7 @@ public class PlaceController {
 
 	// 장소 생성 API
 	@Operation(summary = "장소 생성", description = "카카오 맵 키워드 검색 후 CommonPlace, UserPlace 에 장소를 저장합니다")
-	@PostMapping("/")
+	@PostMapping()
 	public ResponseEntity<ApiResponse<PlaceResponseDto>> createPlace(
 		@Valid @RequestBody PlaceRequestDto requestDto, @AuthenticationPrincipal(expression = "user") User user) {
 		PlaceResponseDto userPlace = userPlaceCommandService.createUserPlace(user.getId(), requestDto);
@@ -98,7 +98,7 @@ public class PlaceController {
 
 	//저장된 장소 찾기 API
 	@Operation(summary = "저장된 장소 조회", description = "userId에 해당하는 사용자가 저장한 장소 조회")
-	@GetMapping("/")
+	@GetMapping()
 	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getSavedPlace(
 		@AuthenticationPrincipal(expression = "user") User user) {
 		List<PlaceResponseDto> savedPlace = userPlaceQueryService.getSavedPlace(user.getId());
