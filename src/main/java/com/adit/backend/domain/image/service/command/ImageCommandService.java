@@ -4,15 +4,18 @@ import static com.adit.backend.global.error.GlobalErrorCode.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.adit.backend.domain.event.dto.request.EventRequestDto;
 import com.adit.backend.domain.event.entity.CommonEvent;
 import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.event.repository.UserEventRepository;
+import com.adit.backend.domain.image.converter.ImageConverter;
 import com.adit.backend.domain.image.dto.request.ImageRequestDto;
+import com.adit.backend.domain.image.dto.response.ImageResponseDto;
 import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.image.exception.ImageException;
 import com.adit.backend.domain.image.repository.ImageRepository;
+import com.adit.backend.domain.image.service.query.ImageQueryService;
 import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
@@ -36,9 +39,11 @@ public class ImageCommandService {
 	private final CommonPlaceRepository commonPlaceRepository;
 	private final ImageRepository imageRepository;
 	private final UserEventRepository userEventRepository;
+	private final ImageConverter imageConverter;
 	private final AwsS3Service s3Service;
+	private final ImageQueryService imageQueryService;
 
-	public Image uploadImage(ImageRequestDto requestDto) {
+	public ImageResponseDto uploadImage(ImageRequestDto requestDto) {
 		CommonPlace place = commonPlaceRepository.findById(requestDto.commonPlace().getId())
 			.orElseThrow(() -> new BusinessException("Place not found", NOT_FOUND_ERROR));
 
@@ -51,16 +56,22 @@ public class ImageCommandService {
 			.userEvent(userEvent)
 			.url(requestDto.url())
 			.build();
+		imageRepository.save(image);
+		return imageConverter.toResponse(image);
+	}
 
-		return imageRepository.save(image);
+	public ImageResponseDto updateImage(Long imageId, MultipartFile multipartFile) {
+		Image image = imageQueryService.getImageById(imageId);
+		String newImageUrl = s3Service.updateImage(image.getUrl(), multipartFile);
+		image.updateUrl(newImageUrl);
+		return imageConverter.toResponse(image);
 	}
 
 	// 이미지 삭제
 	public void deleteImage(Long imageId) {
-		if (!imageRepository.existsById(imageId)) {
-			throw new ImageException(IMAGE_NOT_FOUND);
-		}
-		imageRepository.deleteById(imageId);
+		Image image = imageQueryService.getImageById(imageId);
+		s3Service.deleteFile(image.getUrl());
+		imageRepository.delete(image);
 	}
 
 	// UserPlace에 이미지 연관관계 추가 후 저장

@@ -17,6 +17,7 @@ import com.adit.backend.global.util.ImageUtil;
 import com.adit.backend.infra.s3.exception.S3Exception;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -63,6 +64,43 @@ public class AwsS3Service {
 		return imageList;
 	}
 
+	// 기존 이미지 제거 후 동일한 경로에 이미지 업데이트 후 URL 반환
+	public String updateImage(String oldImageUrl, MultipartFile newImage) {
+		try {
+			AmazonS3URI oldS3Uri = new AmazonS3URI(oldImageUrl);
+			String oldKey = oldS3Uri.getKey();
+			amazonS3.deleteObject(new DeleteObjectRequest(bucket, oldKey));
+			log.info("[S3] 기존 이미지 삭제 완료: key = {}", oldKey);
+			String dirName = extractPathWithoutFileName(oldKey);
+			String newKey = createFileName(newImage.getOriginalFilename(), dirName);
+
+			ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentType(newImage.getContentType());
+			metadata.setContentLength(newImage.getSize());
+			amazonS3.putObject(new PutObjectRequest(bucket, newKey, newImage.getInputStream(), metadata)
+				.withCannedAcl(CannedAccessControlList.PublicRead));
+
+			String newFileUrl = getUrlFromBucket(newKey);
+			log.info("[S3] 신규 이미지 업로드 완료: newFileUrl = {}", newFileUrl);
+
+			return newFileUrl;
+		} catch (Exception e) {
+			throw new S3Exception(S3_UPDATE_FAILED);
+		}
+	}
+
+	public void deleteFile(String fileUrl) {
+		try {
+			AmazonS3URI s3Uri = new AmazonS3URI(fileUrl);
+			String key = s3Uri.getKey();
+			amazonS3.deleteObject(new DeleteObjectRequest(bucket, key));
+			log.info("[S3] 파일 삭제 완료: 파일명 = {}, 버킷 이름 = {}", key, bucket);
+		} catch (Exception e) {
+			log.info("[S3] 파일 삭제 실패: 경로 = {}", fileUrl);
+			throw new S3Exception(S3_DELETE_FAILED);
+		}
+	}
+
 	// 파일명을 난수화하기 위해 UUID를 활용
 	private String createFileName(String fileName, String dirName) {
 		return dirName + "/" + UUID.randomUUID().toString().concat(getFileExtension(fileName));
@@ -82,8 +120,12 @@ public class AwsS3Service {
 		return s3Client.getUrl(bucket, fileName).toString();
 	}
 
-	public void deleteFile(String fileName) {
-		amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
-		log.info("[S3] 파일 삭제 완료: 파일명 = {}, 버킷 이름 = {}", fileName, bucket);
+	public String extractPathWithoutFileName(String oldKey) {
+		int lastSlashIndex = oldKey.lastIndexOf('/');
+		if (lastSlashIndex != -1) {
+			return oldKey.substring(0, lastSlashIndex);
+		}
+		return oldKey;
 	}
+
 }

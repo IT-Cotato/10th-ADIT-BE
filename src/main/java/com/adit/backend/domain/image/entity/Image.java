@@ -66,4 +66,8 @@ public class Image extends BaseEntity {
 	public void assignCommonEvent(CommonEvent commonEvent) {
 		this.commonEvent = commonEvent;
 	}
+
+	public void updateUrl(String newImageUrl) {
+		this.url = newImageUrl;
+	}
 }
