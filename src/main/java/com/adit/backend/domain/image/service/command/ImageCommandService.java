@@ -1,6 +1,6 @@
 package com.adit.backend.domain.image.service.command;
 
-import static com.adit.backend.global.error.GlobalErrorCode.*;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +11,6 @@ import com.adit.backend.domain.event.entity.CommonEvent;
 import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.event.repository.UserEventRepository;
 import com.adit.backend.domain.image.converter.ImageConverter;
-import com.adit.backend.domain.image.dto.request.ImageRequestDto;
 import com.adit.backend.domain.image.dto.response.ImageResponseDto;
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.image.repository.ImageRepository;
@@ -21,7 +20,6 @@ import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.global.error.exception.BusinessException;
 import com.adit.backend.infra.s3.service.AwsS3Service;
 
 import lombok.AccessLevel;
@@ -36,6 +34,7 @@ public class ImageCommandService {
 	public static final String USER_DIR_PATH = "USER/";
 	public static final String PLACE_DIR_PATH = "PLACE";
 	public static final String EVENT_DIR_PATH = "EVENT";
+	public static final String TEST_DIR_PATH = "TEST";
 	private final CommonPlaceRepository commonPlaceRepository;
 	private final ImageRepository imageRepository;
 	private final UserEventRepository userEventRepository;
@@ -43,21 +42,8 @@ public class ImageCommandService {
 	private final AwsS3Service s3Service;
 	private final ImageQueryService imageQueryService;
 
-	public ImageResponseDto uploadImage(ImageRequestDto requestDto) {
-		CommonPlace place = commonPlaceRepository.findById(requestDto.commonPlace().getId())
-			.orElseThrow(() -> new BusinessException("Place not found", NOT_FOUND_ERROR));
-
-		UserEvent userEvent =
-			requestDto.userEvent().getId() != null ? userEventRepository.findById(requestDto.userEvent().getId())
-				.orElseThrow(() -> new BusinessException("Event not found", NOT_FOUND_ERROR)) : null;
-
-		Image image = Image.builder()
-			.commonPlace(place)
-			.userEvent(userEvent)
-			.url(requestDto.url())
-			.build();
-		imageRepository.save(image);
-		return imageConverter.toResponse(image);
+	public String uploadImage(String url) {
+		return s3Service.uploadFile(List.of(url), TEST_DIR_PATH).get(0).getUrl();
 	}
 
 	public ImageResponseDto updateImage(Long imageId, MultipartFile multipartFile) {
