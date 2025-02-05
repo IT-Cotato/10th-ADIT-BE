@@ -23,6 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImageUtil {
 
+	public static final String FILE_NAME_PARAM = "fname=";
+	public static final String HTTPS = "https://";
+	public static final String HTTP = "http://";
+
 	/**
 	 * 주어진 이미지 URL을 읽어 MultipartFile로 변환하여 반환한다.
 	 *
@@ -61,16 +65,6 @@ public class ImageUtil {
 		try {
 			URL url = new URL(fileUrl);
 			String query = url.getQuery();
-			if (query != null && query.contains("fname=")) {
-				for (String param : query.split("&")) {
-					if (param.startsWith("fname=")) {
-						String fnameValue = param.substring("fname=".length());
-						// 디코딩하여 원래의 URL 형태로 복원
-						String decodedFname = URLDecoder.decode(fnameValue, StandardCharsets.UTF_8);
-						return decodedFname.isEmpty() ? "unknown" : decodedFname;
-					}
-				}
-			}
 			StringBuilder fileName = new StringBuilder(new File(url.getPath()).getName());
 			if (query != null && !query.isEmpty()) {
 				for (String param : query.split("&")) {
@@ -87,8 +81,19 @@ public class ImageUtil {
 	}
 
 	private static String normalizeUrl(String imageUrl) {
-		if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
-			return "https://" + imageUrl;
+		if (imageUrl.contains(FILE_NAME_PARAM)) {
+			String fileName = imageUrl.substring(imageUrl.indexOf(FILE_NAME_PARAM) + FILE_NAME_PARAM.length());
+			fileName = fileName.contains("&") ? fileName.substring(0, fileName.indexOf("&")) : fileName;
+			String decoded = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
+			if (decoded.startsWith(HTTP) || decoded.startsWith(HTTPS)) {
+				return decoded;
+			}
+		}
+		if (imageUrl.startsWith("//")) {
+			return "https:" + imageUrl;
+		}
+		if (!imageUrl.startsWith(HTTP) && !imageUrl.startsWith(HTTPS)) {
+			return HTTPS + imageUrl;
 		}
 		return imageUrl;
 	}
