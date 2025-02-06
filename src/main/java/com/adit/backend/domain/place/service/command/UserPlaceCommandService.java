@@ -36,6 +36,10 @@ public class UserPlaceCommandService {
 
 	// 장소 저장
 	public PlaceResponseDto createUserPlace(Long userId, PlaceRequestDto request) {
+		//장소 중복 검사
+		if(!duplicatePlace(userId, request)) {
+			throw new PlaceException(USER_PLACE_DUPLICATE);
+		}
 		User user = userQueryService.findUserById(userId);
 		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request);
 		UserPlace userPlace = userPlaceConverter.toEntity(request);
@@ -76,6 +80,11 @@ public class UserPlaceCommandService {
 		user.addUserPlace(userPlace);
 		commonPlace.addUserPlace(userPlace);
 		userPlaceRepository.save(userPlace);
+	}
+
+	public boolean duplicatePlace(Long userId, PlaceRequestDto request){
+		UserPlace userPlace = userPlaceRepository.findDuplicatePlace(userId, request.url());
+		return userPlace == null;
 	}
 
 }

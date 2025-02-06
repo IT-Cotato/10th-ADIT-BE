@@ -100,6 +100,7 @@ public enum GlobalErrorCode implements ErrorCode {
 	FRIEND_NOT_FOUND(NOT_FOUND, "PLC-003", "등록된 친구가 없습니다"),
 	NOT_VALID(BAD_REQUEST, "PLC-004", "요청인자가 유효하지 않습니다"),
 	ID_NOT_FOUND_ERROR(NOT_FOUND, "PLC-005", "해당 ID를 찾지 못했습니다"),
+	USER_PLACE_DUPLICATE(CONFLICT, "PLC-006", "이미 저장된 장소입니다"),
 
 	/********************************** AI Domain **********************************/
 	AI_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-001", "AI 처리에 실패했습니다."),
