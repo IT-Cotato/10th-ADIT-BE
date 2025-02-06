@@ -40,10 +40,12 @@ public class AwsS3Service {
 
 	public List<Image> uploadFile(List<String> imageUrlList, String dirName) {
 		List<Image> imageList = new ArrayList<>();
-		imageUrlList.forEach(imageurl -> {
-			MultipartFile file = ImageUtil.convertUrlToMultipartFile(imageurl);
+		imageUrlList.forEach(imageUrl -> {
+			// URL 정규화: 프로토콜이 없으면 "https://" 추가
+			String normalizedUrl = normalizeUrl(imageUrl);
+			MultipartFile file = ImageUtil.convertUrlToMultipartFile(normalizedUrl);
 			String originalFilename = file.getOriginalFilename();
-			String fileName = createFileName(originalFilename, dirName);
+			String fileName = createFileName(originalFilename, dirName, file);
 
 			ObjectMetadata objectMetadata = new ObjectMetadata();
 			objectMetadata.setContentLength(file.getSize());
@@ -57,14 +59,14 @@ public class AwsS3Service {
 				log.error("[S3] 파일 업로드 실패: 원본 파일명 = {}, dirName = {}", originalFilename, dirName);
 				throw new S3Exception(S3_UPLOAD_FAILED);
 			}
-			String imageUrl = getUrlFromBucket(fileName);
-			Image image = Image.builder().url(imageUrl).build();
+			String imageUrlFromBucket = getUrlFromBucket(fileName);
+			Image image = Image.builder().url(imageUrlFromBucket).build();
 			imageList.add(image);
 		});
 		return imageList;
 	}
 
-	// 기존 이미지 제거 후 동일한 경로에 이미지 업데이트 후 URL 반환
+	// 기존 이미지 제거 후 동일 경로에 새 이미지 업데이트 후 URL 반환
 	public String updateImage(String oldImageUrl, MultipartFile newImage) {
 		try {
 			AmazonS3URI oldS3Uri = new AmazonS3URI(oldImageUrl);
@@ -72,7 +74,7 @@ public class AwsS3Service {
 			amazonS3.deleteObject(new DeleteObjectRequest(bucket, oldKey));
 			log.info("[S3] 기존 이미지 삭제 완료: key = {}", oldKey);
 			String dirName = extractPathWithoutFileName(oldKey);
-			String newKey = createFileName(newImage.getOriginalFilename(), dirName);
+			String newKey = createFileName(newImage.getOriginalFilename(), dirName, newImage);
 
 			ObjectMetadata metadata = new ObjectMetadata();
 			metadata.setContentType(newImage.getContentType());
@@ -102,16 +104,25 @@ public class AwsS3Service {
 	}
 
 	// 파일명을 난수화하기 위해 UUID를 활용
-	private String createFileName(String fileName, String dirName) {
-		return dirName + "/" + UUID.randomUUID().toString().concat(getFileExtension(fileName));
+	private String createFileName(String fileName, String dirName, MultipartFile file) {
+		return dirName + "/" + UUID.randomUUID().toString().concat(getFileExtension(fileName, file));
 	}
 
 	// "."의 존재 유무만 판단 (잘못된 형식이면 S3Exception 발생)
-	private String getFileExtension(String fileName) {
-		try {
-			return fileName.substring(fileName.lastIndexOf("."));
-		} catch (StringIndexOutOfBoundsException e) {
-			log.error("[S3] 잘못된 파일 형식: 파일명 = {}", fileName);
+	private String getFileExtension(String fileName, MultipartFile file) {
+		int dotIndex = fileName.lastIndexOf(".");
+		if (dotIndex != -1) {
+			return fileName.substring(dotIndex);
+		} else {
+			// 파일명이 확장자가 없으면, MIME 타입 기반으로 확장자를 결정 (예: image/jpeg -> .jpg)
+			String contentType = file.getContentType();
+			if ("image/jpeg".equalsIgnoreCase(contentType)) {
+				return ".jpg";
+			} else if ("image/png".equalsIgnoreCase(contentType)) {
+				return ".png";
+			}
+			// 필요시 다른 MIME 타입도 추가 검증
+			log.error("[S3] 파일명에 확장자가 존재하지 않음: {}", fileName);
 			throw new S3Exception(S3_INVALID_FILE);
 		}
 	}
@@ -128,4 +139,16 @@ public class AwsS3Service {
 		return oldKey;
 	}
 
+	/**
+	 * URL이 http:// 또는 https:// 로 시작하지 않는 경우, 기본적으로 "https://"를 추가하여 정규화 합니다.
+	 */
+	private String normalizeUrl(String imageUrl) {
+		if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
+			if (imageUrl.startsWith("//")) {
+				return "https:" + imageUrl;
+			}
+			return "https://" + imageUrl;
+		}
+		return imageUrl;
+	}
 }

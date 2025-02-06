@@ -13,17 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.adit.backend.domain.image.converter.ImageConverter;
-import com.adit.backend.domain.image.dto.request.ImageRequestDto;
 import com.adit.backend.domain.image.dto.response.ImageResponseDto;
 import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.image.service.command.ImageCommandService;
 import com.adit.backend.domain.image.service.query.ImageQueryService;
 import com.adit.backend.global.common.ApiResponse;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -37,13 +34,11 @@ public class ImageController {
 	private final ImageCommandService imageCommandService;
 	private final ImageConverter imageConverter;
 
-	@Hidden
 	@PostMapping
-	@Operation(summary = "이미지 업로드", description = "이미지 정보를 받아서 저장하고 저장된 이미지를 반환합니다.")
-	public ResponseEntity<ApiResponse<ImageResponseDto>> uploadImage(
-		@Valid @RequestBody ImageRequestDto requestDto) {
+	@Operation(summary = "이미지 업로드", description = "이미지 URL을 기반으로 S3에 이미지를 업로드합니다.")
+	public ResponseEntity<ApiResponse<String>> uploadImage(@RequestBody String url) {
 		return ResponseEntity.status(HttpStatus.CREATED)
-			.body(ApiResponse.success(imageCommandService.uploadImage(requestDto)));
+			.body(ApiResponse.success(imageCommandService.uploadImage(url)));
 	}
 
 	@GetMapping("/{imageId}")

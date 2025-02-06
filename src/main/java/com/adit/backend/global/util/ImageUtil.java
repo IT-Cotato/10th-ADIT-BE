@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -20,6 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImageUtil {
 
+	public static final String FILE_NAME_PARAM = "fname=";
+	public static final String HTTPS = "https://";
+	public static final String HTTP = "http://";
+
 	/**
 	 * 주어진 이미지 URL을 읽어 MultipartFile로 변환하여 반환한다.
 	 *
@@ -30,12 +37,18 @@ public class ImageUtil {
 	// URL로부터 데이터를 읽어와서 CustomMultipartFile로 변환하여 반환
 	public static MultipartFile convertUrlToMultipartFile(String imageUrl) {
 		try {
-			URL url = new URL(imageUrl);
-			String contentType = url.openConnection().getContentType();
-			String fileName = extractFileName(imageUrl);
+			// URL에 프로토콜이 누락된 경우 "https://"를 추가함
+			String normalizedUrl = normalizeUrl(imageUrl);
+			URL url = new URL(normalizedUrl);
+			URLConnection connection = url.openConnection();
+			connection.setConnectTimeout(5000);
+			connection.setReadTimeout(5000);
+			String contentType = connection.getContentType();
 
+			String fileName = extractFileName(normalizedUrl);
 			byte[] content;
-			try (InputStream inputStream = url.openStream();
+
+			try (InputStream inputStream = connection.getInputStream();
 				 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 				IOUtils.copy(inputStream, outputStream);
 				content = outputStream.toByteArray();
@@ -43,7 +56,7 @@ public class ImageUtil {
 
 			return new CustomMultipartFile(content, fileName, contentType);
 		} catch (IOException e) {
-			log.error("URL을 MultipartFile로 변환하는 데 실패했습니다.");
+			log.error("[Image] URL을 MultipartFile로 변환하는 데 실패했습니다.: {}", imageUrl);
 			throw new ImageException(IMAGE_EXTRACTION_FAILED);
 		}
 	}
@@ -51,9 +64,9 @@ public class ImageUtil {
 	private static String extractFileName(String fileUrl) {
 		try {
 			URL url = new URL(fileUrl);
-			StringBuilder fileName = new StringBuilder(new File(url.getPath()).getName());
 			String query = url.getQuery();
-			if (query != null) {
+			StringBuilder fileName = new StringBuilder(new File(url.getPath()).getName());
+			if (query != null && !query.isEmpty()) {
 				for (String param : query.split("&")) {
 					if (param.startsWith("type=")) {
 						fileName.append("?").append(param);
@@ -65,6 +78,24 @@ public class ImageUtil {
 		} catch (Exception e) {
 			return "unknown";
 		}
+	}
+
+	private static String normalizeUrl(String imageUrl) {
+		if (imageUrl.contains(FILE_NAME_PARAM)) {
+			String fileName = imageUrl.substring(imageUrl.indexOf(FILE_NAME_PARAM) + FILE_NAME_PARAM.length());
+			fileName = fileName.contains("&") ? fileName.substring(0, fileName.indexOf("&")) : fileName;
+			String decoded = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
+			if (decoded.startsWith(HTTP) || decoded.startsWith(HTTPS)) {
+				return decoded;
+			}
+		}
+		if (imageUrl.startsWith("//")) {
+			return "https:" + imageUrl;
+		}
+		if (!imageUrl.startsWith(HTTP) && !imageUrl.startsWith(HTTPS)) {
+			return HTTPS + imageUrl;
+		}
+		return imageUrl;
 	}
 
 	// MultipartFile 인터페이스를 구현한 커스텀 클래스
