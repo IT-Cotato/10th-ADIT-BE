@@ -58,6 +58,7 @@ public enum GlobalErrorCode implements ErrorCode {
 	NICKNAME_ALREADY_EXIST(BAD_REQUEST, "USR-002", "이미 존재하는 닉네임입니다."),
 	NICKNAME_NULL(NOT_FOUND, "USR-003", "닉네임이 비어있습니다."),
 
+
 	/********************************** Kakao Domain **********************************/
 	KAKAO_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-001", "카카오 서버에 에러가 발생했습니다."),
 	KAKAO_SERVER_CONNECTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "KKO-002", "카카오 서버에 연결을 실패했습니다."),

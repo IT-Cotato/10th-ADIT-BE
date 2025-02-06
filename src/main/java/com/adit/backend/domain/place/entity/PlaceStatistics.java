@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,4 +31,15 @@ public class PlaceStatistics extends BaseEntity {
 
 	private Integer bookmarkCount;
 	private Integer visitCount;
+
+	@Builder
+	public PlaceStatistics(CommonPlace commonPlace, Integer bookmarkCount, Integer visitCount){
+		this.commonPlace = commonPlace;
+		this.bookmarkCount = bookmarkCount;
+		this.visitCount = visitCount;
+	}
+
+	public void updateBookMarkCount(){
+		this.bookmarkCount += 1;
+	}
 }

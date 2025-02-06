@@ -11,6 +11,7 @@ import com.adit.backend.domain.place.converter.UserPlaceConverter;
 import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
+import com.adit.backend.domain.place.entity.PlaceStatistics;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
@@ -31,6 +32,7 @@ public class UserPlaceCommandService {
 	private final UserQueryService userQueryService;
 	private final CommonPlaceCommandService commonPlaceCommandService;
 	private final ImageCommandService imageCommandService;
+	private final PlaceStatisticsCommandService placeStatisticsCommandService;
 
 	// 장소 저장
 	public PlaceResponseDto createUserPlace(Long userId, PlaceRequestDto request) {
@@ -39,6 +41,7 @@ public class UserPlaceCommandService {
 		UserPlace userPlace = userPlaceConverter.toEntity(request);
 		saveUserPlaceRelation(user, commonPlace, userPlace);
 		imageCommandService.addImageToUserPlace(request, user, userPlace);
+		placeStatisticsCommandService.saveOrCount(commonPlace);
 		return commonPlaceConverter.userPlaceToResponse(userPlace);
 	}
 
@@ -68,7 +71,7 @@ public class UserPlaceCommandService {
 		place.updatedVisited();
 	}
 
-	// user, commonPlace와 UserPlace 사이의 연관관계 설정 및 저장
+	// user, commonPlace 와 UserPlace 사이의 연관관계 설정 및 저장
 	private void saveUserPlaceRelation(User user, CommonPlace commonPlace, UserPlace userPlace) {
 		user.addUserPlace(userPlace);
 		commonPlace.addUserPlace(userPlace);

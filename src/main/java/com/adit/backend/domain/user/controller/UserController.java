@@ -50,4 +50,5 @@ public class UserController {
 		userQueryService.validateDuplicateNicknames(request.nickname());
 		return ResponseEntity.ok(ApiResponse.success("사용 가능한 닉네임입니다."));
 	}
+
 }
