@@ -59,7 +59,8 @@ public class AuthService {
 	//로그인
 	public LoginResponse login(KakaoRequest.AuthDto request, HttpServletResponse response) {
 		try {
-			KakaoResponse.TokenInfoDto kakaoTokenInfo = kakaoOAuthService.requestTokenIssuance(request.code()).getBody();
+			KakaoResponse.TokenInfoDto kakaoTokenInfo = kakaoOAuthService.requestTokenIssuance(request.code())
+				.getBody();
 			OAuth2UserInfo oAuth2UserInfo = kakaoOAuthService.requestOAuth2UserInfo(kakaoTokenInfo.accessToken());
 			UserResponse.InfoDto infoDto = userCommandService.createOrUpdateUser(oAuth2UserInfo);
 
