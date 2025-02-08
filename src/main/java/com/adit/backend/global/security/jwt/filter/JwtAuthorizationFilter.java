@@ -1,16 +1,17 @@
 package com.adit.backend.global.security.jwt.filter;
 
+import static com.adit.backend.global.error.GlobalErrorCode.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.adit.backend.global.error.GlobalErrorCode;
+import com.adit.backend.global.security.jwt.enums.TokenStatus;
 import com.adit.backend.global.security.jwt.exception.TokenException;
 import com.adit.backend.global.security.jwt.util.JwtTokenProvider;
 
@@ -33,9 +34,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		"/",
 		"/oauth2/**",
 		"/login/**",
-		"/api/ai/**",
-		"/api/user/**",
-		"/api/scraper/**",
+		"/kakao/**",
 		"/swagger-ui/**",
 		"/swagger-ui.html",
 		"/swagger-resources/**",
@@ -43,19 +42,28 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		"/webjars/**",
 		"/favicon.ico"
 	};
+
 	private final JwtTokenProvider tokenProvider;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
-		String accessToken = tokenProvider.extractAccessTokenFromHeader(request);
-		if (accessToken != null) {
-			log.debug("[Token] JwtAuthorizationFilter 토큰 검증 accessToken : {}", accessToken);
-			tokenProvider.isAccessTokenValid(accessToken);
-			setAuthentication(accessToken);
-		} else {
-			throw new TokenException(GlobalErrorCode.NULL_POINT_ERROR);
+		// white list 또는 인증/로그인 관련 경로면 토큰 검증을 건너뜁니다.
+		if (shouldNotFilter(request)) {
+			filterChain.doFilter(request, response);
+			return;
 		}
+		String accessToken = tokenProvider.extractAccessTokenFromHeader(request);
+		log.debug("[Token] JwtAuthorizationFilter 토큰 검증 accessToken : {}", accessToken);
+		TokenStatus tokenStatus = tokenProvider.validateAccessToken(accessToken);
+		if (tokenStatus == TokenStatus.VALID) {
+			setAuthentication(accessToken);
+		} else if (tokenStatus == TokenStatus.EXPIRED) {
+			throw new TokenException(ACCESS_TOKEN_EXPIRED);
+		} else {
+			throw new TokenException(INVALID_TOKEN);
+		}
+
 		filterChain.doFilter(request, response);
 	}
 
@@ -65,28 +73,27 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 		} catch (Exception e) {
 			SecurityContextHolder.clearContext();
-			log.error("[Authentication] 사용자 인증 설정 실패", e.getCause());
-			throw new TokenException(GlobalErrorCode.INVALID_TOKEN);
+			log.error("[Authentication] 사용자 인증 설정 실패", e);
+			throw new TokenException(INVALID_TOKEN);
 		}
 	}
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
-		String path = request.getRequestURI();
-		log.trace("[Request] 요청 경로, 메서드: {}, {}", path, request.getMethod());
-		return isAuthPath(request.getRequestURI()) || isWhiteList(request);
+		String uri = request.getRequestURI();
+		log.trace("[Request] 요청 경로, 메서드: {} {}", uri, request.getMethod());
+		return isAuthPath(uri) || isWhiteList(request);
 	}
 
+	// HTTP 메서드에 상관없이 URL 패턴만으로 화이트리스트 적용
 	private boolean isWhiteList(HttpServletRequest request) {
-		AntPathMatcher pathMatcher = new AntPathMatcher();
-		return request.getMethod().equals(HttpMethod.GET.name())
-			&& Arrays.stream(WHITE_LIST).anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI()));
+		AntPathMatcher matcher = new AntPathMatcher();
+		return Arrays.stream(WHITE_LIST)
+			.anyMatch(pattern -> matcher.match(pattern, request.getRequestURI()));
 	}
 
 	private boolean isAuthPath(String requestURI) {
-		AntPathMatcher pathMatcher = new AntPathMatcher();
-		return pathMatcher.match(AUTH_PATH, requestURI) || pathMatcher.match(LOGIN_PATH, requestURI);
+		AntPathMatcher matcher = new AntPathMatcher();
+		return matcher.match(AUTH_PATH, requestURI) || matcher.match(LOGIN_PATH, requestURI);
 	}
 }
-
-
