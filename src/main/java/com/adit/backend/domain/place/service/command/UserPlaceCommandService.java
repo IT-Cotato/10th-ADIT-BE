@@ -4,7 +4,12 @@ import static com.adit.backend.global.error.GlobalErrorCode.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.adit.backend.domain.image.dto.response.ImageResponseDto;
+import com.adit.backend.domain.image.entity.Image;
+import com.adit.backend.domain.image.exception.ImageException;
+import com.adit.backend.domain.image.repository.ImageRepository;
 import com.adit.backend.domain.image.service.command.ImageCommandService;
 import com.adit.backend.domain.place.converter.CommonPlaceConverter;
 import com.adit.backend.domain.place.converter.UserPlaceConverter;
@@ -33,6 +38,7 @@ public class UserPlaceCommandService {
 	private final CommonPlaceCommandService commonPlaceCommandService;
 	private final ImageCommandService imageCommandService;
 	private final PlaceStatisticsCommandService placeStatisticsCommandService;
+	private final ImageRepository imageRepository;
 
 	// 장소 저장
 	public PlaceResponseDto createUserPlace(Long userId, PlaceRequestDto request) {
@@ -87,4 +93,10 @@ public class UserPlaceCommandService {
 		return userPlace == null;
 	}
 
+	public ImageResponseDto updateUserPlaceImage(Long userPlaceId, MultipartFile multipartFile) {
+		Image image =  imageRepository.findByUserPlaceId(userPlaceId)
+			.orElseThrow(() -> new ImageException(IMAGE_NOT_FOUND));
+		return imageCommandService.updateImage(image.getId(), multipartFile);
+
+	}
 }

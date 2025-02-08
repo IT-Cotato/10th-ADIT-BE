@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.adit.backend.domain.image.dto.response.ImageResponseDto;
 import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.service.command.CommonPlaceCommandService;
@@ -156,10 +159,19 @@ public class PlaceController {
 	//장소 메모 수정 API
 	@Operation(summary = "장소 메모 수정", description = "userPlaceId에 해당하는 장소의 메모를 수정")
 	@PutMapping("/{userPlaceId}/memo")
-	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlace(@PathVariable Long userPlaceId,
+	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlaceMemo(@PathVariable Long userPlaceId,
 		@RequestParam String memo) {
 
 		PlaceResponseDto updateUserPlace = userPlaceCommandService.updateUserPlace(userPlaceId, memo);
 		return ResponseEntity.ok(ApiResponse.success(updateUserPlace));
+	}
+
+	//장소 이미지 수정 API
+	@Operation(summary = "장소 이미지 수정", description = "userPlaceId에 해당하는 장소의 이미지 수정")
+	@PutMapping("/{userPlaceId}/image")
+	public ResponseEntity<ApiResponse<ImageResponseDto>> updateUserPlaceImage(@PathVariable Long userPlaceId
+		, MultipartFile multipartFile){
+		ImageResponseDto imageResponseDto = userPlaceCommandService.updateUserPlaceImage(userPlaceId, multipartFile);
+		return ResponseEntity.ok(ApiResponse.success(imageResponseDto));
 	}
 }
