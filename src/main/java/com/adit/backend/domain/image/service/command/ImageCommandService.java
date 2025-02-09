@@ -56,18 +56,16 @@ public class ImageCommandService {
 
 	// UserPlace에 이미지 연관관계 추가 후 저장
 	public void addImageToUserPlace(PlaceRequestDto request, User user, UserPlace userPlace) {
-		Image userPlaceImage = s3Service.uploadFile(request.imageUrlList(), USER.getPath() + user.getId())
-			.join()
-			.get(0);
-		userPlace.addImage(userPlaceImage);
-		imageRepository.save(userPlaceImage);
+		Image image = s3Service.uploadFile(request.imageUrlList(), USER.getPath() + user.getId()).join().get(0);
+		userPlace.addImage(image);
+		imageRepository.save(image);
 	}
 
 	// CommonPlace에 이미지 연관관계 추가 후 저장
 	public void addImageToCommonPlace(PlaceRequestDto request, CommonPlace commonPlace) {
-		Image commonPlaceImage = s3Service.uploadFile(request.imageUrlList(), PLACE.getPath()).join().get(0);
-		commonPlace.addImage(commonPlaceImage);
-		imageRepository.save(commonPlaceImage);
+		Image image = s3Service.uploadFile(request.imageUrlList(), PLACE.getPath()).join().get(0);
+		commonPlace.addImage(image);
+		imageRepository.save(image);
 	}
 
 	// CommonEvent에 이미지 연관관계 추가 후 저장
