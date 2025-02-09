@@ -35,7 +35,7 @@ public class LoggingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
 		log.debug("RESPONSE");
 		log.debug(String.valueOf(advisedResponse));
 		log.info("[Input Token Usage] : {}", advisedResponse.response().getMetadata().getUsage().getPromptTokens());
-		log.info("[Output Token Usage] : {}", advisedResponse.response().getMetadata().getUsage().getGenerationTokens());
+		log.info("[Output Token Usage] : {}", advisedResponse.response().getMetadata().getUsage().getCompletionTokens());
 		log.info("[Total Token Usage] : {}", advisedResponse.response().getMetadata().getUsage().getTotalTokens());
 		return advisedResponse;
 
