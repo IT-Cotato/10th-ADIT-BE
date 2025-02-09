@@ -25,7 +25,9 @@ public class CommonEventCommandService {
 	public CommonEvent saveOrFindCommonEvent(EventRequestDto request) {
 		return commonEventRepository.findByName(request.name()).orElseGet(() -> {
 			CommonEvent commonEvent = commonEventConverter.toEntity(request);
-			imageCommandService.addImageToCommonEvent(request, commonEvent);
+			if (!request.imageUrlList().isEmpty()) {
+				imageCommandService.addImageToCommonEvent(request, commonEvent);
+			}
 			return commonEventRepository.save(commonEvent);
 		});
 	}
