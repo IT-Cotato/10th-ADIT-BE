@@ -1,5 +1,7 @@
 package com.adit.backend.domain.place.converter;
 
+import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -37,7 +39,9 @@ public class UserPlaceConverter {
 			.addressName(userPlace.getCommonPlace().getAddressName())
 			.url(userPlace.getCommonPlace().getUrl())
 			// CommonPlace에 연관된 모든 이미지의 url 목록 생성
-			.imageUrl(userPlace.getCommonPlace().getImages().stream()
+			.imageUrlList(Optional.ofNullable(userPlace.getImages())
+				.orElse(Collections.emptyList())
+				.stream()
 				.map(Image::getUrl)
 				.collect(Collectors.toList()))
 			.build();
@@ -59,7 +63,7 @@ public class UserPlaceConverter {
 			.roadAddressName(userPlace.getCommonPlace().getRoadAddressName())
 			.addressName(userPlace.getCommonPlace().getAddressName())
 			.url(userPlace.getCommonPlace().getUrl())
-			.imageUrl(userPlace.getCommonPlace().getImages().stream()
+			.imageUrlList(userPlace.getCommonPlace().getImages().stream()
 				.map(Image::getUrl)
 				.collect(Collectors.toList()))
 			.friendUserId(userPlace.getUser().getId())

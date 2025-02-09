@@ -38,7 +38,9 @@ public class UserPlaceCommandService {
 		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request);
 		UserPlace userPlace = userPlaceConverter.toEntity(request);
 		saveUserPlaceRelation(user, commonPlace, userPlace);
-		imageCommandService.addImageToUserPlace(request, user, userPlace);
+		if (!request.imageUrlList().isEmpty()) {
+			imageCommandService.addImageToUserPlace(request, user, userPlace);
+		}
 		return commonPlaceConverter.userPlaceToResponse(userPlace);
 	}
 

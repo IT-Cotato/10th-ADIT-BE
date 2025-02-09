@@ -36,7 +36,9 @@ public class UserEventCommandService {
 		CommonEvent commonEvent = commonEventCommandService.saveOrFindCommonEvent(request);
 		UserEvent userEvent = userEventConverter.toEntity(request);
 		saveUserEventRelation(commonEvent, userEvent, user);
-		imageCommandService.addImageToUserEvent(request, user, userEvent);
+		if (!request.imageUrlList().isEmpty()) {
+			imageCommandService.addImageToUserEvent(request, user, userEvent);
+		}
 		return userEventConverter.toResponse(userEvent);
 	}
 

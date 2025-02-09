@@ -31,7 +31,9 @@ public class CommonPlaceCommandService {
 		Long commonPlaceId = extractTrailingDigits(request.url());
 		return commonPlaceRepository.findById(commonPlaceId).orElseGet(() -> {
 			CommonPlace commonPlace = commonPlaceConverter.toEntity(request, commonPlaceId);
-			imageCommandService.addImageToCommonPlace(request, commonPlace);
+			if (!request.imageUrlList().isEmpty()) {
+				imageCommandService.addImageToCommonPlace(request, commonPlace);
+			}
 			return commonPlaceRepository.save(commonPlace);
 		});
 	}

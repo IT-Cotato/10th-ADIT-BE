@@ -1,6 +1,7 @@
 package com.adit.backend.domain.event.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Builder;
 
@@ -13,5 +14,5 @@ public record EventResponseDto(
 	LocalDateTime endDate,
 	String memo,
 	Boolean visited,
-	String url) {
+	List<String> imageUrlList) {
 }

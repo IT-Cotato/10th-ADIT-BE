@@ -37,7 +37,7 @@ public class ImageCommandService {
 	private final ImageQueryService imageQueryService;
 
 	public String uploadImage(String url) {
-		return s3Service.uploadFile(List.of(url), TEST.getPath()).join().get(0).getUrl();
+		return s3Service.uploadFile(List.of(url), TEST.getPath()).join().toString();
 	}
 
 	public ImageResponseDto updateImage(Long imageId, MultipartFile multipartFile) {
@@ -56,29 +56,32 @@ public class ImageCommandService {
 
 	// UserPlace에 이미지 연관관계 추가 후 저장
 	public void addImageToUserPlace(PlaceRequestDto request, User user, UserPlace userPlace) {
-		Image image = s3Service.uploadFile(request.imageUrlList(), USER.getPath() + user.getId()).join().get(0);
-		userPlace.addImage(image);
-		imageRepository.save(image);
+		List<Image> imageList = s3Service.uploadFile(request.imageUrlList(), USER.getPath() + user.getId()).join();
+		imageList.forEach(userPlace::addImage);
+		imageRepository.saveAll(imageList);
+
 	}
 
 	// CommonPlace에 이미지 연관관계 추가 후 저장
 	public void addImageToCommonPlace(PlaceRequestDto request, CommonPlace commonPlace) {
-		Image image = s3Service.uploadFile(request.imageUrlList(), PLACE.getPath()).join().get(0);
-		commonPlace.addImage(image);
-		imageRepository.save(image);
+		List<Image> imageList = s3Service.uploadFile(request.imageUrlList(), PLACE.getPath()).join();
+		imageList.forEach(commonPlace::addImage);
+		imageRepository.saveAll(imageList);
 	}
 
 	// CommonEvent에 이미지 연관관계 추가 후 저장
 	public void addImageToCommonEvent(EventRequestDto request, CommonEvent commonEvent) {
-		Image image = s3Service.uploadFile(request.imageUrlList(), EVENT.getPath()).join().get(0);
-		commonEvent.addImage(image);
-		imageRepository.save(image);
+		List<Image> imageList = s3Service.uploadFile(request.imageUrlList(), EVENT.getPath()).join();
+		imageList.forEach(commonEvent::addImage);
+		imageRepository.saveAll(imageList);
+
 	}
 
 	// UserEvent에 이미지 연관관계 추가 후 저장
 	public void addImageToUserEvent(EventRequestDto request, User user, UserEvent userEvent) {
-		Image image = s3Service.uploadFile(request.imageUrlList(), USER.getPath() + user.getId()).join().get(0);
-		userEvent.addImage(image);
-		imageRepository.save(image);
+		List<Image> imageList = s3Service.uploadFile(request.imageUrlList(), USER.getPath() + user.getId()).join();
+		imageList.forEach(userEvent::addImage);
+		imageRepository.saveAll(imageList);
+
 	}
 }
