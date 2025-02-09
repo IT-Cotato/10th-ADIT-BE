@@ -32,7 +32,7 @@ public class CommonEvent extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
+	@Column(unique = true, nullable = false)
 	private String name;
 
 	@Column(nullable = false)
@@ -84,6 +84,4 @@ public class CommonEvent extends BaseEntity {
 		if (updateRequest.getMemo() != null)
 			this.memo = updateRequest.getMemo();
 	}
-
-
 }

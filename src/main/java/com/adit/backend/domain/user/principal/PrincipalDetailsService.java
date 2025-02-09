@@ -27,7 +27,7 @@ public class PrincipalDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		User user = userQueryService.findUserByEmail(email);
-		log.info("[User] 사용자를 찾았습니다. {}", user.getEmail());
+		log.debug("[User] 사용자를 찾았습니다. {}", user.getEmail());
 		return createPrincipalDetails(user, Collections.emptyMap(), "id");
 	}
 
