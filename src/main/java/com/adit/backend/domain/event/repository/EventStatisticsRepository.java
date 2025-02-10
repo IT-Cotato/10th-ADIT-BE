@@ -12,6 +12,7 @@ import com.adit.backend.domain.event.entity.EventStatistics;
 public interface EventStatisticsRepository extends JpaRepository<EventStatistics, Long> {
     Optional<EventStatistics> findByCommonEventId(Long commonEventId);
 
-    // 인기 이벤트를 bookmarkCount 기준으로 내림차순 정렬하여 10개 가져오기
-    List<EventStatistics> findTop10ByOrderByBookmarkCountDesc();
+    // bookmarkCount가 0보다 큰 이벤트만 정렬해서 10개 가져오기
+    List<EventStatistics> findTop10ByBookmarkCountGreaterThanOrderByBookmarkCountDesc(int minCount);
 }
+
