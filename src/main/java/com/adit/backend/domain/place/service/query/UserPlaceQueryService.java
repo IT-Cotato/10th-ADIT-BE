@@ -4,19 +4,29 @@ import static com.adit.backend.global.error.GlobalErrorCode.*;
 import static com.adit.backend.global.util.MapUtil.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.place.converter.CommonPlaceConverter;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
+import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
+import com.adit.backend.domain.user.converter.UserConverter;
+import com.adit.backend.domain.user.dto.response.UserResponse;
+import com.adit.backend.domain.user.entity.User;
+import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.domain.user.repository.FriendshipRepository;
+import com.adit.backend.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +38,8 @@ public class UserPlaceQueryService {
 	private final UserPlaceRepository userPlaceRepository;
 	private final FriendshipRepository friendshipRepository;
 	private final CommonPlaceConverter commonPlaceConverter;
+	private final UserRepository userRepository;
+	private final UserConverter userConverter;
 
 	public List<PlaceResponseDto> getPlaceByCategory(List<String> subCategory, Long userId) {
 		// 기존: throw new NotValidException("RequestParam not valid");
@@ -101,18 +113,31 @@ public class UserPlaceQueryService {
 		return userPlaces.stream().map(commonPlaceConverter::userPlaceToResponse).toList();
 	}
 
-	public List<PlaceResponseDto> getPlaceByFriend(Long userId) {
+	public Map<PlaceResponseDto, List<UserResponse.InfoDto>> getPlaceByFriend(Long userId) {
 		// 기존: throw new FriendNotFoundException("Friend not found");
+		Map<PlaceResponseDto, List<UserResponse.InfoDto>> response = new LinkedHashMap<>();
 		List<Long> friendsId = friendshipRepository.findFriends(userId);
 		if (friendsId.isEmpty()) {
 			throw new PlaceException(FRIEND_NOT_FOUND);
 		}
-		Set<UserPlace> friendsCommonplaceSet = new HashSet<>();
+		Map<CommonPlace, Integer> friendsCommonplace = new HashMap<>();
 		friendsId.forEach(id -> {
-			List<UserPlace> foundPlaces = userPlaceRepository.findByUserId(id);
-			friendsCommonplaceSet.addAll(foundPlaces);
+			 userPlaceRepository.findByUserId(id)
+				 .forEach(userPlace -> friendsCommonplace.merge(userPlace.getCommonPlace(), 1, Integer::sum));
+
 		});
-		List<UserPlace> friendsCommonplace = new ArrayList<>(friendsCommonplaceSet);
-		return friendsCommonplace.stream().map(commonPlaceConverter::friendToResponse).toList();
+		Set<CommonPlace> key = friendsCommonplace.keySet();
+		List<CommonPlace> keyList = new ArrayList<>(key);
+		keyList.sort((a1,b1) -> friendsCommonplace.get(b1) - friendsCommonplace.get(a1));
+		for(CommonPlace commonPlace : keyList){
+			List<Long> friendIds = userPlaceRepository.findByCommonPlaceId(commonPlace.getId());
+			List<UserResponse.InfoDto> friendinfoList = friendIds.stream()
+				.map(id -> userRepository.findById(id).orElseThrow(() -> new UserException(USER_NOT_FOUND)))
+				.map(userConverter::InfoDto)
+				.toList();
+
+			response.put(commonPlaceConverter.commonPlaceToResponse(commonPlace), friendinfoList);
+		}
+		return response;
 	}
 }
