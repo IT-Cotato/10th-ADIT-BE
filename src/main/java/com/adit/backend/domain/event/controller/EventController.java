@@ -91,7 +91,10 @@ public class EventController {
 
     @Operation(summary = "이벤트 수정", description = "기존 이벤트의 세부 정보를 수정합니다.")
     @PatchMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<ApiResponse<EventResponseDto>> updateEvent(@PathVariable Long id, @RequestBody EventUpdateRequestDto request, @RequestPart(value = "file", required = false) MultipartFile file ) {
+    public ResponseEntity<ApiResponse<EventResponseDto>> updateEvent(
+        @PathVariable Long id,
+        @RequestPart(value = "eventUpdateRequest") EventUpdateRequestDto request,  // JSON을 받기 위해 @RequestPart로 변경
+        @RequestPart(value = "file", required = false) MultipartFile file ) {
 
         EventResponseDto event = commandService.updateEvent(id, request, file);
         return ResponseEntity.ok(ApiResponse.success(event));
