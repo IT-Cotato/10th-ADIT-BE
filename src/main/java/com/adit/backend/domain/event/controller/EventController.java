@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.adit.backend.domain.event.dto.request.EventRequestDto;
 import com.adit.backend.domain.event.dto.request.EventUpdateRequestDto;
@@ -87,9 +90,10 @@ public class EventController {
     }
 
     @Operation(summary = "이벤트 수정", description = "기존 이벤트의 세부 정보를 수정합니다.")
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<EventResponseDto>> updateEvent(@PathVariable Long id, @RequestBody EventUpdateRequestDto request) {
-        EventResponseDto event = commandService.updateEvent(id, request);
+    @PatchMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<ApiResponse<EventResponseDto>> updateEvent(@PathVariable Long id, @RequestBody EventUpdateRequestDto request, @RequestPart(value = "file", required = false) MultipartFile file ) {
+
+        EventResponseDto event = commandService.updateEvent(id, request, file);
         return ResponseEntity.ok(ApiResponse.success(event));
     }
 }
