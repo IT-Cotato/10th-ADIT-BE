@@ -4,13 +4,19 @@ import static com.adit.backend.global.error.GlobalErrorCode.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.adit.backend.domain.image.dto.response.ImageResponseDto;
+import com.adit.backend.domain.image.entity.Image;
+import com.adit.backend.domain.image.exception.ImageException;
+import com.adit.backend.domain.image.repository.ImageRepository;
 import com.adit.backend.domain.image.service.command.ImageCommandService;
 import com.adit.backend.domain.place.converter.CommonPlaceConverter;
 import com.adit.backend.domain.place.converter.UserPlaceConverter;
 import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
+import com.adit.backend.domain.place.entity.PlaceStatistics;
 import com.adit.backend.domain.place.entity.UserPlace;
 import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
@@ -31,9 +37,15 @@ public class UserPlaceCommandService {
 	private final UserQueryService userQueryService;
 	private final CommonPlaceCommandService commonPlaceCommandService;
 	private final ImageCommandService imageCommandService;
+	private final ImageRepository imageRepository;
+	private final PlaceStatisticsCommandService placeStatisticsCommandService;
 
 	// 장소 저장
 	public PlaceResponseDto createUserPlace(Long userId, PlaceRequestDto request) {
+		//장소 중복 검사
+		if(!duplicatePlace(userId, request)) {
+			throw new PlaceException(USER_PLACE_DUPLICATE);
+		}
 		User user = userQueryService.findUserById(userId);
 		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request);
 		UserPlace userPlace = userPlaceConverter.toEntity(request);
@@ -41,6 +53,7 @@ public class UserPlaceCommandService {
 		if (!request.imageUrlList().isEmpty()) {
 			imageCommandService.addImageToUserPlace(request, user, userPlace);
 		}
+		placeStatisticsCommandService.saveOrCount(commonPlace);
 		return commonPlaceConverter.userPlaceToResponse(userPlace);
 	}
 
@@ -75,6 +88,18 @@ public class UserPlaceCommandService {
 		user.addUserPlace(userPlace);
 		commonPlace.addUserPlace(userPlace);
 		userPlaceRepository.save(userPlace);
+	}
+
+	public boolean duplicatePlace(Long userId, PlaceRequestDto request) {
+		UserPlace userPlace = userPlaceRepository.findDuplicatePlace(userId, request.url());
+		return userPlace == null;
+	}
+
+	public ImageResponseDto updateUserPlaceImage(Long userPlaceId, MultipartFile multipartFile) {
+		Image image = imageRepository.findByUserPlaceId(userPlaceId)
+			.orElseThrow(() -> new ImageException(IMAGE_NOT_FOUND));
+		return imageCommandService.updateImage(image.getId(), multipartFile);
+
 	}
 
 }
