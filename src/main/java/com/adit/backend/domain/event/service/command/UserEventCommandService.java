@@ -43,6 +43,8 @@ public class UserEventCommandService {
         CommonEvent commonEvent = commonEventCommandService.saveOrFindCommonEvent(request);
         UserEvent userEvent = userEventConverter.toEntity(request);
         saveUserEventRelation(commonEvent, userEvent, user);
+
+
         if (!request.imageUrlList().isEmpty()) {
             imageCommandService.addImageToUserEvent(request, user, userEvent);
         }
@@ -88,6 +90,16 @@ public class UserEventCommandService {
 		userEventRepository.save(userEvent);
 
 		return userEventConverter.toResponse(userEvent);
+	}
+
+	public void deleteEvent(Long id) {
+		UserEvent userEvent = userEventRepository.findById(id).orElseThrow(() -> new EventException(EVENT_NOT_FOUND));
+
+		//S3에서 연관된 이미지 삭제
+		userEvent.getImages().forEach(image -> awsS3Service.deleteFile(image.getUrl()));
+
+		// 이벤트 삭제
+		userEventRepository.delete(userEvent);
 	}
 
 }
