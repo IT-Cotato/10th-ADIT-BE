@@ -2,6 +2,8 @@ package com.adit.backend.domain.event.service.command;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,23 +48,37 @@ public class UserEventCommandService {
 		return userEventConverter.toResponse(userEvent);
 	}
 
-	public EventResponseDto updateEvent(Long id, EventUpdateRequestDto request, MultipartFile newImage) {
+
+	public EventResponseDto updateEvent(Long id, EventUpdateRequestDto request, List<MultipartFile> newImageList) {
 		UserEvent userEvent = userEventRepository.findById(id)
 			.orElseThrow(() -> new EventException(EVENT_NOT_FOUND));
 
-		// 기존 이미지 업데이트 (S3 업데이트 적용)
-		if (newImage != null && !userEvent.getImages().isEmpty()) {
-			Image oldImage = userEvent.getImages().get(0);  // 첫 번째 이미지를 업데이트
-			String newImageUrl = awsS3Service.updateImage(oldImage.getUrl(), newImage).join();
-			oldImage.updateUrl(newImageUrl);
+		// 기존 이미지가 있고, 새 이미지가 전달된 경우 업데이트 진행
+		if (newImageList != null && !newImageList.isEmpty() && !userEvent.getImages().isEmpty()) {
+			List<Image> existingImages = userEvent.getImages();
+
+			// 기존 이미지 개수와 새 이미지 개수 비교 후 업데이트
+			for (int i = 0; i < Math.min(existingImages.size(), newImageList.size()); i++) {
+				Image oldImage = existingImages.get(i);
+				String newImageUrl = awsS3Service.updateImage(oldImage.getUrl(), newImageList.get(i)).join();
+				oldImage.updateUrl(newImageUrl);
+			}
+
+			// 만약 새 이미지가 더 많다면, 추가로 업로드
+			if (newImageList.size() > existingImages.size()) {
+				List<Image> extraImages = awsS3Service.uploadFile(
+					newImageList.subList(existingImages.size(), newImageList.size()), "event"
+				).join();
+				extraImages.forEach(userEvent::addImage);
+			}
 		}
 
-		// 이벤트 정보 업데이트
 		userEventConverter.updateEntity(userEvent, request);
 		UserEvent updatedUserEvent = userEventRepository.save(userEvent);
 
 		return userEventConverter.toResponse(updatedUserEvent);
 	}
+
 
 	private void saveUserEventRelation(CommonEvent commonEvent, UserEvent userEvent, User user) {
 		commonEvent.addUserEvent(userEvent);
