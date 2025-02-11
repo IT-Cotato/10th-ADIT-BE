@@ -105,6 +105,6 @@ public class EventController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable Long id) {
     commandService.deleteEvent(id);
-    return ResponseEntity.ok(ApiResponse.success(null));
+    return ResponseEntity.noContent().build();
     }
 }
