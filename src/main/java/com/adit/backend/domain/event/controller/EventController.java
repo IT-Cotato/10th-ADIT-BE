@@ -94,9 +94,9 @@ public class EventController {
     public ResponseEntity<ApiResponse<EventResponseDto>> updateEvent(
         @PathVariable Long id,
         @RequestPart(value = "eventUpdateRequest") EventUpdateRequestDto request,  // JSON을 받기 위해 @RequestPart로 변경
-        @RequestPart(value = "file", required = false) MultipartFile file ) {
+        @RequestPart(value = "file", required = false) List<MultipartFile> newImageList ) {
 
-        EventResponseDto event = commandService.updateEvent(id, request, file);
+        EventResponseDto event = commandService.updateEvent(id, request, newImageList);
         return ResponseEntity.ok(ApiResponse.success(event));
     }
 }
