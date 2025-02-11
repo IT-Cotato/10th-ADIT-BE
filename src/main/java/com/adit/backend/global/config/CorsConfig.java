@@ -13,6 +13,7 @@ public class CorsConfig {
 
 	public static final String SERVER_URL = "http://ec2-3-39-228-156.ap-northeast-2.compute.amazonaws.com:8080";
 	public static final String FRONT_URL = "http://localhost:3000";
+	public static final String LOCALHOST = "http://localhost:8080";
 
 	@Bean
 	public CorsFilter corsFilter() {
@@ -22,6 +23,7 @@ public class CorsConfig {
 	        config.setAllowCredentials(true);
 	        config.addAllowedOrigin(SERVER_URL);
 	        config.addAllowedOrigin(FRONT_URL);
+			config.addAllowedOrigin(LOCALHOST);
 	        config.addAllowedHeader("*");
 	        config.addAllowedMethod("*");
 	        config.setExposedHeaders(List.of(
