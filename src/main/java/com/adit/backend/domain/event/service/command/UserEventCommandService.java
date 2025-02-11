@@ -3,7 +3,6 @@ package com.adit.backend.domain.event.service.command;
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,8 +94,15 @@ public class UserEventCommandService {
 	public void deleteEvent(Long id) {
 		UserEvent userEvent = userEventRepository.findById(id).orElseThrow(() -> new EventException(EVENT_NOT_FOUND));
 
-		//S3에서 연관된 이미지 삭제
-		userEvent.getImages().forEach(image -> awsS3Service.deleteFile(image.getUrl()));
+		// 연관 관계 제거 (필요한 경우)
+		userEvent.assignCommonEvent(null);  // CommonEvent 관계 제거
+		userEvent.assignUser(null);  // User 관계 제거
+
+		try {
+			userEvent.getImages().forEach(image -> awsS3Service.deleteFile(image.getUrl()));
+		} catch (Exception e) {
+			throw new EventException(S3_IMAGE_DELETE_FAILED);
+		}
 
 		// 이벤트 삭제
 		userEventRepository.delete(userEvent);
