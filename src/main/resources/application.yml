@@ -82,7 +82,8 @@ cloud:
     stack:
       auto: true
 
-
+sse:
+  timeout: 6000
 
 springdoc:
   swagger-ui:
