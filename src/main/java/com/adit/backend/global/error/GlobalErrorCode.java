@@ -30,6 +30,7 @@ public enum GlobalErrorCode implements ErrorCode {
 	ILLEGAL_ARGUMENT_ERROR(HttpStatus.BAD_REQUEST, "GBL-011", "인자가 유효하지 않습니다."),
 	SERVLET_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GBL-012", "서블릿 처리 중 오류가 발생했습니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GBL-013", "서버 내부 오류가 발생했습니다."),
+	AUTHENTICATION_FALIED(UNAUTHORIZED, "GBL-014", "인증에 실패하였습니다."),
 
 	/********************************** Transaction Domain **********************************/
 	INSERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "TRX-001", "Insert Transaction Error Exception"),
