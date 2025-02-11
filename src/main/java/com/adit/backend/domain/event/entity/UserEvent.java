@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.adit.backend.domain.event.dto.request.EventUpdateRequestDto;
 import com.adit.backend.domain.image.entity.Image;
-import com.adit.backend.domain.notification.entity.Notification;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.entity.BaseEntity;
 
@@ -53,12 +52,8 @@ public class UserEvent extends BaseEntity {
 
 	private LocalDateTime startDate;
 	private LocalDateTime endDate;
-
 	private String memo;
 	private Boolean visited;
-
-	@OneToMany(mappedBy = "userEvent", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Notification> notifications = new ArrayList<>();
 
 	@OneToMany(mappedBy = "userEvent", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Image> images = new ArrayList<>();
@@ -77,11 +72,6 @@ public class UserEvent extends BaseEntity {
 	}
 
 	// 연관관계 메서드
-	public void addNotification(Notification notification) {
-		this.notifications.add(notification);
-		notification.setUserEvent(this);
-	}
-
 	public void addImage(Image image) {
 		this.images.add(image);
 		image.assignEvent(this);
