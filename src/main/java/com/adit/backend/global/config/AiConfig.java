@@ -24,6 +24,9 @@ public class AiConfig {
 	@Value("${spring.ai.openai.chat.options.model}")
 	private String defaultModel;
 
+	@Value("${spring.ai.openai.chat.options.max-tokens}")
+	private int maxCompletionToken;
+
 	@Bean
 	ChatMemory chatMemory() {
 		return new InMemoryChatMemory();
@@ -39,7 +42,9 @@ public class AiConfig {
 		ChatModel chatModel = new OpenAiChatModel(new OpenAiApi(apiKey),
 			OpenAiChatOptions.builder()
 				.model(defaultModel)
+				.maxCompletionTokens(maxCompletionToken)
 				.build());
+
 		return ChatClient
 			.builder(chatModel)
 			.defaultAdvisors(

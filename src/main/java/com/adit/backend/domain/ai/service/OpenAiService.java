@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import com.adit.backend.domain.ai.dto.response.ContentListResponse;
 import com.adit.backend.domain.ai.dto.response.CrawlCompletionResponse;
 import com.adit.backend.domain.ai.exception.AiException;
-import com.adit.backend.infra.crawler.exception.CrawlingException;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -46,8 +45,8 @@ public class OpenAiService {
 				return processWithAI(extractedContent);
 			})
 			.exceptionally(throwable -> {
-				log.error("[AI] 웹페이지 크롤링 실패 - URL: {}, 원인: {}", url, throwable.getCause());
-				throw new CrawlingException(CRAWLING_FAILED);
+				log.error("[AI] 토큰 사용량 초과 - URL: {}", url);
+				throw new AiException(EXCEEDING_TOKEN_USAGE);
 			}).join();
 	}
 

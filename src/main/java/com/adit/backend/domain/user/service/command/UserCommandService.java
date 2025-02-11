@@ -44,7 +44,7 @@ public class UserCommandService {
 	public UserResponse.InfoDto createOrUpdateUser(OAuth2UserInfo oAuth2UserInfo) {
 		User user = userQueryService.findOrGetUserByOAuthInfo(oAuth2UserInfo);
 		userRepository.save(user);
-		log.info("[User] 유저 저장 완료 email : {}", user.getEmail());
+		log.debug("[User] 유저 저장 완료 email : {}", user.getEmail());
 		return userConverter.InfoDto(user);
 	}
 

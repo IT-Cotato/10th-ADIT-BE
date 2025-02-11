@@ -105,6 +105,7 @@ public enum GlobalErrorCode implements ErrorCode {
 	/********************************** AI Domain **********************************/
 	AI_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-001", "AI 처리에 실패했습니다."),
 	AI_RESPONSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-002", "AI 응답 변환에 실패했습니다."),
+	EXCEEDING_TOKEN_USAGE(HttpStatus.INTERNAL_SERVER_ERROR,"AI-003" , "토큰 사용량을 초과했습니다."),
 
 	/********************************** Event Domain **********************************/
 	EVENT_NOT_FOUND(NOT_FOUND, "EVN-001", "이벤트를 찾을 수 없습니다."),
