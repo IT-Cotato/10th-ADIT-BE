@@ -14,7 +14,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.adit.backend.domain.notification.converter.NotificationConverter;
 import com.adit.backend.domain.notification.dto.NotificationResponse;
-import com.adit.backend.domain.notification.entity.Notification;
 import com.adit.backend.domain.notification.service.command.NotificationCommandService;
 import com.adit.backend.domain.notification.service.query.NotificationQueryService;
 import com.adit.backend.domain.user.entity.User;
@@ -49,7 +48,7 @@ public class NotificationController {
 
 	@Operation(summary = "카테고리별 알람 리스트 조회", description = "최근 일주일 내의 모은 알람 내역중 카테고리 기반 내역 반환")
 	@GetMapping("/category")
-	public ResponseEntity<ApiResponse<List<Notification>>> getNotificationsByCategory(
+	public ResponseEntity<ApiResponse<List<NotificationResponse>>> getNotificationsByCategory(
 		@AuthenticationPrincipal(expression = "user") User user,
 		@RequestParam String category) {
 		return ResponseEntity.ok(

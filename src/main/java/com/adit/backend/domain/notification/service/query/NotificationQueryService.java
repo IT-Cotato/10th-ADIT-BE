@@ -83,9 +83,11 @@ public class NotificationQueryService {
 			});
 	}
 
-	public List<Notification> getNotificationsByCategory(User user, String category) {
+	public List<NotificationResponse> getNotificationsByCategory(User user, String category) {
 		LocalDateTime cutoffDate = LocalDateTime.now().minusDays(7);
 		return notificationRepository.findByUserAndCategory(user, category, cutoffDate)
-			.orElse(Collections.emptyList());
+			.orElse(Collections.emptyList())
+			.stream().map(converter::toResponse)
+			.toList();
 	}
 }

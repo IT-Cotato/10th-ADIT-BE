@@ -12,8 +12,6 @@ import org.springframework.stereotype.Repository;
 import com.adit.backend.domain.notification.entity.Notification;
 import com.adit.backend.domain.user.entity.User;
 
-import jakarta.validation.constraints.NotNull;
-
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -21,13 +19,15 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
 	Optional<List<Notification>> findAllByUserAndIdGreaterThan(User user, Long lastId);
 
-	@Query("SELECT n FROM Notification n WHERE n.user = :user AND n.createdAt >= :cutoffDate ORDER BY n.createdAt ASC")
+	@Query("SELECT n FROM Notification n WHERE n.user = :user " +
+		"AND n.createdAt >= :cutoffDate ORDER BY n.createdAt ASC")
 	Optional<List<Notification>> findRecentNotifications(@Param("user") User user,
 		@Param("cutoffDate") LocalDateTime cutoffDate);
 
-	@Query("SELECT n FROM Notification n WHERE n.user = :user"
-		+ " AND n.category = :category"
-		+ " AND n.createdAt >= :cutoffDate ORDER BY n.createdAt ASC")
-	Optional<List<Notification>> findByUserAndCategory(@NotNull User user, @NotNull String category,
-		LocalDateTime cutoffDate);
+	@Query("SELECT n FROM Notification n WHERE n.user = :user " +
+		"AND n.category = :category " +
+		"AND n.createdAt >= :cutoffDate ORDER BY n.createdAt ASC")
+	Optional<List<Notification>> findByUserAndCategory(@Param("user") User user,
+		@Param("category") String category,
+		@Param("cutoffDate") LocalDateTime cutoffDate);
 }
