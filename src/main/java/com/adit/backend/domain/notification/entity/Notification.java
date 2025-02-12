@@ -38,6 +38,9 @@ public class Notification extends BaseEntity {
 	private NotificationType notificationType;
 
 	@NotNull
+	private String category;
+
+	@NotNull
 	@ColumnDefault("false")
 	private boolean isRead = false;
 
@@ -47,9 +50,10 @@ public class Notification extends BaseEntity {
 	private User user;
 
 	@Builder
-	public Notification(String message, NotificationType notificationType) {
+	public Notification(String message, NotificationType notificationType, String category) {
 		this.message = message;
 		this.notificationType = notificationType;
+		this.category = category;
 	}
 
 	//연관관계 메서드

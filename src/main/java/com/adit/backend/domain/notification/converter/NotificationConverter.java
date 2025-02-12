@@ -13,6 +13,7 @@ public class NotificationConverter {
 		return Notification.builder()
 			.message(message)
 			.notificationType(notificationType)
+			.category(notificationType.getCategory())
 			.build();
 	}
 
@@ -21,7 +22,9 @@ public class NotificationConverter {
 			.builder()
 			.message(notification.getMessage())
 			.notificationType(notification.getNotificationType())
+			.category(notification.getNotificationType().getCategory())
 			.isRead(notification.isRead())
+			.createdAt(notification.getCreatedAt())
 			.build();
 	}
 }

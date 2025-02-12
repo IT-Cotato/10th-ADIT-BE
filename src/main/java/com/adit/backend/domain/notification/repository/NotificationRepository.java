@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 import com.adit.backend.domain.notification.entity.Notification;
 import com.adit.backend.domain.user.entity.User;
 
+import jakarta.validation.constraints.NotNull;
+
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -22,4 +24,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 	@Query("SELECT n FROM Notification n WHERE n.user = :user AND n.createdAt >= :cutoffDate ORDER BY n.createdAt ASC")
 	Optional<List<Notification>> findRecentNotifications(@Param("user") User user,
 		@Param("cutoffDate") LocalDateTime cutoffDate);
+
+
+	Optional<List<Notification>> findByUserAndCategory(@NotNull User user, @NotNull String category);
 }

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.adit.backend.domain.notification.converter.NotificationConverter;
+import com.adit.backend.domain.notification.dto.NotificationResponse;
 import com.adit.backend.domain.notification.entity.Notification;
 import com.adit.backend.domain.notification.exception.NotificationException;
 import com.adit.backend.domain.notification.repository.NotificationRepository;
@@ -38,12 +39,13 @@ public class NotificationQueryService {
 			.orElseThrow(() -> new NotificationException(NOTIFICATION_NOT_FOUND));
 	}
 
-	public List<Notification> getRecentNotifications(String userEmail) {
+	public List<NotificationResponse> getRecentNotifications(String userEmail) {
 		User user = userQueryService.findUserByEmail(userEmail);
 		LocalDateTime cutoffDate = LocalDateTime.now().minusDays(7);
 		return notificationRepository.findRecentNotifications(user, cutoffDate)
 			.orElse(Collections.emptyList())
-			.stream().toList();
+			.stream().map(converter::toResponse)
+			.toList();
 	}
 
 	public List<Notification> getMissedNotifications(User user, Long lastId) {
@@ -81,4 +83,8 @@ public class NotificationQueryService {
 			});
 	}
 
+	public List<Notification> getNotificationsByCategory(User user, String category) {
+		return notificationRepository.findByUserAndCategory(user, category)
+			.orElse(Collections.emptyList());
+	}
 }
