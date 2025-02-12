@@ -5,7 +5,6 @@ import com.adit.backend.domain.notification.enums.NotificationType;
 import lombok.Builder;
 
 @Builder
-public record NotificationResponse(String message, NotificationType notificationType, String relatedUri,
-								   boolean isRead) {
+public record NotificationResponse(String message, NotificationType notificationType, boolean isRead) {
 }
 

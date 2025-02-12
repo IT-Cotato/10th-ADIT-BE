@@ -37,8 +37,6 @@ public class Notification extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private NotificationType notificationType;
 
-	private String relatedUri;
-
 	@NotNull
 	@ColumnDefault("false")
 	private boolean isRead = false;
@@ -49,10 +47,9 @@ public class Notification extends BaseEntity {
 	private User user;
 
 	@Builder
-	public Notification(String message, NotificationType notificationType, String relatedUri) {
+	public Notification(String message, NotificationType notificationType) {
 		this.message = message;
 		this.notificationType = notificationType;
-		this.relatedUri = relatedUri;
 	}
 
 	//연관관계 메서드

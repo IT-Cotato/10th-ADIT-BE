@@ -9,12 +9,11 @@ import com.adit.backend.domain.notification.enums.NotificationType;
 @Component
 public class NotificationConverter {
 
-	public Notification toEntity(String message, NotificationType notificationType, String relatedUri) {
+	public Notification toEntity(String message, NotificationType notificationType) {
 		return Notification.builder()
 			.message(message)
 			.notificationType(notificationType)
-			.relatedUri(relatedUri).
-			build();
+			.build();
 	}
 
 	public NotificationResponse toResponse(Notification notification) {
@@ -22,7 +21,6 @@ public class NotificationConverter {
 			.builder()
 			.message(notification.getMessage())
 			.notificationType(notification.getNotificationType())
-			.relatedUri(notification.getRelatedUri())
 			.isRead(notification.isRead())
 			.build();
 	}

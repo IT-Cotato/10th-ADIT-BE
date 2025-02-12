@@ -6,8 +6,6 @@ import lombok.Builder;
 
 @Builder
 public record NotificationEvent(
-	String userKey,
+	String userEmail,
 	String message,
-	NotificationType notificationType,
-	String relatedUri
-) {}
+	NotificationType notificationType) {}
