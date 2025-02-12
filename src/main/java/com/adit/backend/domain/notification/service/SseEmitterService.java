@@ -2,7 +2,6 @@ package com.adit.backend.domain.notification.service;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -21,31 +20,30 @@ public class SseEmitterService {
 
 	private final SseEmitterRepository sseEmitterRepository;
 
-	@Value("${sse.timeout}")
-	private Long timeout;
+	private static final Long TIMEOUT = 30 * 60 * 1000L;
 
-	public SseEmitter createEmitter(String emitterKey) {
-		return sseEmitterRepository.save(emitterKey, new SseEmitter(timeout));
+	public SseEmitter createEmitter(String userEmail) {
+		return sseEmitterRepository.save(userEmail, new SseEmitter(TIMEOUT));
 	}
 
-	public void deleteEmitter(String emitterKey) {
-		sseEmitterRepository.deleteById(emitterKey);
+	public void deleteEmitter(String userEmail) {
+		sseEmitterRepository.deleteByUserEmail(userEmail);
 	}
 
-	public void sendNotificationToClient(String emitterKey, NotificationResponse response) {
-		sseEmitterRepository.findById(emitterKey)
-			.ifPresent(emitter -> send(response, emitterKey, emitter));
+	public void sendNotificationToClient(String userEmail, NotificationResponse response) {
+		sseEmitterRepository.findById(userEmail)
+			.ifPresent(emitter -> send(response, userEmail, emitter));
 	}
 
-	public void send(Object data, String emitterKey, SseEmitter sseEmitter) {
+	public void send(Object data, String userEmail, SseEmitter sseEmitter) {
 		try {
-			log.info("send to client {}:[{}]", emitterKey, data);
+			log.info("send to client {}:[{}]", userEmail, data);
 			sseEmitter.send(SseEmitter.event()
-				.id(emitterKey)
+				.id(userEmail)
 				.data(data, MediaType.APPLICATION_JSON));
 		} catch (IOException | IllegalStateException e) {
-			log.error("[Notification] IOException 또는 IllegalStateException이 발생했습니다.", e);
-			sseEmitterRepository.deleteById(emitterKey);
+			log.error("[SSE] IOException 또는 IllegalStateException이 발생했습니다.", e);
+			sseEmitterRepository.deleteByUserEmail(userEmail);
 		}
 	}
 }
