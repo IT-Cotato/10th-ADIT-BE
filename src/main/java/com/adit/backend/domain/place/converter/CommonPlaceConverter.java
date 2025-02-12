@@ -61,6 +61,8 @@ public class CommonPlaceConverter {
 				.stream()
 				.map(Image::getUrl)
 				.collect(Collectors.toList()))
+			.longitude(userPlace.getCommonPlace().getLongitude())
+			.latitude(userPlace.getCommonPlace().getLatitude())
 			.build();
 	}
 
