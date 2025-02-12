@@ -25,6 +25,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 	Optional<List<Notification>> findRecentNotifications(@Param("user") User user,
 		@Param("cutoffDate") LocalDateTime cutoffDate);
 
-
-	Optional<List<Notification>> findByUserAndCategory(@NotNull User user, @NotNull String category);
+	@Query("SELECT n FROM Notification n WHERE n.user = :user"
+		+ " AND n.category = :category"
+		+ " AND n.createdAt >= :cutoffDate ORDER BY n.createdAt ASC")
+	Optional<List<Notification>> findByUserAndCategory(@NotNull User user, @NotNull String category,
+		LocalDateTime cutoffDate);
 }

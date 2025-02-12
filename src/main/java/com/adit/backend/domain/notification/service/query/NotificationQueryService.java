@@ -84,7 +84,8 @@ public class NotificationQueryService {
 	}
 
 	public List<Notification> getNotificationsByCategory(User user, String category) {
-		return notificationRepository.findByUserAndCategory(user, category)
+		LocalDateTime cutoffDate = LocalDateTime.now().minusDays(7);
+		return notificationRepository.findByUserAndCategory(user, category, cutoffDate)
 			.orElse(Collections.emptyList());
 	}
 }
