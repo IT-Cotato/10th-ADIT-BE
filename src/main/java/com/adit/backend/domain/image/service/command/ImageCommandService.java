@@ -14,6 +14,7 @@ import com.adit.backend.domain.event.entity.UserEvent;
 import com.adit.backend.domain.image.converter.ImageConverter;
 import com.adit.backend.domain.image.dto.response.ImageResponseDto;
 import com.adit.backend.domain.image.entity.Image;
+import com.adit.backend.domain.image.enums.Directory;
 import com.adit.backend.domain.image.repository.ImageRepository;
 import com.adit.backend.domain.image.service.query.ImageQueryService;
 import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
@@ -44,7 +45,16 @@ public class ImageCommandService {
 		Image image = imageQueryService.getImageById(imageId);
 		String newImageUrl = s3Service.updateImage(image.getUrl(), multipartFile).join();
 		image.updateUrl(newImageUrl);
-		return imageConverter.toResponse(image);
+		return imageConverter.toResponse(image); // ImageResponseDto 반환
+	}
+
+	/**
+	 * 여러 개의 MultipartFile을 업로드하는 메서드 추가
+	 */
+	public List<Image> uploadImages(List<MultipartFile> files, String dirName) {
+		List<Image> imageList = s3Service.uploadFiles(files, dirName).join();
+		imageRepository.saveAll(imageList);
+		return imageList;
 	}
 
 	// 이미지 삭제
@@ -79,7 +89,7 @@ public class ImageCommandService {
 
 	// UserEvent에 이미지 연관관계 추가 후 저장
 	public void addImageToUserEvent(EventRequestDto request, User user, UserEvent userEvent) {
-		List<Image> imageList = s3Service.uploadFile(request.imageUrlList(), USER.getPath() + user.getId()).join();
+		List<Image> imageList = s3Service.uploadFile(request.imageUrlList(), Directory.USER.getPath() + user.getId()).join();
 		imageList.forEach(userEvent::addImage);
 		imageRepository.saveAll(imageList);
 
