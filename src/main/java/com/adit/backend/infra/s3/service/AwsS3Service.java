@@ -94,6 +94,39 @@ public class AwsS3Service {
 			);
 	}
 
+	@Async("imageUploadExecutor")
+	public CompletableFuture<List<Image>> uploadFiles(List<MultipartFile> newFiles, String dirName) {
+		log.info("[S3] MultipartFile 업로드 시작: {}", newFiles.size());
+
+		List<CompletableFuture<Image>> futureList = newFiles.stream()
+			.map(file -> CompletableFuture.supplyAsync(() -> {
+				try {
+					// S3 파일명 생성
+					String fileName = createFileName(file.getOriginalFilename(), dirName, file.getContentType());
+
+					// 메타데이터 설정
+					ObjectMetadata metadata = new ObjectMetadata();
+					metadata.setContentType(file.getContentType());
+					metadata.setContentLength(file.getSize());
+
+					// S3 업로드
+					amazonS3.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
+						.withCannedAcl(CannedAccessControlList.PublicRead));
+
+					return Image.builder().url(getUrlFromBucket(fileName)).build();
+				} catch (Exception e) {
+					throw new S3Exception(S3_UPLOAD_FAILED);
+				}
+			}, imageUploadExecutor))
+			.toList();
+
+		return CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0]))
+			.thenApply(voidResult -> futureList.stream()
+				.map(CompletableFuture::join)
+				.toList()
+			);
+	}
+
 	// 기존 이미지 제거 후 동일 경로에 새 이미지 업데이트 후 URL 반환
 	@Async("imageUploadExecutor")
 	public CompletableFuture<String> updateImage(String oldImageUrl, MultipartFile newImage) {
