@@ -15,7 +15,6 @@ import lombok.Getter;
  * DTO for {@link Image}
  */
 @Builder
-@Getter
 public record ImageResponseDto(@NotNull(message = "이미지 ID는 null일 수 없습니다.") Long id,
 							   CommonPlace commonPlace,
 							   UserPlace userPlace,
