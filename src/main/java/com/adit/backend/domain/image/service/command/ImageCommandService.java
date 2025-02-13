@@ -45,7 +45,7 @@ public class ImageCommandService {
 		Image image = imageQueryService.getImageById(imageId);
 		String newImageUrl = s3Service.updateImage(image.getUrl(), multipartFile).join();
 		image.updateUrl(newImageUrl);
-		return imageConverter.toResponse(image);
+		return imageConverter.toResponse(image); // ImageResponseDto 반환
 	}
 
 	/**

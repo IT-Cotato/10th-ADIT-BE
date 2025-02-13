@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -162,6 +161,7 @@ public class AwsS3Service {
 		}, imageUploadExecutor);
 	}
 
+	// 딱히 사용은 하지 않는데, 일단 구현만 해놓음
 	@Async("imageUploadExecutor")
 	public CompletableFuture<List<String>> updateImages(List<String> oldImageUrls, List<MultipartFile> newImages) {
 		List<CompletableFuture<String>> updateFutures = IntStream.range(0, oldImageUrls.size())
