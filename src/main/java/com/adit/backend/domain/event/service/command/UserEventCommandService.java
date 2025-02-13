@@ -108,8 +108,14 @@ public class UserEventCommandService {
 		UserEvent userEvent = userEventRepository.findById(id)
 			.orElseThrow(() -> new EventException(EVENT_NOT_FOUND));
 
-		// 이미지 삭제 (ImageCommandService 활용)
-		userEvent.getImages().forEach(image -> imageCommandService.deleteImage(image.getId()));
+		// 이미지 삭제 (삭제 실패시 로깅만 수행)
+		userEvent.getImages().forEach(image -> {
+			try {
+				imageCommandService.deleteImage(image.getId());
+			} catch (Exception e) {
+				log.error("[S3] 이미지 삭제 실패: {}", image.getUrl(), e);
+			}
+		});
 
 		// 이벤트 삭제
 		userEventRepository.delete(userEvent);
