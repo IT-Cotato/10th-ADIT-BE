@@ -145,7 +145,7 @@ public class AuthService {
 		ZonedDateTime expirationTime = seoulTime.plusSeconds(Long.parseLong(refreshTokenExpiresAt));
 		cookie.setMaxAge((int)(expirationTime.toEpochSecond() - seoulTime.toEpochSecond()));
 		//cookie.setSecure(true);
-		cookie.setHttpOnly(true);
+		//cookie.setHttpOnly(true);
 		response.addCookie(cookie);
 		log.debug("[Token] 리프레시 토큰 쿠키 생성 - name: {}, maxAge: {}", refreshTokenCookieName, cookie.getMaxAge());
 	}
