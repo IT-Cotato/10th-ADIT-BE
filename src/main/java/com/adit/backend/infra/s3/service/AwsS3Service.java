@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -160,6 +161,41 @@ public class AwsS3Service {
 			}
 		}, imageUploadExecutor);
 	}
+
+	@Async("imageUploadExecutor")
+	public CompletableFuture<List<String>> updateImages(List<String> oldImageUrls, List<MultipartFile> newImages) {
+		List<CompletableFuture<String>> updateFutures = IntStream.range(0, oldImageUrls.size())
+			.mapToObj(i -> CompletableFuture.supplyAsync(() -> {
+				try {
+					AmazonS3URI oldS3Uri = new AmazonS3URI(oldImageUrls.get(i));
+					String oldKey = oldS3Uri.getKey();
+					amazonS3.deleteObject(new DeleteObjectRequest(bucket, oldKey));
+
+					// 기존 이미지의 폴더 유지
+					String dirName = ImageUtil.extractPathWithoutFileName(oldKey);
+					String newKey = createFileName(newImages.get(i).getOriginalFilename(), dirName, newImages.get(i).getContentType());
+
+					ObjectMetadata metadata = new ObjectMetadata();
+					metadata.setContentType(newImages.get(i).getContentType());
+					metadata.setContentLength(newImages.get(i).getSize());
+
+					amazonS3.putObject(new PutObjectRequest(bucket, newKey, newImages.get(i).getInputStream(), metadata)
+						.withCannedAcl(CannedAccessControlList.PublicRead));
+
+					return getUrlFromBucket(newKey);
+				} catch (Exception e) {
+					throw new S3Exception(S3_UPDATE_FAILED);
+				}
+			}, imageUploadExecutor))
+			.toList();
+
+		return CompletableFuture.allOf(updateFutures.toArray(new CompletableFuture[0]))
+			.thenApply(voidResult -> updateFutures.stream()
+				.map(CompletableFuture::join)
+				.toList()
+			);
+	}
+
 
 	public void deleteFile(String fileUrl) {
 		try {
