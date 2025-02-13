@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.adit.backend.domain.event.dto.request.EventRequestDto;
 import com.adit.backend.domain.event.dto.request.EventUpdateRequestDto;
@@ -87,9 +91,20 @@ public class EventController {
     }
 
     @Operation(summary = "이벤트 수정", description = "기존 이벤트의 세부 정보를 수정합니다.")
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<EventResponseDto>> updateEvent(@PathVariable Long id, @RequestBody EventUpdateRequestDto request) {
-        EventResponseDto event = commandService.updateEvent(id, request);
+    @PatchMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<ApiResponse<EventResponseDto>> updateEvent(
+        @PathVariable Long id,
+        @RequestPart(value = "eventUpdateRequest") EventUpdateRequestDto request,  // JSON을 받기 위해 @RequestPart로 변경
+        @RequestPart(value = "file", required = false) List<MultipartFile> newImageList ) {
+
+        EventResponseDto event = commandService.updateEvent(id, request, newImageList);
         return ResponseEntity.ok(ApiResponse.success(event));
+    }
+
+    @Operation(summary = "이벤트 삭제", description = "이벤트 ID를 기반으로 해당 이벤트를 삭제합니다.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable Long id) {
+    commandService.deleteEvent(id);
+    return ResponseEntity.noContent().build();
     }
 }

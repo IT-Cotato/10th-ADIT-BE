@@ -10,6 +10,7 @@ import java.net.URLConnection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -93,6 +94,39 @@ public class AwsS3Service {
 			);
 	}
 
+	@Async("imageUploadExecutor")
+	public CompletableFuture<List<Image>> uploadFiles(List<MultipartFile> newFiles, String dirName) {
+		log.info("[S3] MultipartFile 업로드 시작: {}", newFiles.size());
+
+		List<CompletableFuture<Image>> futureList = newFiles.stream()
+			.map(file -> CompletableFuture.supplyAsync(() -> {
+				try {
+					// S3 파일명 생성
+					String fileName = createFileName(file.getOriginalFilename(), dirName, file.getContentType());
+
+					// 메타데이터 설정
+					ObjectMetadata metadata = new ObjectMetadata();
+					metadata.setContentType(file.getContentType());
+					metadata.setContentLength(file.getSize());
+
+					// S3 업로드
+					amazonS3.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
+						.withCannedAcl(CannedAccessControlList.PublicRead));
+
+					return Image.builder().url(getUrlFromBucket(fileName)).build();
+				} catch (Exception e) {
+					throw new S3Exception(S3_UPLOAD_FAILED);
+				}
+			}, imageUploadExecutor))
+			.toList();
+
+		return CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0]))
+			.thenApply(voidResult -> futureList.stream()
+				.map(CompletableFuture::join)
+				.toList()
+			);
+	}
+
 	// 기존 이미지 제거 후 동일 경로에 새 이미지 업데이트 후 URL 반환
 	@Async("imageUploadExecutor")
 	public CompletableFuture<String> updateImage(String oldImageUrl, MultipartFile newImage) {
@@ -127,6 +161,42 @@ public class AwsS3Service {
 		}, imageUploadExecutor);
 	}
 
+	// 딱히 사용은 하지 않는데, 일단 구현만 해놓음
+	@Async("imageUploadExecutor")
+	public CompletableFuture<List<String>> updateImages(List<String> oldImageUrls, List<MultipartFile> newImages) {
+		List<CompletableFuture<String>> updateFutures = IntStream.range(0, oldImageUrls.size())
+			.mapToObj(i -> CompletableFuture.supplyAsync(() -> {
+				try {
+					AmazonS3URI oldS3Uri = new AmazonS3URI(oldImageUrls.get(i));
+					String oldKey = oldS3Uri.getKey();
+					amazonS3.deleteObject(new DeleteObjectRequest(bucket, oldKey));
+
+					// 기존 이미지의 폴더 유지
+					String dirName = ImageUtil.extractPathWithoutFileName(oldKey);
+					String newKey = createFileName(newImages.get(i).getOriginalFilename(), dirName, newImages.get(i).getContentType());
+
+					ObjectMetadata metadata = new ObjectMetadata();
+					metadata.setContentType(newImages.get(i).getContentType());
+					metadata.setContentLength(newImages.get(i).getSize());
+
+					amazonS3.putObject(new PutObjectRequest(bucket, newKey, newImages.get(i).getInputStream(), metadata)
+						.withCannedAcl(CannedAccessControlList.PublicRead));
+
+					return getUrlFromBucket(newKey);
+				} catch (Exception e) {
+					throw new S3Exception(S3_UPDATE_FAILED);
+				}
+			}, imageUploadExecutor))
+			.toList();
+
+		return CompletableFuture.allOf(updateFutures.toArray(new CompletableFuture[0]))
+			.thenApply(voidResult -> updateFutures.stream()
+				.map(CompletableFuture::join)
+				.toList()
+			);
+	}
+
+
 	public void deleteFile(String fileUrl) {
 		try {
 			AmazonS3URI s3Uri = new AmazonS3URI(fileUrl);
@@ -144,3 +214,4 @@ public class AwsS3Service {
 	}
 
 }
+

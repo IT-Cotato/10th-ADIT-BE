@@ -5,6 +5,8 @@ import static com.adit.backend.global.error.GlobalErrorCode.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.adit.backend.domain.event.entity.EventStatistics;
+import com.adit.backend.domain.event.repository.EventStatisticsRepository;
 import com.adit.backend.domain.image.service.command.ImageCommandService;
 import com.adit.backend.domain.place.converter.CommonPlaceConverter;
 import com.adit.backend.domain.place.converter.UserPlaceConverter;
@@ -26,18 +28,26 @@ import lombok.RequiredArgsConstructor;
 public class UserPlaceCommandService {
 
 	private final UserPlaceRepository userPlaceRepository;
+	private final EventStatisticsRepository eventStatisticsRepository;
 	private final CommonPlaceConverter commonPlaceConverter;
 	private final UserPlaceConverter userPlaceConverter;
 	private final UserQueryService userQueryService;
 	private final CommonPlaceCommandService commonPlaceCommandService;
 	private final ImageCommandService imageCommandService;
 
-	// 장소 저장
+	// 장소 저장시, EventStatistics.bookmarkCount 증가
 	public PlaceResponseDto createUserPlace(Long userId, PlaceRequestDto request) {
 		User user = userQueryService.findUserById(userId);
 		CommonPlace commonPlace = commonPlaceCommandService.saveOrFindCommonPlace(request);
 		UserPlace userPlace = userPlaceConverter.toEntity(request);
 		saveUserPlaceRelation(user, commonPlace, userPlace);
+
+		/**
+		 * EventStatistics의 bookmarkCount 증가
+ 		 */
+		eventStatisticsRepository.findByCommonEventId(commonPlace.getId())
+			.ifPresent(EventStatistics::incrementBookmarkCount);
+
 		if (!request.imageUrlList().isEmpty()) {
 			imageCommandService.addImageToUserPlace(request, user, userPlace);
 		}
