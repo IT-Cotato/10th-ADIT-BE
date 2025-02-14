@@ -29,11 +29,11 @@ public class PlaceStatistics extends BaseEntity {
 	@JoinColumn(name = "common_place_id", nullable = false)
 	private CommonPlace commonPlace;
 
-	private Integer bookmarkCount;
+	private int bookmarkCount;
 	private Integer visitCount;
 
 	@Builder
-	public PlaceStatistics(CommonPlace commonPlace, Integer bookmarkCount, Integer visitCount){
+	public PlaceStatistics(CommonPlace commonPlace, int bookmarkCount, Integer visitCount){
 		this.commonPlace = commonPlace;
 		this.bookmarkCount = bookmarkCount;
 		this.visitCount = visitCount;
