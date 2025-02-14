@@ -102,8 +102,7 @@ public class UserPlaceCommandService {
 	}
 
 	public boolean duplicatePlace(Long userId, PlaceRequestDto request) {
-		UserPlace userPlace = userPlaceRepository.findDuplicatePlace(userId, request.url());
-		return userPlace == null;
+		return userPlaceRepository.findDuplicatePlace(userId, request.url()) == null;
 	}
 
 	public ImageResponseDto updateUserPlaceImage(Long userPlaceId, MultipartFile multipartFile) {

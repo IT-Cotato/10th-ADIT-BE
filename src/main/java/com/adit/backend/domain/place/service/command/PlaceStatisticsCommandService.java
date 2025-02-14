@@ -20,9 +20,7 @@ public class PlaceStatisticsCommandService {
 		PlaceStatistics place = placeStatisticsRepository.findByCommonPlaceId(commonPlace.getId())
 			.orElseGet(() -> PlaceStatistics.builder()
 							.commonPlace(commonPlace)
-							.bookmarkCount(0)
-							.visitCount(0)
-							.build());
+				   			.build());
 
 		place.updateBookMarkCount();
 		placeStatisticsRepository.save(place);

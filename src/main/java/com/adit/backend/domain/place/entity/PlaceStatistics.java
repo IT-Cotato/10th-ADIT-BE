@@ -1,5 +1,7 @@
 package com.adit.backend.domain.place.entity;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import com.adit.backend.global.entity.BaseEntity;
 
 import jakarta.persistence.Entity;
@@ -29,7 +31,10 @@ public class PlaceStatistics extends BaseEntity {
 	@JoinColumn(name = "common_place_id", nullable = false)
 	private CommonPlace commonPlace;
 
+	@ColumnDefault("0")
 	private int bookmarkCount;
+
+	@ColumnDefault("0")
 	private Integer visitCount;
 
 	@Builder
