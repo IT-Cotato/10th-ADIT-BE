@@ -1,4 +1,8 @@
 # 서버환경입니다. application-dev.yml
+
+server:
+  shutdown: graceful
+
 spring:
   config:
     import: optional:file:/home/${EC2_USERNAME}/.env[.properties]
@@ -20,6 +24,7 @@ spring:
         hbm2ddl:
           auto: update
         default_batch_fetch_size: 1000
-
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 redirect:
   url: ${FRONT_LOCAL_URL}/login/kakao
