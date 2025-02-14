@@ -171,9 +171,9 @@ public class PlaceController {
 	//장소 이미지 수정 API
 	@Operation(summary = "장소 이미지 수정", description = "userPlaceId에 해당하는 장소의 이미지 수정")
 	@PutMapping("/{userPlaceId}/image")
-	public ResponseEntity<ApiResponse<ImageResponseDto>> updateUserPlaceImage(@PathVariable Long userPlaceId
-		, MultipartFile multipartFile){
-		ImageResponseDto imageResponseDto = userPlaceCommandService.updateUserPlaceImage(userPlaceId, multipartFile);
-		return ResponseEntity.ok(ApiResponse.success(imageResponseDto));
+	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlaceImage(@PathVariable Long userPlaceId
+		, List<MultipartFile> multipartFile){
+		PlaceResponseDto placeResponseDto = userPlaceCommandService.updateUserPlaceImage(userPlaceId, multipartFile);
+		return ResponseEntity.ok(ApiResponse.success(placeResponseDto));
 	}
 }

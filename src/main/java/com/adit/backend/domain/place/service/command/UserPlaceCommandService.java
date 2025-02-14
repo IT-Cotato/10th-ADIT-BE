@@ -2,6 +2,9 @@ package com.adit.backend.domain.place.service.command;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +14,7 @@ import com.adit.backend.domain.event.repository.EventStatisticsRepository;
 import com.adit.backend.domain.image.converter.ImageConverter;
 import com.adit.backend.domain.image.dto.response.ImageResponseDto;
 import com.adit.backend.domain.image.entity.Image;
+import com.adit.backend.domain.image.enums.Directory;
 import com.adit.backend.domain.image.exception.ImageException;
 import com.adit.backend.domain.image.repository.ImageRepository;
 import com.adit.backend.domain.image.service.command.ImageCommandService;
@@ -105,10 +109,36 @@ public class UserPlaceCommandService {
 		return userPlaceRepository.findDuplicatePlace(userId, request.url()) == null;
 	}
 
-	public ImageResponseDto updateUserPlaceImage(Long userPlaceId, MultipartFile multipartFile) {
-		Image image = imageRepository.findByUserPlaceId(userPlaceId)
-			.orElseThrow(() -> new ImageException(IMAGE_NOT_FOUND));
-		ImageResponseDto imageResponseDto = imageCommandService.updateImage(image.getId(), multipartFile);
-		return imageConverter.toResponseForUserPlace(imageResponseDto);
+	public PlaceResponseDto updateUserPlaceImage(Long userPlaceId, List<MultipartFile> newImageList) {
+		UserPlace userPlace = userPlaceRepository.findById(userPlaceId).orElseThrow(() -> new PlaceException(USER_PLACE_NOT_FOUND));
+
+		List<Image> existingImages = userPlace.getImages();
+		if (newImageList == null || newImageList.isEmpty()) {
+			return userPlaceConverter.toResponse(userPlace);
+		}
+
+		// 기존 이미지 업데이트 (stream() 활용)
+		List<String> updatedImageUrls = IntStream.range(0, Math.min(existingImages.size(), newImageList.size()))
+			.mapToObj(i -> {
+				Image oldImage = existingImages.get(i);
+				return imageCommandService.updateImage(oldImage.getId(), newImageList.get(i)).url();
+			})
+			.toList(); // 변경된 URL 리스트 저장
+
+		// 업데이트된 URL을 한 번에 반영
+		IntStream.range(0, updatedImageUrls.size()).forEach(i -> existingImages.get(i).updateUrl(updatedImageUrls.get(i)));
+
+		// 새로운 이미지 추가 (Directory.EVENT.getPath() 사용)
+		if (newImageList.size() > existingImages.size()) {
+			List<MultipartFile> extraFiles = newImageList.subList(existingImages.size(), newImageList.size());
+
+			if (!extraFiles.isEmpty()) {
+				List<Image> extraImages = imageCommandService.uploadImages(extraFiles, Directory.EVENT.getPath());
+				extraImages.forEach(userPlace::addImage);
+			}
+		}
+
+
+		return userPlaceConverter.toResponse(userPlace);
 	}
 }
