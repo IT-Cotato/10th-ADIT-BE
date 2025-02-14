@@ -2,6 +2,7 @@ package com.adit.backend.domain.event.entity;
 
 import com.adit.backend.global.entity.BaseEntity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -29,6 +30,19 @@ public class EventStatistics extends BaseEntity {
 	@JoinColumn(name = "common_event_id", nullable = false)
 	private CommonEvent commonEvent;
 
-	private Integer bookmarkCount;
-	private Integer visitCount;
+	@Column(nullable = false)
+	private Integer bookmarkCount = 0; // 기본값 추가
+
+	@Column(nullable = false)
+	private Integer visitCount = 0; // 기본값 추가
+
+	// bookmarkCount 증가 메서드 추가
+	public void incrementBookmarkCount() {
+		this.bookmarkCount++;
+	}
+
+	// visitCount 증가 메서드 추가
+	public void incrementVisitCount() {
+		this.visitCount++;
+	}
 }
