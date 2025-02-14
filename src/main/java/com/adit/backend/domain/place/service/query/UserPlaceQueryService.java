@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +22,10 @@ import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.place.repository.UserPlaceRepository;
 import com.adit.backend.domain.user.converter.UserConverter;
 import com.adit.backend.domain.user.dto.response.UserResponse;
-import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.domain.user.repository.FriendshipRepository;
 import com.adit.backend.domain.user.repository.UserRepository;
+import com.adit.backend.domain.user.service.query.UserQueryService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,8 +37,8 @@ public class UserPlaceQueryService {
 	private final UserPlaceRepository userPlaceRepository;
 	private final FriendshipRepository friendshipRepository;
 	private final CommonPlaceConverter commonPlaceConverter;
-	private final UserRepository userRepository;
-	private final UserConverter userConverter;
+	private final CommonPlaceQueryService commonPlaceQueryService;
+	private final UserQueryService userQueryService;
 
 	public List<PlaceResponseDto> getPlaceByCategory(List<String> subCategory, Long userId) {
 		// 기존: throw new NotValidException("RequestParam not valid");
@@ -120,24 +119,14 @@ public class UserPlaceQueryService {
 		if (friendsId.isEmpty()) {
 			throw new PlaceException(FRIEND_NOT_FOUND);
 		}
-		Map<CommonPlace, Integer> friendsCommonplace = new HashMap<>();
-		friendsId.forEach(id -> {
-			 userPlaceRepository.findByUserId(id)
-				 .forEach(userPlace -> friendsCommonplace.merge(userPlace.getCommonPlace(), 1, Integer::sum));
+		Map<CommonPlace, Integer> friendsCommonplace = commonPlaceQueryService.countCommonPlacesByFriends(friendsId);
 
+		List<CommonPlace> sortedCommonPlaces = commonPlaceQueryService.sortCommonPlacesByFrequency(friendsCommonplace);
+
+		sortedCommonPlaces.forEach(commonPlace -> {
+			List<UserResponse.InfoDto> friendInfoList = userQueryService.findUsersByCommonPlaceId(commonPlace.getId());
+			response.put(commonPlaceConverter.commonPlaceToResponse(commonPlace), friendInfoList);
 		});
-		Set<CommonPlace> key = friendsCommonplace.keySet();
-		List<CommonPlace> keyList = new ArrayList<>(key);
-		keyList.sort((a1,b1) -> friendsCommonplace.get(b1) - friendsCommonplace.get(a1));
-		for(CommonPlace commonPlace : keyList){
-			List<Long> friendIds = userPlaceRepository.findByCommonPlaceId(commonPlace.getId());
-			List<UserResponse.InfoDto> friendinfoList = friendIds.stream()
-				.map(id -> userRepository.findById(id).orElseThrow(() -> new UserException(USER_NOT_FOUND)))
-				.map(userConverter::InfoDto)
-				.toList();
-
-			response.put(commonPlaceConverter.commonPlaceToResponse(commonPlace), friendinfoList);
-		}
 		return response;
 	}
 }

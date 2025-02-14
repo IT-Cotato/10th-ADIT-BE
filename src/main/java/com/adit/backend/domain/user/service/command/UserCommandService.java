@@ -1,11 +1,5 @@
 package com.adit.backend.domain.user.service.command;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.regex.Pattern;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +7,8 @@ import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
 import com.adit.backend.domain.user.converter.UserConverter;
 import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.User;
-import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.domain.user.repository.UserRepository;
 import com.adit.backend.domain.user.service.query.UserQueryService;
-import com.adit.backend.global.error.GlobalErrorCode;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +22,6 @@ public class UserCommandService {
 	private final UserRepository userRepository;
 	private final UserQueryService userQueryService;
 	private final UserConverter userConverter;
-
-
 
 	public UserResponse.InfoDto changeNickname(User user, String nickname) {
 		userQueryService.validateDuplicateNicknames(nickname);
@@ -47,9 +37,6 @@ public class UserCommandService {
 		log.debug("[User] 유저 저장 완료 email : {}", user.getEmail());
 		return userConverter.InfoDto(user);
 	}
-
-
-
 
 }
 

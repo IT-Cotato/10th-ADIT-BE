@@ -2,7 +2,9 @@ package com.adit.backend.domain.place.service.query;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +16,7 @@ import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.exception.PlaceException;
 import com.adit.backend.domain.place.repository.CommonPlaceRepository;
+import com.adit.backend.domain.place.repository.UserPlaceRepository;
 import com.adit.backend.global.error.exception.BusinessException;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ public class CommonPlaceQueryService {
 
 	private final CommonPlaceRepository commonPlaceRepository;
 	private final CommonPlaceConverter commonPlaceConverter;
+	private final UserPlaceRepository userPlaceRepository;
 
 	private static final int DEFAULT_PAGE_NUMBER = 0;
 	private static final int DEFAULT_PAGE_SIZE = 5;
@@ -54,4 +58,21 @@ public class CommonPlaceQueryService {
 		return commonPlaceConverter.commonPlaceToResponse(commonPlace);
 
 	}
+
+	public Map<CommonPlace, Integer> countCommonPlacesByFriends(List<Long> friendsId) {
+		Map<CommonPlace, Integer> friendsCommonplace = new HashMap<>();
+		friendsId.forEach(id -> {
+			userPlaceRepository.findByUserId(id)
+				.forEach(userPlace -> friendsCommonplace.merge(userPlace.getCommonPlace(), 1, Integer::sum));
+		});
+		return friendsCommonplace;
+	}
+
+	public List<CommonPlace> sortCommonPlacesByFrequency(Map<CommonPlace, Integer> friendsCommonplace) {
+		return friendsCommonplace.keySet().stream()
+			.sorted((a1, b1) -> friendsCommonplace.get(b1) - friendsCommonplace.get(a1))
+			.toList();
+	}
+
+
 }
