@@ -2,10 +2,15 @@ package com.adit.backend.domain.user.service.query;
 
 import static com.adit.backend.global.error.GlobalErrorCode.*;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adit.backend.domain.auth.dto.OAuth2UserInfo;
+import com.adit.backend.domain.place.repository.UserPlaceRepository;
+import com.adit.backend.domain.user.converter.UserConverter;
+import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.domain.user.exception.UserException;
 import com.adit.backend.domain.user.repository.UserRepository;
@@ -21,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 public class UserQueryService {
 
 	private final UserRepository userRepository;
+	private final UserPlaceRepository userPlaceRepository;
+	private final UserConverter userConverter;
 
 	public User findUserById(Long userId) {
 		return userRepository.findById(userId)
@@ -43,5 +50,12 @@ public class UserQueryService {
 		} else if (userRepository.existsByNickname(nickname)) {
 			throw new UserException(NICKNAME_ALREADY_EXIST);
 		}
+	}
+
+	public List<UserResponse.InfoDto> findUsersByCommonPlaceId(Long commonPlaceId) {
+		return userPlaceRepository.findByCommonPlaceId(commonPlaceId).stream()
+			.map(id -> userRepository.findById(id).orElseThrow(() -> new UserException(USER_NOT_FOUND)))
+			.map(userConverter::InfoDto)
+			.toList();
 	}
 }

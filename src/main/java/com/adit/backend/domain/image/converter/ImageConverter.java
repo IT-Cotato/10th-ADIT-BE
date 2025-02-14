@@ -24,4 +24,11 @@ public class ImageConverter {
 			.url(image.getUrl())
 			.build();
 	}
+
+	public ImageResponseDto toResponseForUserPlace(ImageResponseDto imageResponseDto){
+		return ImageResponseDto.builder()
+			.id(imageResponseDto.id())
+			.userPlace(imageResponseDto.userPlace())
+			.build();
+	}
 }

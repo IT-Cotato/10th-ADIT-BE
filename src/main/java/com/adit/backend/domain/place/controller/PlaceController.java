@@ -1,6 +1,7 @@
 package com.adit.backend.domain.place.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.adit.backend.domain.image.dto.response.ImageResponseDto;
 import com.adit.backend.domain.place.dto.request.PlaceRequestDto;
 import com.adit.backend.domain.place.dto.response.PlaceResponseDto;
 import com.adit.backend.domain.place.service.command.CommonPlaceCommandService;
 import com.adit.backend.domain.place.service.command.UserPlaceCommandService;
 import com.adit.backend.domain.place.service.query.CommonPlaceQueryService;
 import com.adit.backend.domain.place.service.query.UserPlaceQueryService;
+import com.adit.backend.domain.user.dto.response.UserResponse;
 import com.adit.backend.domain.user.entity.User;
 import com.adit.backend.global.common.ApiResponse;
 
@@ -145,21 +150,30 @@ public class PlaceController {
 	}
 
 	//친구 기반 장소 찾기 API
-	@Operation(summary = "친구 장소 조회", description = "userId에 해당하는 사용자의 친구가 저장한 장소 조회")
+	@Operation(summary = "친구 장소 조회", description = "userId에 해당하는 사용자의 친구들이 저장한 장소를, 저장한 친구 수가 많은 순서대로 조회")
 	@GetMapping("/friend")
-	public ResponseEntity<ApiResponse<List<PlaceResponseDto>>> getPlaceByFriend(
+	public ResponseEntity<ApiResponse<Map<PlaceResponseDto, List<UserResponse.InfoDto>>>> getPlaceByFriend(
 		@AuthenticationPrincipal(expression = "user") User user) {
-		List<PlaceResponseDto> placeByFriend = userPlaceQueryService.getPlaceByFriend(user.getId());
+		Map<PlaceResponseDto, List<UserResponse.InfoDto>> placeByFriend = userPlaceQueryService.getPlaceByFriend(user.getId());
 		return ResponseEntity.ok(ApiResponse.success(placeByFriend));
 	}
 
 	//장소 메모 수정 API
 	@Operation(summary = "장소 메모 수정", description = "userPlaceId에 해당하는 장소의 메모를 수정")
 	@PutMapping("/{userPlaceId}/memo")
-	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlace(@PathVariable Long userPlaceId,
+	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlaceMemo(@PathVariable Long userPlaceId,
 		@RequestParam String memo) {
 
 		PlaceResponseDto updateUserPlace = userPlaceCommandService.updateUserPlace(userPlaceId, memo);
 		return ResponseEntity.ok(ApiResponse.success(updateUserPlace));
+	}
+
+	//장소 이미지 수정 API
+	@Operation(summary = "장소 이미지 수정", description = "userPlaceId에 해당하는 장소의 이미지 수정")
+	@PutMapping("/{userPlaceId}/image")
+	public ResponseEntity<ApiResponse<PlaceResponseDto>> updateUserPlaceImage(@PathVariable Long userPlaceId
+		, List<MultipartFile> multipartFile){
+		PlaceResponseDto placeResponseDto = userPlaceCommandService.updateUserPlaceImage(userPlaceId, multipartFile);
+		return ResponseEntity.ok(ApiResponse.success(placeResponseDto));
 	}
 }

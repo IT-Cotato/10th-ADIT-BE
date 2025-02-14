@@ -6,6 +6,7 @@ import com.adit.backend.domain.image.entity.Image;
 import com.adit.backend.domain.place.entity.CommonPlace;
 import com.adit.backend.domain.place.entity.UserPlace;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -16,9 +17,10 @@ import lombok.Getter;
  */
 @Builder
 public record ImageResponseDto(@NotNull(message = "이미지 ID는 null일 수 없습니다.") Long id,
-							   CommonPlace commonPlace,
-							   UserPlace userPlace,
-							   UserEvent userEvent,
-							   CommonEvent commonEvent,
+							   @Nullable CommonPlace commonPlace,
+							   @Nullable UserPlace userPlace,
+
+							   @Nullable UserEvent userEvent,
+							   @Nullable CommonEvent commonEvent,
 							   @NotBlank(message = "이미지 주소는 공백일 수 없습니다.") String url) {
 }

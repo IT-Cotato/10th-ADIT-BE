@@ -99,4 +99,5 @@ public class FriendQueryService {
 			return response;
 		}
 	}
+
 }
